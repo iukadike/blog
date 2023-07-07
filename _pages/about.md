@@ -4,7 +4,7 @@ title: About Me
 permalink: /about/
 ---
 
-Hello Friend!
+### Hello Friend!
 
 I am Ifeanyi, a budding cybersecurity engineer. I worked for a while as an IT support staff before deciding to transition into cybersecurity. It has been an interesting journey thus far. I am self-driven and constantly learning. I spend most of my time learning new frameworks and tools that are relevant to cybersecurity. I also program, working majorly with Python and its frameworks.
 
