@@ -1145,3 +1145,10 @@ Modules - reusable parts of our design
 //@import "highlights";
 @import "darcula";
 @import "svg-icons";
+
+
+
+// Additional CSS to tweak UI
+.entry h1{
+  text-align: left;
+}
