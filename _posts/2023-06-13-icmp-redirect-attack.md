@@ -70,13 +70,13 @@ if __name__ == '__main__':
 
 It is important to note that if an entry exists in the routing cache, it trumps a similar entry in the actual routing table.
 
-**Before running the ICMP redirect attack**
+***Before running the ICMP redirect attack***
 
 ![1 1-route-before-redirect](https://github.com/iukadike/iukadike.github.io/assets/58455326/c1240143-9efb-4cd4-b46d-4cf6f9e64270)
 
 ![1 1-mtr-before-redirect](https://github.com/iukadike/iukadike.github.io/assets/58455326/43e5c114-5926-409e-8518-a089a7b18b01)
 
-**After running the ICMP redirect attack**
+***After running the ICMP redirect attack***
 
 ![1 2-route-after-redirect](https://github.com/iukadike/iukadike.github.io/assets/58455326/aedb2bd0-17cb-494c-bb94-475f66160d4f)
 
@@ -169,15 +169,15 @@ sniff(iface='br-5b598e26fa5c', filter=f, prn=spoof_pkt)
 
 This can be better understood by the screenshots below
 
-**MITM program**
+***MITM program***
 
 ![1 5-mitm-code](https://github.com/iukadike/iukadike.github.io/assets/58455326/cf16ec2f-851e-447f-aac3-96a950702318)
 
-**Server `host-A`**
+***Server `host-A`***
 
 ![1 5-mitm-server](https://github.com/iukadike/iukadike.github.io/assets/58455326/a6c480b7-82d0-45b6-b67c-4455172478d7)
 
-**Victim**
+***Victim***
 
 ![1 5-mitm-victim](https://github.com/iukadike/iukadike.github.io/assets/58455326/256c0985-43e5-43d4-85a3-6aa8c7352139)
 

@@ -63,10 +63,12 @@ if __name__ == '__main__':
 ```
 This is a simple program whose only purpose is to sniff `ICMP` traffic. During usage, you get to specify the `interface` you want to sniff traffic on.
 
-**host**
+***host***
+
 ![1-icmp-ping](https://github.com/iukadike/iukadike.github.io/assets/58455326/58e0ace5-aeaa-4947-bd38-c36090380298)
 
-**sniffer program**
+***sniffer program***
+
 ![1-icmp-sniff](https://github.com/iukadike/iukadike.github.io/assets/58455326/a4f6073b-f20f-4836-b2b4-5f5f025dafa3)
 
 <br>
@@ -162,10 +164,12 @@ if __name__ == '__main__':
     main()
 ```
 
-**icmp spoofing program**
+***icmp spoofing program***
+
 ![2-icmp-spoof](https://github.com/iukadike/iukadike.github.io/assets/58455326/07dc0dd4-e1f2-4016-b8a5-7d0234058e53)
 
-**icmp spoofing wireshark**
+***icmp spoofing wireshark***
+
 ![2-icmp-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/1ac13d1f-3fda-4bba-9dcd-e1bd12a73708)
 
 During usage, you get to specify the `source address` you want your ping requests to appear to come from and the `destination address` that you want to ping. For PoC, I ran the program with `source address` as `8.8.8.8` and `destination address` as my VM. I opened up Wireshark and began sniffing. I noticed that my VM receives the `echo request` and sends an `echo reply` to `8.8.8.8`.
@@ -229,10 +233,12 @@ if __name__ == '__main__':
 ```
 This program works by sending `ICMP` packets with the `ttl` set initially to 1. The idea is that if the packet is yet to get to the destination host and the `TTL` gets to zero, the route (the machine in between the sender and the host) sends back a `TTL exceeded message`. This is how we get to know how many machines are between us and our destination. Furthermore, not all hosts in the route respond, so we have to skip some hosts during our probe.
 
-**traceroute to `1.1.1.1`**
+***traceroute to `1.1.1.1`***
+
 ![3-traceroute-1 1 1 1](https://github.com/iukadike/iukadike.github.io/assets/58455326/23c8291b-7bb1-4438-ace3-1ff9fa2edc10)
 
-**traceroute to `8.8.8.8`**
+***traceroute to `8.8.8.8`***
+
 ![3-traceroute-8 8 8 8](https://github.com/iukadike/iukadike.github.io/assets/58455326/0e7002bc-5109-4aa8-aed0-6aa3f3addb3c)
 
 I noticed that regardless of the host I ping, some addresses in the routes remain the same. This is true for the beginning of the route. This happens because the packets all pass through my VM gateway and ISP gateway which is constant.
@@ -347,13 +353,16 @@ if __name__ == '__main__':
     main()        
 ```
 
-**pinging host 10.9.0.99**
+***pinging host 10.9.0.99***
+
 ![4 5-ping-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/80800b55-8917-482f-a94a-6332cda6976c)
 
-**mitm attack 10.9.0.99**
+***mitm attack 10.9.0.99***
+
 ![4 5-sniff-spoof-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/c8797769-4658-4f40-a148-d9774e4876d5)
 
-**wireshark results 10.9.0.99**
+***wireshark results 10.9.0.99***
+
 ![4 5-wireshark-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/4a5cf850-6a80-4a5d-87d4-19c78092ec7d)
 
 <br>
