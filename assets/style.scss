@@ -333,7 +333,8 @@ p > img {
 }
 
 nav {
-  float: right;
+  float: none;
+  display: inline-block;
   margin-top: 23px; // @TODO: Vertically middle align
   font-family: $helveticaNeue;
   font-size: 18px;
@@ -1148,8 +1149,4 @@ Modules - reusable parts of our design
 
 
 
-// Additional CSS to tweak UI
-.wrapper-nav{
-  margin: 10px auto;
-  padding: 0 10px;
-}
+// Additional CSS to tweak UI;
