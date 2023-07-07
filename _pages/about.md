@@ -1,29 +1,28 @@
 ---
 layout: page
-title: About
+title: About Me
 permalink: /about/
 ---
 
-[Reverie](https://github.com/amitmerchant1990/reverie) is a Jekyll theme which is simple and opinionated. It's actually a fork of [jekyll-now](https://github.com/barryclark/jekyll-now) with some additional features and personal touches which I've implemented to suit my needs for [my blog](https://www.amitmerchant.com).
+Hello Friend!
 
-This is a plug-and-play Jekyll theme which you can use on GitHub Pages without even setting up a local environment.
+I am Ifeanyi, a budding cybersecurity engineer. I worked for a while as an IT support staff before deciding to transition into cybersecurity. It has been an interesting journey thus far. I am self-driven and constantly learning. I spend most of my time learning new frameworks and tools that are relevant to cybersecurity. I also program, working majorly with Python and its frameworks.
 
-## Features
+Of recent, I’ve been spending the majority of my time around network security. I am open to collaborating on projects.
 
-- Command-line free fork-first workflow, using GitHub.com to create, customize and post to your blog
-- Fully responsive and mobile optimized base theme
-- Sass/Coffeescript support using Jekyll 2.0
-- Free hosting on your GitHub Pages user site
-- All the SEO goodies comes in-built
-- Markdown blogging
-- Syntax highlighting using Pygments
-    - [Dracula syntax theme](https://draculatheme.com/) included
-- Disqus commenting
-- Google Analytics integration
-- Fuzzy search across blog posts
-- Pagination of posts works out-of-the-box.
-- Categorize posts out-of-the box
-- RSS Feed
-- In-built sitemap
+I have worked with the following languages and frameworks
 
-Learn more about it [here](https://github.com/amitmerchant1990/reverie) on how to get started.
+### I have worked with the following languages and frameworks
+
+![c](https://img.shields.io/badge/C-07405E?style=for-the-badge&logo=c&logoColor=white)
+![css](https://img.shields.io/badge/CSS3-07405E?style=for-the-badge&logo=css3&logoColor=white)
+![html](https://img.shields.io/badge/HTML5-07405E?style=for-the-badge&logo=html5&logoColor=white)
+![flask](https://img.shields.io/badge/Flask-07405E?style=for-the-badge&logo=flask&logoColor=white)
+![python](https://img.shields.io/badge/Python-07405E?style=for-the-badge&logo=python&logoColor=white)
+![sqlite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+
+### You can find me on the below pages
+
+<a href='https://www.linkedin.com/in/ifeanyiukadike'>![Linkedin](https://img.shields.io/badge/linkedin%20-07405E.svg?&style=for-the-badge&logo=linkedin&logoColor=white "Linkedin")</a>
+<a href='https://github.com/iukadike'>![Github](https://img.shields.io/badge/GitHub-07405E?style=for-the-badge&logo=github&logoColor=white "Github")</a>
+<a href='https://iukadike.github.io/blog/'>![Blog](https://img.shields.io/badge/website-07405E?style=for-the-badge&logo=About.me&logoColor=white "Website")</a>
