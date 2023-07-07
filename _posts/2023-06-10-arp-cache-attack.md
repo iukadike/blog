@@ -204,9 +204,11 @@ if __name__ == '__main__':
 ```
 
 **arp cache for `host A`**
+
 ![arp-poison-hostA](https://github.com/iukadike/iukadike.github.io/assets/58455326/0c4bdb08-a014-4fee-bed6-059a4f0be8e2)
 
 **arp cache for `host B`**
+
 ![arp-poison-hostB](https://github.com/iukadike/iukadike.github.io/assets/58455326/3f260962-bf1a-4700-8f04-ad071707a341)
 
 After performing the attack and ensuring that it is successful, the following are observed:
@@ -276,6 +278,7 @@ if __name__ == '__main__':
 ```
 
 **mitm attack**
+
 ![telnet-mitm](https://github.com/iukadike/iukadike.github.io/assets/58455326/eb12cafb-0193-42db-8497-cb8f3e05690a)
 
 ##### side notes:
@@ -336,9 +339,11 @@ if __name__ == '__main__':
 ```
 
 **mitm nc `host A`**
+
 ![hostA -nc-mitm png](https://github.com/iukadike/iukadike.github.io/assets/58455326/03419472-9c1d-4342-9ecc-63466e7f693d)
 
 **mitm nc `host B`**
+
 ![hostB -nc-mitm](https://github.com/iukadike/iukadike.github.io/assets/58455326/d8fc28c4-a436-48a8-b1a3-4a19b11b1715)
 
 ##### side note:
