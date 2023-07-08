@@ -22,7 +22,7 @@ This policy is important for web security as it helps protect users from malicio
 
 When web browsers load a web page, they also load accompanying resources like CSS, JavaScript, XML, etc. Many of these resources are designed to improve the user's experience. A resource like Javascript can execute arbitrary code within the browser to access a resource from another origin. It is important that the javascript code is not able to access such a resource, because if the javascript code can access a resource from another origin, attackers can leverage that to do malicious things.
 
-Take, for example, an attacker who gets a victim to visit `fakewebsite.com`. While on fakewebsite.com`, the web browser loads a malicious javascript that makes a request to the victim's logged-in Facebook session to steal personal information. However, because `fakewebsite.com` is of a different origin than Facebook, the web browser blocks the request thanks to the same-origin policy.
+Take, for example, an attacker who gets a victim to visit `fakewebsite.com`. While on `fakewebsite.com`, the web browser loads a malicious javascript that makes a request to the victim's logged-in Facebook session to steal personal information. However, because `fakewebsite.com` is of a different origin than Facebook, the web browser blocks the request thanks to the same-origin policy.
 
 ### DNS Rebinding
 When a browser wants to access resources from an origin, it needs to know the IP address because IP addresses are how computers communicate. Thus, a DNS resolution is performed.
