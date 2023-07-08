@@ -63,7 +63,7 @@ if pkt[TCP].flags == 'S':
 
 From the screenshot below, we can see that the attack is successful.
 
-![mitnick-folder](https://github.com/iukadike/iukadike.github.io/assets/58455326/49a21cdf-84eb-4eeb-b94c-6895f6dab415)
+![mitnick-folder](https://github.com/iukadike/blog/assets/58455326/167b1ec2-d958-48a7-854f-b8fc5c1a138c)
 
 <br>
 
@@ -144,8 +144,7 @@ if __name__ == '__main__':
 
 ***First connection screenshot***
 
-![first-connection](https://github.com/iukadike/iukadike.github.io/assets/58455326/267e69f9-3d81-4bee-992d-aef3f39f3edb)
-
+![first-connection](https://github.com/iukadike/blog/assets/58455326/1d57923f-cf66-4147-8c0c-eb45ed2d6c8a)
 
 ##### Second Connection
 ```python
@@ -209,7 +208,7 @@ if __name__ == '__main__':
 
 ***Second connection screenshot***
 
-![second-connection](https://github.com/iukadike/iukadike.github.io/assets/58455326/d17abf9b-4b3b-48c0-8900-09f83710c98f)
+![second-connection](https://github.com/iukadike/blog/assets/58455326/5c69fb7e-622e-4dfd-a66c-327149403ee3)
 
 <br>
 
@@ -295,19 +294,19 @@ As seen by the screenshot below, the attack is successful.
 
 ***modified `.rhosts`***
 
-![mitnick-rhosts](https://github.com/iukadike/iukadike.github.io/assets/58455326/cd3a64bc-9c6c-43fc-9524-5122af04db8a)
+![mitnick-rhosts](https://github.com/iukadike/blog/assets/58455326/74f0c89c-9979-4f7d-a0d9-a3a2ed73ee6e)
 
 When the attacker tries connecting to x-terminal from his machine, he does so successfully.
 
 ***rsh from attacker to x-terminal***
 
-![mitnick-backdoor](https://github.com/iukadike/iukadike.github.io/assets/58455326/38d08e61-4ccf-4851-9a1e-62fc973cc7b7)
+![mitnick-backdoor](https://github.com/iukadike/blog/assets/58455326/a35cf7e5-221c-4091-b0b6-e47b2ca40c40)
 
 The packet trace can be oberved in wireshark
 
 ***mitnick attack wireshark capture***
 
-![mitnick-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/0e2a02b8-9de9-4210-a41f-de7f6f8623f3)
+![mitnick-wireshark](https://github.com/iukadike/blog/assets/58455326/e17cb35f-096b-4c9c-a89a-9ff0c1bd0e69)
 
 <br>
 
