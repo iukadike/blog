@@ -65,11 +65,11 @@ This is a simple program whose only purpose is to sniff `ICMP` traffic. During u
 
 ***host***
 
-![1-icmp-ping](https://github.com/iukadike/iukadike.github.io/assets/58455326/58e0ace5-aeaa-4947-bd38-c36090380298)
+![1-icmp-ping](https://github.com/iukadike/blog/assets/58455326/1a9b864e-d77d-444b-a811-615c3d382b51)
 
 ***sniffer program***
 
-![1-icmp-sniff](https://github.com/iukadike/iukadike.github.io/assets/58455326/a4f6073b-f20f-4836-b2b4-5f5f025dafa3)
+![1-icmp-sniff](https://github.com/iukadike/blog/assets/58455326/cd847e77-59b2-4747-8399-d1f57ef10439)
 
 <br>
 
@@ -166,11 +166,11 @@ if __name__ == '__main__':
 
 ***icmp spoofing program***
 
-![2-icmp-spoof](https://github.com/iukadike/iukadike.github.io/assets/58455326/07dc0dd4-e1f2-4016-b8a5-7d0234058e53)
+![2-icmp-spoof](https://github.com/iukadike/blog/assets/58455326/6233a53d-ff11-4e5a-b298-2130d1960022)
 
 ***icmp spoofing wireshark***
 
-![2-icmp-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/1ac13d1f-3fda-4bba-9dcd-e1bd12a73708)
+![2-icmp-wireshark](https://github.com/iukadike/blog/assets/58455326/e1af5056-b4ef-4b3c-9e42-c5986f16bc5a)
 
 During usage, you get to specify the `source address` you want your ping requests to appear to come from and the `destination address` that you want to ping. For PoC, I ran the program with `source address` as `8.8.8.8` and `destination address` as my VM. I opened up Wireshark and began sniffing. I noticed that my VM receives the `echo request` and sends an `echo reply` to `8.8.8.8`.
 
@@ -235,11 +235,11 @@ This program works by sending `ICMP` packets with the `ttl` set initially to 1. 
 
 ***traceroute to `1.1.1.1`***
 
-![3-traceroute-1 1 1 1](https://github.com/iukadike/iukadike.github.io/assets/58455326/23c8291b-7bb1-4438-ace3-1ff9fa2edc10)
+![3-traceroute-1 1 1 1](https://github.com/iukadike/blog/assets/58455326/151dd547-65f4-4687-b9a7-7912f6e13a8b)
 
 ***traceroute to `8.8.8.8`***
 
-![3-traceroute-8 8 8 8](https://github.com/iukadike/iukadike.github.io/assets/58455326/0e7002bc-5109-4aa8-aed0-6aa3f3addb3c)
+![3-traceroute-8 8 8 8](https://github.com/iukadike/blog/assets/58455326/8e3864e7-d31c-48e8-89bf-13e837012c2a)
 
 I noticed that regardless of the host I ping, some addresses in the routes remain the same. This is true for the beginning of the route. This happens because the packets all pass through my VM gateway and ISP gateway which is constant.
 
@@ -288,24 +288,24 @@ This program's only purpose is to listen for `ICMP echo requests` and send an `I
 
 Running the program against various hosts, I came across the following observations:
 - when pinging `1.2.3.4`, _a non-existing host on the Internet_, the program responds to these requests with an `echo reply` even though the host is non-existent. Because of this, the _non-existent host_ appears to be online. When viewing the traffic in Wireshark, `host B` uses the default route `10.9.0.1` to send out the packet. When the packet gets to `10.9.0.1`, it also uses its default route `10.0.2.1` to send out the traffic.
-  - ![4 1-ping-1 2 3 4](https://github.com/iukadike/iukadike.github.io/assets/58455326/d405072c-e0ef-4634-873e-d265cec8a8e5)
-  - ![4 1-sniff-spoof-1 2 3 4](https://github.com/iukadike/iukadike.github.io/assets/58455326/85532f9f-2790-47c9-a6b0-6d7bbe8b48d3)
-  - ![4 1-wireshark-1 2 3 4](https://github.com/iukadike/iukadike.github.io/assets/58455326/31ad48d1-983a-4bec-b72d-77a4f82a005e)
+  - ![4 1-ping-1 2 3 4](https://github.com/iukadike/blog/assets/58455326/94f4ed7d-7fac-4fd6-b696-370be194848c)
+  - ![4 1-sniff-spoof-1 2 3 4](https://github.com/iukadike/blog/assets/58455326/ad669824-2e71-4309-9647-fd20c3ffeedc)
+  - ![4 1-wireshark-1 2 3 4](https://github.com/iukadike/blog/assets/58455326/5eff7286-a1e9-4213-a6b8-24f4fe68e16b)
 
 - when pinging `10.9.0.99`, _a non-existing host on the LAN_, the program seems not to respond to these requests with an `echo reply` even though the program is listening for traffic. When the traffic is viewed via Wireshark, the result is the same - Wireshark doesn't see any traffic. Maybe I'm doing something wrong? `see the extra section for my additional findings` [extra findings](/2023-06-06-packet-sniffing-and-spoofing-lab.md#extra-findings)
-  - ![4 2-ping-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/f3a7fb56-5452-49e4-9b3c-323e581c6c08)
-  - ![4 2-sniff-spoof-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/f8ca6701-77f3-40c2-8c19-f38d86e5584c)
-  - ![4 2-wireshark-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/a92475a0-07b6-465d-9bee-51903f2a4c63)
+  - ![4 2-ping-10 9 0 99](https://github.com/iukadike/blog/assets/58455326/b92ee6fd-cf9c-45f9-a6a9-4808e9efa2d5)
+  - ![4 2-sniff-spoof-10 9 0 99](https://github.com/iukadike/blog/assets/58455326/2acbaf2c-d101-4e20-b364-8f4599eb94e1)
+  - ![4 2-wireshark-10 9 0 99](https://github.com/iukadike/blog/assets/58455326/6fc829cd-23b4-4d48-b787-d94475cbd20c)
 
 - when pinging `10.9.0.5`, _an existing host on the LAN_, the program responds to these requests with an `echo reply`, so also the `10.9.0.5` host. This means that two `echo replies` are sent. This can be observed from the host the ping was sent from. When the reply comes back, one is marked as a duplicate. This further adds to my confusion as to why the program did not work for `10.9.0.99`. `see the extra section for my additional findings` [extra findings](/2023-06-06-packet-sniffing-and-spoofing-lab.md#extra-findings)
-  - ![4 3-ping-10 9 0 5](https://github.com/iukadike/iukadike.github.io/assets/58455326/9e98a6e9-fca8-4631-b39e-d80504ca4a6c)
-  - ![4 3-sniff-spoof-10 9 0 5](https://github.com/iukadike/iukadike.github.io/assets/58455326/f9233ccb-e530-42ce-88b4-abebe8be4c48)
-  - ![4 3-wireshark-10 9 0 5](https://github.com/iukadike/iukadike.github.io/assets/58455326/73462c7a-739c-4563-98e0-0ecf5c67c6d4)
+  - ![4 3-ping-10 9 0 5](https://github.com/iukadike/blog/assets/58455326/0dd30563-4c5c-4a19-b75e-f760c9fd6b13)
+  - ![4 3-sniff-spoof-10 9 0 5](https://github.com/iukadike/blog/assets/58455326/e04544b9-78d1-47cb-908b-983784551d67)
+  - ![4 3-wireshark-10 9 0 5](https://github.com/iukadike/blog/assets/58455326/49738083-344f-4e84-b664-296781518506)
 
 - when pinging `8.8.8.8`, _an existing host on the Internet_, the program responds to these requests with an `echo reply`, so also the `8.8.8.8` host. This means that two `echo replies` are sent. This can be observed from the host the ping was sent from. When the reply comes back, one is marked as a duplicate. There is an `ARP` request from the `host` to know the `MAC address` of the gateway.
-  - ![4 4-ping-8 8 8 8](https://github.com/iukadike/iukadike.github.io/assets/58455326/4888a4c3-d2a2-4ba4-963e-2b33f96759c4)
-  - ![4 4-sniff-spoof-8 8 8 8](https://github.com/iukadike/iukadike.github.io/assets/58455326/2f234d36-9eab-40f7-b887-eb8ecd0dda3a)
-  - ![4 4-wireshark-8 8 8 8](https://github.com/iukadike/iukadike.github.io/assets/58455326/8e59129a-2805-4dd1-9cc4-0bca9518dbe8)
+  - ![4 4-ping-8 8 8 8](https://github.com/iukadike/blog/assets/58455326/b6aec9ca-8087-4472-a602-371acd92593e)
+  - ![4 4-sniff-spoof-8 8 8 8](https://github.com/iukadike/blog/assets/58455326/10f6442d-e463-43ee-b237-285ea47002bc)
+  - ![4 4-wireshark-8 8 8 8](https://github.com/iukadike/blog/assets/58455326/ac6a4145-0df9-48e4-a0e3-1da80e9bbe02)
 
 I also noticed that after sniffing the packet and spoofing it, if I do not use the original data payload that comes with the sniffed packet, the ping program does not get to see the reply I send. However, by spoofing the packet and using the raw packet data payload that comes with the sniffed packet, the ping program sees the reply.
 ___
@@ -355,15 +355,15 @@ if __name__ == '__main__':
 
 ***pinging host 10.9.0.99***
 
-![4 5-ping-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/80800b55-8917-482f-a94a-6332cda6976c)
+![4 5-ping-10 9 0 99](https://github.com/iukadike/blog/assets/58455326/3ab1f918-66c1-4031-88b2-f921ca0801a7)
 
 ***mitm attack 10.9.0.99***
 
-![4 5-sniff-spoof-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/c8797769-4658-4f40-a148-d9774e4876d5)
+![4 5-sniff-spoof-10 9 0 99](https://github.com/iukadike/blog/assets/58455326/64d47b7e-3066-4eab-be85-df01dba7b91a)
 
 ***wireshark results 10.9.0.99***
 
-![4 5-wireshark-10 9 0 99](https://github.com/iukadike/iukadike.github.io/assets/58455326/4a5cf850-6a80-4a5d-87d4-19c78092ec7d)
+![4 5-wireshark-10 9 0 99](https://github.com/iukadike/blog/assets/58455326/a65ee2f5-5982-4345-8545-e29e5f57c66b)
 
 <br>
 
