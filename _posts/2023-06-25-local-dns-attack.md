@@ -63,15 +63,15 @@ file "/etc/bind/example.com.zone";
 
 ***Get the IP address of `ns.attacker32.com`. `$ dig ns.attacker32.com`***
 
-![test-1](https://github.com/iukadike/iukadike.github.io/assets/58455326/3f39ff7d-c085-4464-9daa-709befa26c66)
+![test-1](https://github.com/iukadike/blog/assets/58455326/5952ce5b-5ef3-4952-96f7-8e21dbaba1e3)
 
 ***Get the IP address of `www.example.com` via the local DNS server. `$ dig www.example.com`***
 
-![test-2](https://github.com/iukadike/iukadike.github.io/assets/58455326/2b849b62-cc41-4f60-b474-20f3e089ee0f)
+![test-2](https://github.com/iukadike/blog/assets/58455326/279737d4-3d1b-4574-b8f8-9e8c195812f7)
 
 ***Get the IP address of `www.example.com` via the attacker DNS server. `$ dig @ns.attacker32.com www.example.com`***
 
-![test-3](https://github.com/iukadike/iukadike.github.io/assets/58455326/c9941929-45a8-4686-83cc-cbeaaf6bfda4)
+![test-3](https://github.com/iukadike/blog/assets/58455326/7fbbb7ec-0eb5-40c8-b718-bf4f535e2072)
 
 <br>
 
@@ -191,17 +191,17 @@ sniff(iface='br-eb50d439f380', filter=myFilter, prn=spoof_dns)
 
 ***python program to spoof DNS response***
 
-![spoof-code](https://github.com/iukadike/iukadike.github.io/assets/58455326/7055719c-7779-435b-9ff8-9fb47b940f84)
+![spoof-code](https://github.com/iukadike/blog/assets/58455326/3879b997-466a-4776-9081-accecaaf011c)
 
 ***running dig `www.example.com` from victim machine***
 
-![spoof-victim](https://github.com/iukadike/iukadike.github.io/assets/58455326/ddc1fb8e-a478-4796-8756-8dd6111d2b88)
+![spoof-victim](https://github.com/iukadike/blog/assets/58455326/475d0d02-8bc1-4f84-9465-8ceb80b6b4a2)
 
 We can see from the screen shot that the address `dig` got back for `www.example.com` was `1.2.3.4, which is the address we used in our Python program. However, this entry is strictly local to the host. It does not affect the records on the DNS server, as seen in the screenshot below.
 
 ***the dns cache of the local DNS server***
 
-![spoof-cache](https://github.com/iukadike/iukadike.github.io/assets/58455326/8f8ac5a8-d68d-4eaa-b67f-b5f8f3582435)
+![spoof-cache](https://github.com/iukadike/blog/assets/58455326/e2516b42-e3b4-4bd2-8407-8eb8c17f0438)
 
 Here, after dumping the cache to a file and inspecting it, we can see that the address cached for `www.example.com` was not `1.2.3.4.
 
@@ -245,18 +245,18 @@ sniff(iface='br-eb50d439f380', filter=myFilter, prn=spoof_dns)
 
 ***python program to poison dns cache***
 
-![spoof-poison-code](https://github.com/iukadike/iukadike.github.io/assets/58455326/ade9a99c-18c7-4c58-9df5-ee1130b5c68e)
+![spoof-poison-code](https://github.com/iukadike/blog/assets/58455326/a86a5e35-b26d-4fc4-8612-8ebf6941afa7)
 
 ***running dig `www.example.com` from victim machine***
 
-![spoof-poison-victim](https://github.com/iukadike/iukadike.github.io/assets/58455326/6a856497-4ba1-43b6-880b-ebb6baa4f4ab)
+![spoof-poison-victim](https://github.com/iukadike/blog/assets/58455326/367f0ab7-6733-465b-a5b3-82b38f22d1b4)
 
 We can see from the screen shot that, as expected, the address `dig` got back for `www.example.com` was `1.2.3.4, which is the address we used in our Python program. However, this entry is not local to the host. It affects the records on the DNS server, as seen in the screenshot below.
 
 ***the dns cache of the local dns server***
 
-![spoof-poison-cache](https://github.com/iukadike/iukadike.github.io/assets/58455326/ad29ab53-cbbc-489a-9677-687716f5918a)
- 
+![spoof-poison-cache](https://github.com/iukadike/blog/assets/58455326/79929d2b-df73-476e-b13a-ac6ef81c1890)
+
 Here, after dumping the cache to a file and inspecting it, we can see that the cached address for `www.example.com` was `1.2.3.4.
 
 <br>
@@ -300,22 +300,23 @@ sniff(iface='br-eb50d439f380', filter=myFilter, prn=spoof_dns)
 
 ***python program to poison dns cache***
 
-![spoof-ns-code](https://github.com/iukadike/iukadike.github.io/assets/58455326/7b48200f-1544-4293-9216-517181964746)
+![spoof-ns-code](https://github.com/iukadike/blog/assets/58455326/1801d0cc-f834-497f-ae71-a7969b7c3975)
 
 ***running dig `www.example.com` from victim machine***
 
-![spoof-ns-victim-1](https://github.com/iukadike/iukadike.github.io/assets/58455326/33a7ecb8-2dcb-4dbf-abeb-58ebf04c0ccc)
+![spoof-ns-victim-1](https://github.com/iukadike/blog/assets/58455326/57f1e78a-7828-43ce-9deb-b683214aec51)
 
 we can see from the screen shot that the address `dig` got back for `www.example.com` was `1.2.3.5`. But wait, what happend to `1.2.3.4`? If we revisit the zone file for `example.com`, we will notice that `www` was mapped to `1.2.3.5`. This means our attack is working.
 
 ***running dig `love.example.com` from victim machine***
 
-![spoof-ns-victim-2](https://github.com/iukadike/iukadike.github.io/assets/58455326/35a3bc5a-83f5-468a-aef7-9d77b16cbe01)
+![spoof-ns-victim-2](https://github.com/iukadike/blog/assets/58455326/6a03fa2f-d64c-4eae-9082-3272fe44b56c)
 
 We can see from the screen shot that the address `dig` got back for `love.example.com` was `1.2.3.6`. Really? So, what happened to `1.2.3.5`? If we revisit the zone file for `example.com`, we will notice that `*` (meaning any not explicitly defined) was mapped to `1.2.3.6`. This means our attack is working.
 
 ***the dns cache of the local dns server***
-![spoof-ns-cache](https://github.com/iukadike/iukadike.github.io/assets/58455326/7c45622f-6fb3-4bf2-954f-006d4028201d)
+
+![spoof-ns-cache](https://github.com/iukadike/blog/assets/58455326/f573a361-cfb5-4942-839d-0d0e5c742909)
 
 Here, after dumping the cache to a file and inspecting it, we can see that the cached address for `www.example.com` was `1.2.3.5` and that of `love.example.com` was `1.2.3.6`, and the name server for `example.com` was cached.
 
@@ -362,13 +363,13 @@ sniff(iface='br-eb50d439f380', filter=myFilter, prn=spoof_dns)
 
 ***running dig `www.example.com` from victim machine***
 
-![spoof-ns-2-victim](https://github.com/iukadike/iukadike.github.io/assets/58455326/f6d863bc-28fd-4438-a035-f742128c9a73)
+![spoof-ns-2-victim](https://github.com/iukadike/blog/assets/58455326/f85309a8-b866-42e6-b0c1-0ed44d522a7e)
 
 We can see from the screen shot that, as expected, the address `dig` got back for `www.example.com` was `1.2.3.5`, which is the address present in the `example.com` zone file.
 
 ***the dns cache of the local dns server***
 
-![spoof-ns-2-cache](https://github.com/iukadike/iukadike.github.io/assets/58455326/2a326773-a20c-47e6-aef6-32385c12b6f1)
+![spoof-ns-2-cache](https://github.com/iukadike/blog/assets/58455326/016e2319-1886-42f3-ac77-1586efff86f6)
 
 Here, after dumping the cache to a file and inspecting it, we can see the cached address for `www.example.com`, but that of `google.com` was mismatched. Also present is the name server for `example.com`, but the DNS server did not cache our spoofed name server for `google.com`.
 
@@ -427,13 +428,13 @@ sniff(iface='br-eb50d439f380', filter=myFilter, prn=spoof_dns)
 
 ***running dig `www.example.com` from victim machine***
 
-![additional-victim](https://github.com/iukadike/iukadike.github.io/assets/58455326/e01afa21-fe48-4c8a-a77b-d74a72ada614)
+![additional-victim](https://github.com/iukadike/blog/assets/58455326/f040620b-cf65-4bd4-a618-fd5c98a7fe8f)
 
 We can see from the screen shot that, as expected, the address `dig` got back for `www.example.com` was `1.2.3.5`, which is the address present in the example.com` zone file.
 
 ***the dns cache of the local dns server***
 
-![additional-cache](https://github.com/iukadike/iukadike.github.io/assets/58455326/c95ff93f-242e-4c55-adeb-6d1824cef028)
+![additional-cache](https://github.com/iukadike/blog/assets/58455326/2f31bf67-b291-4a38-81de-00fdef4c91d3)
 
 Here, after dumping the cache to a file and inspecting it, we can see that the name server for `example.com` is cached. The name server for `google.com` is also cached; however, the DNS server did not cache our spoofed name server for `google.com`, rather it got the actual name server and cached it. The name server for `facebook.com` was never cached.
 
