@@ -205,11 +205,11 @@ if __name__ == '__main__':
 
 ***arp cache for `host A`***
 
-![arp-poison-hostA](https://github.com/iukadike/iukadike.github.io/assets/58455326/0c4bdb08-a014-4fee-bed6-059a4f0be8e2)
+![arp-poison-hostA](https://github.com/iukadike/blog/assets/58455326/af7444dc-11ee-4052-9984-79bedc8af5d9)
 
 ***arp cache for `host B`***
 
-![arp-poison-hostB](https://github.com/iukadike/iukadike.github.io/assets/58455326/3f260962-bf1a-4700-8f04-ad071707a341)
+![arp-poison-hostB](https://github.com/iukadike/blog/assets/58455326/24a8c5a5-710b-4d9f-94ce-3c25cc0de489)
 
 After performing the attack and ensuring that it is successful, the following are observed:
 - when IP forwarding is disabled on `host C` (`sysctl net.ipv4.ip_forward=0`) and `host A` pings `host B`, `host A` does not receive any response to the ping request. When the traffic is observed in Wireshark, it is noticed that there is indeed a ping request that originates from `host A` but no accompanying ping reply.
@@ -279,7 +279,7 @@ if __name__ == '__main__':
 
 ***mitm attack***
 
-![telnet-mitm](https://github.com/iukadike/iukadike.github.io/assets/58455326/eb12cafb-0193-42db-8497-cb8f3e05690a)
+![telnet-mitm](https://github.com/iukadike/blog/assets/58455326/ac510d13-36c4-4aa4-8912-02f16e0c57c8)
 
 ##### side notes:
 - Though I made use of arp gratuitous messages during the attack, it should be used sparingly as every host on the network will receive the message and update its arp cache accordingly.
@@ -340,11 +340,11 @@ if __name__ == '__main__':
 
 ***mitm nc `host A`***
 
-![hostA -nc-mitm png](https://github.com/iukadike/iukadike.github.io/assets/58455326/03419472-9c1d-4342-9ecc-63466e7f693d)
+![hostA -nc-mitm png](https://github.com/iukadike/blog/assets/58455326/932bce82-fccf-455f-9b63-2afda48e4a19)
 
 ***mitm nc `host B`***
 
-![hostB -nc-mitm](https://github.com/iukadike/iukadike.github.io/assets/58455326/d8fc28c4-a436-48a8-b1a3-4a19b11b1715)
+![hostB -nc-mitm](https://github.com/iukadike/blog/assets/58455326/aad5532d-1589-4469-9e41-c5a40797dad3)
 
 ##### side note:
 - when there is a payload, the psh flag is set.
