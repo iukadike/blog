@@ -1,9 +1,7 @@
 ---
 layout: post
 title: Mitnick Attack
-categories: icmp
-excerpt: The Mitnick attack is also a TCP session hijacking attack, but it is not like your regular TCP session highjack.
-While the regular TCP session highjack involves highjacking a TCP session that already exists between two hosts i.e. `host A` and `host B`, the Mitnick attack is responsible for creating a TCP session between two hosts i.e. `host A` and `host B` and then highjacks the session.
+categories: [icmp]
 ---
 
 The Mitnick attack is also a TCP session hijacking attack, but it is not like your regular TCP session highjack.
