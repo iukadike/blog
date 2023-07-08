@@ -2,6 +2,7 @@
 layout: post
 title: TCP Attacks
 categories: [tcp, scapy]
+excerpt: To understand TCP attacks, you have to, first of all, understand how TCP works. TCP is a connection-oriented protocol. This simply means that before two hosts that want to exchange information begin the information exchange, both hosts must ascertain that they can in fact talk to one another.
 ---
 
 To understand TCP attacks, you have to, first of all, understand how TCP works. TCP is a connection-oriented protocol. This simply means that before two hosts that want to exchange information begin the information exchange, both hosts must ascertain that they can in fact talk to one another. They do this via a 3-way handshake
