@@ -144,15 +144,15 @@ I implemented this in two ways
 
 ***TCP RST attack program***
 
-![rst-2-code](https://github.com/iukadike/iukadike.github.io/assets/58455326/2613cc36-cd83-4cac-83a7-3e4dda093f59)
+![rst-2-code](https://github.com/iukadike/blog/assets/58455326/b99e5775-765c-4b04-8c6c-0fa7aea7f3cd)
 
 ***TCP RST attack client***
 
-![rst-2-telnet](https://github.com/iukadike/iukadike.github.io/assets/58455326/3250f664-b330-4bb5-b8b4-6679fea54bea)
+![rst-2-telnet](https://github.com/iukadike/blog/assets/58455326/43c3f69e-03e1-4446-a90a-5d9fc43ee869)
 
 ***TCP RST attack wireshark***
 
-![rst-2-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/8f959932-932e-4ac8-92bf-fa1260672e74)
+![rst-2-wireshark](https://github.com/iukadike/blog/assets/58455326/4c83b140-b4c9-47a7-9545-d49ebd78fdde)
 
 From the Wireshark capture, you will notice that there are several `RST` packets sent. This is due to the speed of the program. Before the Python program can take action on a packet sniffed, the programs have moved past that sequence number.
 
@@ -195,19 +195,19 @@ You will need to set up a listener that will catch the response of the command y
 
 ***TCP session highjack program***
 
-![hijack-code](https://github.com/iukadike/iukadike.github.io/assets/58455326/df15d548-ca5c-4939-8e48-687565d62f80)
+![hijack-code](https://github.com/iukadike/blog/assets/58455326/0162515f-4342-4a03-baf0-1e1f038537aa)
 
 ***TCP session highjack nc listener***
 
-![highjack-listener](https://github.com/iukadike/iukadike.github.io/assets/58455326/fe21c411-4852-4946-b7d5-8117d36e8c85)
+![highjack-listener](https://github.com/iukadike/blog/assets/58455326/6e94013b-2855-4093-b4c5-46f087a2f17f)
 
 ***TCP session highjack wireshark***
 
-![highjack-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/fa91fee2-6a43-4b4a-95bd-fa0b645d2003)
+![highjack-wireshark](https://github.com/iukadike/blog/assets/58455326/21881c5c-2a0f-4bfd-9119-cd59dee8d619)
 
 ***TCP session highjack wireshark***
 
-![highjack-r-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/35a5e1b4-c067-4381-a051-9359b9253388)
+![highjack-r-wireshark](https://github.com/iukadike/blog/assets/58455326/580d736b-b8df-4461-a503-8e1bb6b0d3ef)
 
 The following can be observed from the Wireshark screenshots:
 - `packet 58` is the packet sent to the program that is injected into the client's TCP session
@@ -252,23 +252,23 @@ sniff(iface = 'br-fee11e059dc7', filter = 'tcp dst port 23 && (not ether host 02
 
 ***reverse shell program***
 
-![rvs-shl-code](https://github.com/iukadike/iukadike.github.io/assets/58455326/01d53130-33e1-40e6-81ed-01b06e80fb47)
+![rvs-shl-code](https://github.com/iukadike/blog/assets/58455326/02d0cf31-5a44-45f3-bf4f-25ef7c83874d)
 
 ***reverse shell listener***
 
-![rvs-shell-listener](https://github.com/iukadike/iukadike.github.io/assets/58455326/c1723386-f1b9-448f-ab70-0287de37a30c)
+![rvs-shell-listener](https://github.com/iukadike/blog/assets/58455326/3c4edf46-9277-4874-ac81-4289a48f358e)
 
 ***reverse shell wireshark***
 
-![rvs-shl-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/cf939efc-f497-49e4-97e0-0ede57de142a)
+![rvs-shl-wireshark](https://github.com/iukadike/blog/assets/58455326/fc28ead6-7cd7-4461-9c68-765c14b7a097)
 
 ***reverse shell wireshark listner***
 
-![rvs-shl-l-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/de84f573-2a40-49a3-b938-62510b0bc82a)
+![rvs-shl-l-wireshark](https://github.com/iukadike/blog/assets/58455326/7cb8b3ef-5b70-4842-b276-4146e8f33a1a)
 
 ***reverse shell wireshark server***
 
-![rvs-shl-s-wireshark](https://github.com/iukadike/iukadike.github.io/assets/58455326/a7c8cb48-d858-4021-ad29-b6bb98ca25a1)
+![rvs-shl-s-wireshark](https://github.com/iukadike/blog/assets/58455326/aba40d81-c592-4743-a362-12f99ac1c055)
 
 <br>
 
