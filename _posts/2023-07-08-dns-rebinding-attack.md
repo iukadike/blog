@@ -50,10 +50,12 @@ DNS rebinding attacks typically involve the following:
 A [practical example of DNS rebinding technique](https://seedsecuritylabs.org/Labs_20.04/Networking/DNS/DNS_Rebinding/) is shown below.
 
 **malicious website before DNS rebinding**
-![rebind-1](https://github.com/iukadike/iukadike.github.io/assets/58455326/b8d6815b-d5f0-4783-a066-712cfb2842a8)
+
+![rebind-1](https://github.com/iukadike/blog/assets/58455326/1787deb5-8443-457e-bea2-969f7d46c00f)
 
 **malicious website after DNS rebinding**
-![rebind-2](https://github.com/iukadike/iukadike.github.io/assets/58455326/ac0d1786-dc14-4c98-8262-5c8e44c73093)
+
+![rebind-2](https://github.com/iukadike/blog/assets/58455326/16f6e7a5-aa84-405e-83cd-df9e3a8707a9)
 
 <br>
 
