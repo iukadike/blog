@@ -72,46 +72,54 @@ It is important to note that if an entry exists in the routing cache, it trumps 
 
 ***Before running the ICMP redirect attack***
 
-![1 1-route-before-redirect](https://github.com/iukadike/iukadike.github.io/assets/58455326/c1240143-9efb-4cd4-b46d-4cf6f9e64270)
+![1 1-route-before-redirect](https://github.com/iukadike/blog/assets/58455326/f2032eca-9667-4bb5-9984-e89a9d0389ff)
 
-![1 1-mtr-before-redirect](https://github.com/iukadike/iukadike.github.io/assets/58455326/43e5c114-5926-409e-8518-a089a7b18b01)
+![1 1-mtr-before-redirect](https://github.com/iukadike/blog/assets/58455326/0f8c1826-c5eb-4cbc-ba0d-96852afca07a)
 
 ***After running the ICMP redirect attack***
 
-![1 2-route-after-redirect](https://github.com/iukadike/iukadike.github.io/assets/58455326/aedb2bd0-17cb-494c-bb94-475f66160d4f)
+![1 2-route-after-redirect](https://github.com/iukadike/blog/assets/58455326/abe25b52-8e7e-46eb-b927-c1d3b9db8164)
 
-![1 2-mtr-after-redirect](https://github.com/iukadike/iukadike.github.io/assets/58455326/fa886763-80e6-4dfe-880b-12463038a4a8)
+![1 2-mtr-after-redirect](https://github.com/iukadike/blog/assets/58455326/c6269890-f706-4cca-ba5d-6a5c4edc7bae)
 
 The packet first goes to the rouge router. Once the malicious router receives the packet, it forwards it to the router; and thus is the return trip. This is because the malicious router has an entry for the router in its routing table as seen below
 
-![1 2-rouge-router-table](https://github.com/iukadike/iukadike.github.io/assets/58455326/bf20a9e5-92c5-418c-bf26-d2c0900f0d95)
+***rouge router table***
 
-![rouge-router-table](https://github.com/iukadike/iukadike.github.io/assets/58455326/8306d3ac-d458-4689-83a4-34f777d80338)
+![1 2-rouge-router-table](https://github.com/iukadike/blog/assets/58455326/d6b7f2c3-997a-4d9b-992a-34455ea7b843)
+
+![rouge-router-table](https://github.com/iukadike/blog/assets/58455326/9a190864-96e0-4ff5-8c87-a8332dbb194a)
 
 When a ping request is sent from the victim to `host-A`, two ping requests and one ping reply make up the traffic. This can be seen in Wireshark when monitoring the victim's network
 - first ICMP request is from the victim to the malicious router
 - second ICMP request is from the malicious router to the router
 - only ICMP reply is from router to the victim
 
-![1 4-wireshark-2](https://github.com/iukadike/iukadike.github.io/assets/58455326/763f8f46-9ebc-4511-aff1-f886590a6bc9)
+***wireshark packet trace****
+
+![1 4-wireshark-2](https://github.com/iukadike/blog/assets/58455326/d959b7e8-a6cc-42ee-a7bb-411263e5e3d5)
 
 <br>
 
 ### ICMP redirect attacks to redirect to a remote machine
 When the gateway you want the victim to redirect traffic to is outside of the victim's network, the victim would ignore the gateway address but rather use the router address. When it does this, it adds the router to its routing cache; however, this entry is not a timed entry. This means the entry doesn't expire and can only be updated by a better route or flushed. This can be seen in the screenshots below
 
-![1 3-route-remote](https://github.com/iukadike/iukadike.github.io/assets/58455326/485ae1cd-018d-470f-baa4-d014d5377768)
+***route to remote machine***
 
-![1 3-mtr-remote](https://github.com/iukadike/iukadike.github.io/assets/58455326/ccf92b97-243a-4a28-8b83-951876f70e30)
+![1 3-route-remote](https://github.com/iukadike/blog/assets/58455326/7dab4549-0fe5-457c-9c04-3ba8bcf8ae41)
+
+![1 3-mtr-remote](https://github.com/iukadike/blog/assets/58455326/42812d76-9c73-4e49-83bc-1a9942bef003)
 
 <br>
 
 ### ICMP redirect attacks to redirect to a non-existing machine on the same network
 When the gateway you want the victim to redirect traffic to is on the same network as the victim but either offline or non-existent, the victim would ignore the gateway address but rather use the router address. As with the remote host, When it does this, it adds the router to its routing cache; however, this entry is not a timed entry. This means the entry doesn't expire and can only be updated by a better route or flushed. This can be seen in the screenshots below
 
-![1 3-route-remote](https://github.com/iukadike/iukadike.github.io/assets/58455326/485ae1cd-018d-470f-baa4-d014d5377768)
+***route to non-existent machine***
 
-![1 3-mtr-remote](https://github.com/iukadike/iukadike.github.io/assets/58455326/ccf92b97-243a-4a28-8b83-951876f70e30)
+![1 3-route-remote](https://github.com/iukadike/blog/assets/58455326/7dab4549-0fe5-457c-9c04-3ba8bcf8ae41)
+
+![1 3-mtr-remote](https://github.com/iukadike/blog/assets/58455326/42812d76-9c73-4e49-83bc-1a9942bef003)
 
 <br>
 
@@ -124,11 +132,11 @@ net.ipv4.conf.eth0.send_redirects
 
 When these are set to 1, the malicious router forwards a message to the victim to indicate the next hop. In essence, what this does is that it informs the victim that there is a better route to get to `host-A`. The victim takes note of this and updates its routing cache accordingly.
 
-![1 4-next-hop](https://github.com/iukadike/iukadike.github.io/assets/58455326/16991222-149c-425b-97de-9f210c4ed8d6)
+![1 4-next-hop](https://github.com/iukadike/blog/assets/58455326/bf4c5528-cc69-454b-8569-4588c680a84c)
 
 However, when these are set to 0, the malicious router does not forward a message to the victim to indicate the next hop. This is the option we want.
 
-![1 4-next-hop-2](https://github.com/iukadike/iukadike.github.io/assets/58455326/5d80c98a-17ba-45ea-9b1b-7b0d56827f6c)
+![1 4-next-hop-2](https://github.com/iukadike/blog/assets/58455326/c9c768f9-ebd6-4121-98ef-3e2abb7e21a2)
 
 <br>
 
@@ -171,15 +179,15 @@ This can be better understood by the screenshots below
 
 ***MITM program***
 
-![1 5-mitm-code](https://github.com/iukadike/iukadike.github.io/assets/58455326/cf16ec2f-851e-447f-aac3-96a950702318)
+![1 5-mitm-code](https://github.com/iukadike/blog/assets/58455326/84483232-cab3-4091-9b2f-39f483c88141)
 
 ***Server `host-A`***
 
-![1 5-mitm-server](https://github.com/iukadike/iukadike.github.io/assets/58455326/a6c480b7-82d0-45b6-b67c-4455172478d7)
+![1 5-mitm-server](https://github.com/iukadike/blog/assets/58455326/3a0fe78b-40da-49bb-bc9b-651262f4e3e7)
 
 ***Victim***
 
-![1 5-mitm-victim](https://github.com/iukadike/iukadike.github.io/assets/58455326/256c0985-43e5-43d4-85a3-6aa8c7352139)
+![1 5-mitm-victim](https://github.com/iukadike/blog/assets/58455326/53863bb4-b58f-4408-b01b-2ad8a8489c76)
 
 ___
 ##### mitigation
