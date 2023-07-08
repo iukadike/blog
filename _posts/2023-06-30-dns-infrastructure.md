@@ -97,11 +97,11 @@ graph TD;
 
 ***querying the nameserver for `www.ukadike2023.edu`***
 
-![name-server-1](https://github.com/iukadike/iukadike.github.io/assets/58455326/f96f7707-5b82-4453-a5d0-f64e7bfae1e8)
+![name-server-1](https://github.com/iukadike/blog/assets/58455326/72c33a83-50e1-41ff-b550-7f24f3500461)
 
 ***querying the nameserver for `lofi.ukadike2023.edu`***
 
-![name-server-2](https://github.com/iukadike/iukadike.github.io/assets/58455326/6d42a143-1e32-4758-be02-4e21763c1a06)
+![name-server-2](https://github.com/iukadike/blog/assets/58455326/14e7f9cd-9dcb-4d61-a198-b9324d1da81f)
 
 <br>
 
@@ -136,7 +136,7 @@ All the nameservers within a TLD domain must register their nameservers on the s
 
 ***querying the TLD for `www.ukadike2023.edu`***
 
-![tld-server](https://github.com/iukadike/iukadike.github.io/assets/58455326/757db035-c025-4f07-80a5-32a79e2cf38f)
+![tld-server](https://github.com/iukadike/blog/assets/58455326/579f78ea-6802-4110-aefa-88f4017a4536)
 
 From the screenshot above, the TLD cannot provide an answer because it does not have one, but it provides the authority record that contains the answer.
 
@@ -188,7 +188,8 @@ All TLD nameservers must register with the root server. This means the edu. TLD 
 -->
 
 ***querying the root server for `fakedomain.ukadike2023.edu`***
-![root-server-A-1](https://github.com/iukadike/iukadike.github.io/assets/58455326/3fc707bd-73b8-4a9b-b737-d4b4ae2ce007)
+
+![root-server-A-1](https://github.com/iukadike/blog/assets/58455326/a7a93b40-0e45-4ae4-8270-47f56022efe8)
 
 From the screenshot above, the root server provides an authority record that contains the server that can answer the question about the edu domain.
 
@@ -204,11 +205,11 @@ Though the DNS servers are setup, the computer will still not know how to contac
 
 ***DNS query for `www.ukadike2023.edu` on the client***
 
-![resolution-1](https://github.com/iukadike/iukadike.github.io/assets/58455326/5f660cf9-69f1-4c60-b46d-b1613cff308a)
+![resolution-1](https://github.com/iukadike/blog/assets/58455326/bc9f2b7b-b649-44d7-9340-821c4be5f0b6)
 
 ***DNS query for `love.ukadike2023.edu` on the client***
 
-![resolution-2](https://github.com/iukadike/iukadike.github.io/assets/58455326/598e0171-4c6d-4428-a98d-1bc58ed37e99)
+![resolution-2](https://github.com/iukadike/blog/assets/58455326/607e8f26-6d6c-4f89-b829-efcbba31a9d4)
 
 From the screenshot, everything works as expected and the queries get resolved without issues.
 
@@ -324,15 +325,15 @@ Reverse DNS lookup helps us identify the domain name that is associated with an 
 
 ***performing reverse lookup on IP address of `ns1.ukadike2023.edu`***
 
-![reverse-1](https://github.com/iukadike/iukadike.github.io/assets/58455326/360e714e-ee1c-4695-ac63-7bdc4ea6b5fb)
+![reverse-1](https://github.com/iukadike/blog/assets/58455326/c11bd252-caf1-42c5-9413-95eb75c56756)
 
 ***performing reverse lookup on IP address of `www.ukadike2023.edu`***
 
-![reverse-2](https://github.com/iukadike/iukadike.github.io/assets/58455326/ac1a9a11-a22a-499d-9224-f5266a51a40c)
+![reverse-2](https://github.com/iukadike/blog/assets/58455326/7744603b-3a6c-4e3e-8db8-65018ea550e6)
 
 ***performing reverse lookup on IP address of an unmapped IP address***
 
-![reverse-4](https://github.com/iukadike/iukadike.github.io/assets/58455326/ed34fa97-838e-4c6f-9925-d9ae3806826f)
+![reverse-4](https://github.com/iukadike/blog/assets/58455326/061093b6-7175-4620-955d-ba3b16a3e787)
 
 <br>
 
