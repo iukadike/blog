@@ -82,44 +82,54 @@ A common configuration is to prevent machines from responding to ping requests. 
 The proper way to block traffic to or from a machine is to set the policy of the chain to DROP. This means that in order to block ping requests to the router, it is sufficient to set the `INPUT` chain of the `filter` table to `DROP`
 - `iptables -t filter -P INPUT DROP`
 
-##### image
 As seen in the screenshot below, the ping request from the host to the router fails to go through.
-##### image
+
+***failed ping request***
+
+![2 a failed-ping-1](https://github.com/iukadike/blog/assets/58455326/49fbab7a-ac8f-4108-911c-8419375a6784)
 
 However, while blocking ping requests can improve security and network performance, it can also make troubleshooting and network debugging more difficult. In such a case that it would be logical to allow ping requests to reach the router, a rule can be created in the chain to allow ping requests to the machine.
 - `iptables -t filter -A INPUT -p icmp --icmp-type echo-request -j ACCEPT`
 
-##### image
 As seen in the screenshot below, the ping request from the host to the router now goes through.
-##### image
 
+***successful ping request***
+
+![2 a success-ping-1](https://github.com/iukadike/blog/assets/58455326/e1aed2db-32f0-4b18-8ebe-4d9be0b86ae5)
 
 But blocking traffic to the machine will usually not be enough, we also need to block outgoing traffic from the machine so that rouge requests will not go out of the machine. Just like the policy of `INPUT` chain was set to `DROP`, we will also set the policy of `OUTPUT` chain to `DROP`
 - `iptables -t filter -P OUTPUT DROP`
 
-##### image
-
 Now we have a problem, the ping request from the host doesn't get to the router because the router drops echo replies going out of the router.
 
-##### image
+***failed ping request***
+
+![2 a failed-ping-2](https://github.com/iukadike/blog/assets/58455326/775292a1-e2e2-4591-bfbe-541c8a98c798)
 
 We need to set a rule that will allow echo replies to leave the router.
 - `iptables -t filter -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT`
 
-##### image
 As seen in the screenshot below, the ping request from the host to the router now goes through.
-##### image
 
-We can test to see if we can ping the router. This should fail because we did not add a rule that will allow ping requests (we only added that for ping replies).
+***successful ping request***
+
+![2 a success-ping-2](https://github.com/iukadike/blog/assets/58455326/20421b92-c60d-4fd5-ac9a-6db5adb5e396)
+
+We can test to see if we can ping from the router. This should fail because we did not add a rule that will allow ping requests that are generated from the router (we only added that for ping replies).
 
 As seen in the screenshot below, the ping request from the router to the host fails.
-##### image
+
+***failed ping request***
+
+![2 a failed-ping-3](https://github.com/iukadike/blog/assets/58455326/d5b69cd3-f3eb-45bb-847b-037e228c8746)
 
 Similarly, we can test to see if we can telnet into the router from the host.
 
 As seen from the screenshot below, this also fails.
-##### image
 
+***failed telnet***
+
+![2 a failed-telnet](https://github.com/iukadike/blog/assets/58455326/5f94068e-4097-4f64-a7c0-e949cade602a)
 
 
 ##### Additional notes
@@ -151,34 +161,46 @@ Since we want outside hosts to be able to ping the router, we would add a rule t
 - `iptables -t filter -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT`
 
 From the screenshot below, we can see that the external machine can ping the router but cannot ping internal hosts.
-##### image
 
+***external host successfully pinging the router***
 
+![2 b out-ping-router-1](https://github.com/iukadike/blog/assets/58455326/2396e595-3219-4d27-b1b8-1ba1473c327b)
 
+***external host fails to ping internal hosts***
+
+![2 b out-not-ping-in-1](https://github.com/iukadike/blog/assets/58455326/01721e2d-818f-4a10-bad3-66bd18067652)
 
 However, there is an issue. I do not want an outside machine to be able to ping the internal network interface of the router. This means I have to modify the rules, as the ones I have in place seem ineffective.
 - `iptables -t filter -R INPUT 1 -d 10.9.0.11 -p icmp --icmp-type echo-request -j ACCEPT`
 
 From the screenshot below, we can see that the external machine can ping the router's external interface but cannot ping the router's internal interface.
-##### image
 
+***external host pinging the router***
+
+![2 b out-ping-router-2](https://github.com/iukadike/blog/assets/58455326/135b8ea6-92a2-46fc-b719-f26ae67683da)
 
 What I did was effectively allow ping requests only to the router's external interface. This poses another problem: internal hosts cannot ping the router.
 
-##### image
+***internal host fails to ping the router***
+
+![2 b in-ping-router-1](https://github.com/iukadike/blog/assets/58455326/b91824c9-45fb-48d5-b71f-c01811f63383)
 
 To correct this, we can add another rule that will allow ICMP echo requests from the internal hosts to reach the router. To do this, I identified the internal-facing interface and added a rule that permits the ICMP traffic.
 - `iptables -t filter -A INPUT -i eth1 -p icmp --icmp-type echo-request -j ACCEPT`
 
 From the screenshot below, we can see that the internal machine can now ping the router successfully.
-##### image
+
+***internal host successfully pings the router***
+
+![2 b in-ping-router-2](https://github.com/iukadike/blog/assets/58455326/90fbdd85-97c1-4199-82ed-48f55b933a30)
 
 
 ##### Additional notes
 You might wonder why I used `-d 10.9.0.11` instead of `-i eth0`. The reason is that it doesn't block traffic to `eth1`. Both interfaces are on the same machine, so there is no forwarding. When `eth0` gets the traffic, it just passes it on to `eth1`.
 
-
 So far, so good; everything is looking good. We also want all internal hosts to be able to ping outside hosts. As it stands now, they cannot.
+
+***internal host fails to ping external host***
 
 ##### image
 
@@ -187,10 +209,10 @@ What we want to do is allow inside hosts to ping outside hosts while still preve
 - `iptables -t filter -A FORWARD -o eth1 -p icmp --icmp-type echo-reply -j ACCEPT`
 
 From the screenshot below, we can see that the internal host can now ping the external host successfully, while the external host still cannot ping the internal host.
-##### image
 
+***internal host successfully pings external host***
 
-
+![2 b in-ping-out-2](https://github.com/iukadike/blog/assets/58455326/49022c9f-5a2d-4ee0-998d-1bcfd117ec8f)
 
 Finally, we want all other packets between the internal and external networks to be blocked. This should be the case by default because we have set the default policy to `DROP` and added rules for the connections we want accepted. To verify, we will try to telnet from the external host to the internal host.
 
@@ -199,11 +221,19 @@ We can verify this by viewing the iptables verbosely.
 
 We can see the packet drop count for the `FORWARD` chain.
 
-##### image
+***iptables***
+
+![2 b block-other-traffic-1](https://github.com/iukadike/blog/assets/58455326/be1b6864-00d5-4ab9-ac05-30bb43e3cafc)
 
 After running the telnet command from the external host to connect to the internal host and check the router's iptables, we can see that the packet drop count has increased.
 
-##### image
+***external host fails to telnet to internal host***
+
+![2 b block-other-traffic-2](https://github.com/iukadike/blog/assets/58455326/92b8c929-0565-4079-a67a-6c62502e66e0)
+
+***iptables***
+
+![2 b block-other-traffic-3](https://github.com/iukadike/blog/assets/58455326/8c95d40a-493d-4399-acc1-1d6327e6fc57)
 
 <br>
 
@@ -222,28 +252,53 @@ Next, we add rules to the FORWARD chain that would allow the external host to te
 - `iptables -t filter -A FORWARD -s 192.168.60.5 -p tcp --sport 23 -j ACCEPT`
 
 From the screenshot below, we can see that the external host can telnet to `192.168.60.5` successfully, but fails to telnet into `192.168.60.6`
-##### image
+
+***external host successfully telnet into internal host 1***
+
+![2 c external-telnet-internal-1](https://github.com/iukadike/blog/assets/58455326/2cd3f6d3-4e62-4e17-9b49-f49460b75c6d)
+
+***external host fails to telnet into internal host 2***
+
+![2 c external-telnet-internal-2](https://github.com/iukadike/blog/assets/58455326/03060442-4507-4dba-a707-33c8c5dd2953)
+
 
 We also want to ensure that outside hosts cannot access other internal servers. This should already be the case, as the default policy set is `DROP`. However, to test it out, we fire up a Python webserver on a host inside the network and see if we can connect from the external host.
 
-##### image
-
 From the screenshot below, we can see that the external host cannot connect to the webserver on `192.168.60.6`.
-##### image
+
+***webserver on 192.168.60.6***
+![2 c python-webserver-1](https://github.com/iukadike/blog/assets/58455326/cdaff1e6-5d9c-42db-9f64-0a74fb464bb7)
+
+***external host fails to connect to webserver***
+
+![2 c python-webserver-2](https://github.com/iukadike/blog/assets/58455326/eac08528-16c8-4a48-ba2b-1d65e0d8d495)
+
 
 However, we want internal hosts to be able to access all the internal servers. This should already be the case, as any traffic between the internal servers does not need to go through the router. This means that the rules we defined on the router should not affect internal machines communicating with one another. To test this out, we can try telneting from `192.168.60.5` to `192.168.60.6`. We can also try connecting to the webserver running on `192.168.60.6` from other hosts.
 
 From the screenshot below, we can see that `192.168.60.5` can telnet into `192.168.60.6.
-##### image
 
+![2 c in-to-in-1](https://github.com/iukadike/blog/assets/58455326/80ebb593-ba1c-44ac-929d-0a513b7983b6)
 
 From the screenshot below, we can see that `192.168.60.5` and `192.168.60.7` can reach the webserver on `192.168.60.6.
-##### image
 
+***curl on host 192.168.60.5***
+
+![2 c in-to-in-2](https://github.com/iukadike/blog/assets/58455326/56d7c4f6-e3fa-486c-aa9c-737f25fdad34)
+
+***curl on host 192.168.60.7***
+
+![2 c in-to-in-3](https://github.com/iukadike/blog/assets/58455326/3c49e7b2-4fc6-4884-9615-cdf699cb80cf)
+
+***webserver on host 192.168.60.6***
+
+![2 c in-to-in-4](https://github.com/iukadike/blog/assets/58455326/30941844-c392-47a3-96f7-5b4e468ea7c1)
 
 Finally, we do not want internal hosts to be able to access external servers. This should already be the case as the default policy is set to `DROP` and no rule that will allow traffic from the internal host to external servers has been created. To test this out, we can try creating a webserver on `10.9.0.5` and connecting to the webserver from the internal hosts.
 
-##### image
+***webserver on external host***
+
+![2 c out-webserver](https://github.com/iukadike/blog/assets/58455326/e5533435-c582-463b-8f6e-744ab23e202f)
 
 
 <br>
