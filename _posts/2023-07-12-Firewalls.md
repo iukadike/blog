@@ -208,17 +208,138 @@ after running the telnet command from the external host to connect to the intern
 ### Protecting Internal Servers
 Usually in a corporate setup, organizations have more than one servers running on the internal network. Of these servers, one or more may be serving resources to the public. The ideal configuration would be to protect the servers and ensure that only the intented server is accessible to external hosts.
 
+For this configuration, all the internal hosts run a telnet server (listening to port 23) and we want outside hosts to only access the telnet server on 192.168.60.5, not the other internal hosts.
+
+The first step is to set the policy on `INPUT`, `OUTPUT`, and `FORWARD` chain to `DROP`
+- `iptables -t filter -P INPUT DROP`
+- `iptables -t filter -P OUTPUT DROP`
+- `iptables -t filter -P FORWARD DROP`
+
+Next we add rules to the FORWARD chain that would allow the external host to telnet into the specific internal host while not able to telnet into otherr internal hosts
+- `iptables -t filter -A FORWARD -d 192.168.60.5 -p tcp --dport 23 -j ACCEPT`
+- `iptables -t filter -A FORWARD -s 192.168.60.5 -p tcp --sport 23 -j ACCEPT`
+
+from the screenshot below, we can see that the external host can telnet to `192.168.60.5` successfully, but fails to telnet into `192.168.60.6`
+##### image
+
+We also want to ensure that outside hosts cannot access other internal servers. This should already be the case as the default policy set is `DROP`. However to test it out, we fireup a python webserver on a host inside the network and see if we can connect from the external host
+
+##### image
+
+from the screenshot below, we can see that the external host cannot connect to the webserver on `192.168.60.6`.
+##### image
+
+However, we want internal hosts to be able to access all the internal servers. This should already be the case as any traffic between the internal servers does not need to go through the router. This means that the rules we defined on the router should not affect internal machines communicating amongst one another. To test this out, we can try telneting from `192.168.60.5` to `192.168.60.6`. We can also try connecting to the webserver running on `192.168.60.6` from other hosts.
+
+from the screenshot below, we can see that `192.168.60.5` can telnet into `192.168.60.6.
+##### image
 
 
+from the screenshot below, we can see that `192.168.60.5` and `192.168.60.7` can reach the webserver on `192.168.60.6.
+##### image
 
 
+Finally, we do not want internal hosts to be able to access external servers. This should already be the case as the default policy is set to `DROP` and no rule that will allow traffic from the internal host to external servsers has been created. To test this out, we can try create a webserver on `10.9.0.5` and try connecting to the webserver from the internal hosts.
 
-1. All the internal hosts run a telnet server (listening to port 23). Outside hosts can only access the telnet
-server on 192.168.60.5, not the other internal hosts.
-2. Outside hosts cannot access other internal servers.
-3. Internal hosts can access all the internal servers.
-4. Internal hosts cannot access external servers.
-5. In this task, the connection tracking mechanism is not allowed. It will be used in a later task.
+##### image
+
+
+<br>
+
+### Connection Tracking and Stateful Firewall
+A stateful firewall takes into consideration the state of a connection when determining whether to allow or block network traffic. To do this, it needs to be able to somehow track connections. When it receives a packet, it compares the packet against any entries in its state table to determine whether it belongs to an existing, legitimate connection or if it is part of a new, potentially malicious connection.
+
+On a linux machine, conntrack, a kernel feature, keeps track of the state of network connections passing through the system. It allows the Linux kernel to maintain records of all connections, including information such as source and destination IP addresses, ports, protocols, and connection states.
+
+The connection trackiing information can be displayed via `conntrack -L`
+
+#### ICMP
+When an echo request is sent from `host 10.9.0.5` to `host 192.168.60.5` and we view the connection tracking information, we can observer the following:
+- conntrack records the protocol (ICMP)
+- conntrack records the source and destination address of the echo request
+- conntrack records the source and destination address of the echo reply
+- conntrack gives the entry a TTL of 30 seconds
+
+  ##### image
+
+#### UDP
+When we setup a udp server on `host 192.168.60.5`, initiate a connection from `host 10.9.0.6` and view the connection tracking information, we can observe the following:
+- conntrack records the protocol (UDP)
+- conntrack records the source address, destination address, source port, and destination port of the udp request (it also signifies that the connection does not have a reply)
+- conntrack records the source address, destination address, source port, and destination port of the udp reply
+- conntrack gives the entry a TTL of 30 seconds
+
+  ##### image
+
+However, when there is a reply and constant exchange of data between `host 10.9.0.5` and `host 192.168.60.6`, we observer the following:
+- conntrack signifies that the connection is assured
+- conntrack updates the entry to a TTL of 120 seconds
+
+  ##### image
+
+#### TCP
+When we setup a tcp server on `host 192.168.60.5`, initiate a connection from `host 10.9.0.6` and view the connection tracking information, we can observe the following:
+- conntrack records the protocol (TCP)
+- conntrack records that a connection is ESTABLISHED
+- conntrack records the source address, destination address, source port, and destination port of the tcp request
+- conntrack records the source address, destination address, source port, and destination port of the tcp reply (it also signifies that the connection is assured)
+- conntrack gives the entry a TTL of 432000 seconds
+
+  ##### image
+
+<br>
+
+### Protecting Internal Servers using stateful firewall
+For this configuration, we want to make use of a stateful firewall to protect internal servers. As with the previous configuration, all the internal hosts run a telnet server (listening to port 23) and we want outside hosts to only access the telnet server on 192.168.60.5, not the other internal hosts.
+
+The first step is to set the policy on `FORWARD` chain to `DROP`
+- `iptables -t filter -P FORWARD DROP`
+
+Next we add rules to the FORWARD chain that would allow the external host to telnet into the specific internal host while not able to telnet into otherr internal hosts. However, these rules use connection tracking
+- `iptables -t filter -A FORWARD -p tcp -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT`
+- `iptables -t filter -A FORWARD -i eth0 -d 192.168.60.5 -p tcp --dport 23 --syn -m conntrack --ctstate NEW -j ACCEPT`
+
+from the screenshot below, we can see that the external host can telnet to `192.168.60.5` successfully, but fails to telnet into `192.168.60.6`
+##### image
+
+Niether can the external host access other internal servers.
+##### image
+
+However, internal hosts can access one another
+##### image
+
+Unlike the previous configraution where the internal hosts could not access external servers, we would like them to do so, thus we add the rule to enable them do so.
+- `iptables -t filter -A FORWARD -i eth1 -p tcp --syn -m conntrack --ctstate NEW -j ACCEPT`
+
+from the screenshot below, we can see that the internal hosts can connect successfully to external servers
+##### image
+
+the final ip table is shown below
+##### image
+
+<br>
+
+### Limiting Network Traffic
+The number of packets allowed into or from a host can also be limited via iptables by using the limit module of iptables.
+
+Say for instance, we want to limit the number of packets that come from `10.9.0.5` to `192.168.60.5`, we can add the following rule to iptables FORWARD chain:
+- `iptables -A FORWARD -s 10.9.0.5 -m limit --limit 10/minute --limit-burst 5 -j ACCEPT`
+
+What this does is that it limits the connection it will accept from `10.9.0.5` to `192.168.60.5` to 10 packets per minute. However, before it limits the connection to 10 packets per minute, it will accept up to a maximum of 5 packets. Only then would it start limiting the connection.
+
+However, it seems like the rule is not working. The firewall doesn't limit the connection to 10 packets per minute. The ping request goes on unrestricted. This is because after it processes the nth packet, the others are processed by the next rule (which in this case is the default FORWARD chain policy - ACCEPT).
+
+To ensure that the rule works as expected, we have to add a new rule that would drop the packets not processed by our initial rule:
+- `iptables -A FORWARD -s 10.9.0.5 -j DROP`
+
+This works as expected
+
+##### images
+
+<br>
+
+### Load Balancing
+
 
 
 
