@@ -7,8 +7,6 @@ categories: [netfilter, iptables]
 
 ![Firewalls]({{ site.baseurl }}/images/featured-images/firewalls.jpg)
 
-<br>
-
 A firewall is a set of rules that decide what kind of internet traffic is allowed or not allowed through a network. A firewall checks every packet that tries to go through the network. It looks at the packets and decides if they are safe or not. If they are safe as defined by the firewall rules, they can pass through the network; if they fail the test, the firewall stops them from going through. This is basically how a firewall operates.
 
 A firewall is usually placed between an internal network and an external network to protect devices on the internal network. A firewall can also be placed between two internal networks. A firewall can be implemented as a hardware device or as a software device.
@@ -130,11 +128,11 @@ As seen from the screenshot below, this also fails.
 <summary>Additional notes</summary>
 <br>
 If, for any reason, you want to reset the rules or start all over again:
-
-- `iptables -t filter -P INPUT ACCEPT`
-- `iptables -t filter -P OUTPUT ACCEPT`
-- `iptables -t filter -F`
-
+<ul>
+<li>iptables -t filter -P INPUT ACCEPT</li>
+<li>iptables -t filter -P OUTPUT ACCEPT</li>
+<li>iptables -t filter -F</li>
+</ul>
 </details>
 
 <br>
@@ -192,8 +190,7 @@ From the screenshot below, we can see that the internal machine can now ping the
 <details>
 <summary>Additional notes</summary>
 <br>
-
-You might wonder why I used `-d 10.9.0.11` instead of `-i eth0`. The reason is that it doesn't block traffic to `eth1`. Both interfaces are on the same machine, so there is no forwarding. When `eth0` gets the traffic, it just passes it on to `eth1`.
+You might wonder why I used "-d 10.9.0.11" instead of "-i eth0". The reason is that it doesn't block traffic to "eth1". Both interfaces are on the same machine, so there is no forwarding. When "eth0" gets the traffic, it just passes it on to "eth1".
 </details>
 
 <br>
