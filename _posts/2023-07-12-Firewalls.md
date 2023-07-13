@@ -85,7 +85,6 @@ The proper way to block traffic to or from a machine is to set the policy of the
 As seen in the screenshot below, the ping request from the host to the router fails to go through.
 
 ***failed ping request***
-
 ![2 a failed-ping-1](https://github.com/iukadike/blog/assets/58455326/49fbab7a-ac8f-4108-911c-8419375a6784)
 
 However, while blocking ping requests can improve security and network performance, it can also make troubleshooting and network debugging more difficult. In such a case that it would be logical to allow ping requests to reach the router, a rule can be created in the chain to allow ping requests to the machine.
@@ -94,7 +93,6 @@ However, while blocking ping requests can improve security and network performan
 As seen in the screenshot below, the ping request from the host to the router now goes through.
 
 ***successful ping request***
-
 ![2 a success-ping-1](https://github.com/iukadike/blog/assets/58455326/e1aed2db-32f0-4b18-8ebe-4d9be0b86ae5)
 
 But blocking traffic to the machine will usually not be enough, we also need to block outgoing traffic from the machine so that rouge requests will not go out of the machine. Just like the policy of `INPUT` chain was set to `DROP`, we will also set the policy of `OUTPUT` chain to `DROP`
@@ -103,7 +101,6 @@ But blocking traffic to the machine will usually not be enough, we also need to 
 Now we have a problem, the ping request from the host doesn't get to the router because the router drops echo replies going out of the router.
 
 ***failed ping request***
-
 ![2 a failed-ping-2](https://github.com/iukadike/blog/assets/58455326/775292a1-e2e2-4591-bfbe-541c8a98c798)
 
 We need to set a rule that will allow echo replies to leave the router.
@@ -112,7 +109,6 @@ We need to set a rule that will allow echo replies to leave the router.
 As seen in the screenshot below, the ping request from the host to the router now goes through.
 
 ***successful ping request***
-
 ![2 a success-ping-2](https://github.com/iukadike/blog/assets/58455326/20421b92-c60d-4fd5-ac9a-6db5adb5e396)
 
 We can test to see if we can ping from the router. This should fail because we did not add a rule that will allow ping requests that are generated from the router (we only added that for ping replies).
@@ -120,7 +116,6 @@ We can test to see if we can ping from the router. This should fail because we d
 As seen in the screenshot below, the ping request from the router to the host fails.
 
 ***failed ping request***
-
 ![2 a failed-ping-3](https://github.com/iukadike/blog/assets/58455326/d5b69cd3-f3eb-45bb-847b-037e228c8746)
 
 Similarly, we can test to see if we can telnet into the router from the host.
@@ -128,7 +123,6 @@ Similarly, we can test to see if we can telnet into the router from the host.
 As seen from the screenshot below, this also fails.
 
 ***failed telnet***
-
 ![2 a failed-telnet](https://github.com/iukadike/blog/assets/58455326/5f94068e-4097-4f64-a7c0-e949cade602a)
 
 
@@ -163,11 +157,9 @@ Since we want outside hosts to be able to ping the router, we would add a rule t
 From the screenshot below, we can see that the external machine can ping the router but cannot ping internal hosts.
 
 ***external host successfully pinging the router***
-
 ![2 b out-ping-router-1](https://github.com/iukadike/blog/assets/58455326/2396e595-3219-4d27-b1b8-1ba1473c327b)
 
 ***external host fails to ping internal hosts***
-
 ![2 b out-not-ping-in-1](https://github.com/iukadike/blog/assets/58455326/01721e2d-818f-4a10-bad3-66bd18067652)
 
 However, there is an issue. I do not want an outside machine to be able to ping the internal network interface of the router. This means I have to modify the rules, as the ones I have in place seem ineffective.
@@ -176,13 +168,11 @@ However, there is an issue. I do not want an outside machine to be able to ping 
 From the screenshot below, we can see that the external machine can ping the router's external interface but cannot ping the router's internal interface.
 
 ***external host pinging the router***
-
 ![2 b out-ping-router-2](https://github.com/iukadike/blog/assets/58455326/135b8ea6-92a2-46fc-b719-f26ae67683da)
 
 What I did was effectively allow ping requests only to the router's external interface. This poses another problem: internal hosts cannot ping the router.
 
 ***internal host fails to ping the router***
-
 ![2 b in-ping-router-1](https://github.com/iukadike/blog/assets/58455326/b91824c9-45fb-48d5-b71f-c01811f63383)
 
 To correct this, we can add another rule that will allow ICMP echo requests from the internal hosts to reach the router. To do this, I identified the internal-facing interface and added a rule that permits the ICMP traffic.
@@ -191,7 +181,6 @@ To correct this, we can add another rule that will allow ICMP echo requests from
 From the screenshot below, we can see that the internal machine can now ping the router successfully.
 
 ***internal host successfully pings the router***
-
 ![2 b in-ping-router-2](https://github.com/iukadike/blog/assets/58455326/90fbdd85-97c1-4199-82ed-48f55b933a30)
 
 
@@ -201,8 +190,7 @@ You might wonder why I used `-d 10.9.0.11` instead of `-i eth0`. The reason is t
 So far, so good; everything is looking good. We also want all internal hosts to be able to ping outside hosts. As it stands now, they cannot.
 
 ***internal host fails to ping external host***
-
-##### image
+![2 b in-ping-out-1](https://github.com/iukadike/blog/assets/58455326/635dfcc0-8aff-4470-be48-5ce0e513ae89)
 
 What we want to do is allow inside hosts to ping outside hosts while still preventing outside hosts from pinging inside hosts. Here, we will specify the interface we want to permit traffic on. We will choose the internal-facing network interface.
 - `iptables -t filter -A FORWARD -i eth1 -p icmp --icmp-type echo-request -j ACCEPT`
@@ -211,7 +199,6 @@ What we want to do is allow inside hosts to ping outside hosts while still preve
 From the screenshot below, we can see that the internal host can now ping the external host successfully, while the external host still cannot ping the internal host.
 
 ***internal host successfully pings external host***
-
 ![2 b in-ping-out-2](https://github.com/iukadike/blog/assets/58455326/49022c9f-5a2d-4ee0-998d-1bcfd117ec8f)
 
 Finally, we want all other packets between the internal and external networks to be blocked. This should be the case by default because we have set the default policy to `DROP` and added rules for the connections we want accepted. To verify, we will try to telnet from the external host to the internal host.
@@ -222,17 +209,14 @@ We can verify this by viewing the iptables verbosely.
 We can see the packet drop count for the `FORWARD` chain.
 
 ***iptables***
-
 ![2 b block-other-traffic-1](https://github.com/iukadike/blog/assets/58455326/be1b6864-00d5-4ab9-ac05-30bb43e3cafc)
 
 After running the telnet command from the external host to connect to the internal host and check the router's iptables, we can see that the packet drop count has increased.
 
 ***external host fails to telnet to internal host***
-
 ![2 b block-other-traffic-2](https://github.com/iukadike/blog/assets/58455326/92b8c929-0565-4079-a67a-6c62502e66e0)
 
 ***iptables***
-
 ![2 b block-other-traffic-3](https://github.com/iukadike/blog/assets/58455326/8c95d40a-493d-4399-acc1-1d6327e6fc57)
 
 <br>
@@ -254,11 +238,9 @@ Next, we add rules to the FORWARD chain that would allow the external host to te
 From the screenshot below, we can see that the external host can telnet to `192.168.60.5` successfully, but fails to telnet into `192.168.60.6`
 
 ***external host successfully telnet into internal host 1***
-
 ![2 c external-telnet-internal-1](https://github.com/iukadike/blog/assets/58455326/2cd3f6d3-4e62-4e17-9b49-f49460b75c6d)
 
 ***external host fails to telnet into internal host 2***
-
 ![2 c external-telnet-internal-2](https://github.com/iukadike/blog/assets/58455326/03060442-4507-4dba-a707-33c8c5dd2953)
 
 
@@ -270,7 +252,6 @@ From the screenshot below, we can see that the external host cannot connect to t
 ![2 c python-webserver-1](https://github.com/iukadike/blog/assets/58455326/cdaff1e6-5d9c-42db-9f64-0a74fb464bb7)
 
 ***external host fails to connect to webserver***
-
 ![2 c python-webserver-2](https://github.com/iukadike/blog/assets/58455326/eac08528-16c8-4a48-ba2b-1d65e0d8d495)
 
 
@@ -283,21 +264,17 @@ From the screenshot below, we can see that `192.168.60.5` can telnet into `192.1
 From the screenshot below, we can see that `192.168.60.5` and `192.168.60.7` can reach the webserver on `192.168.60.6.
 
 ***curl on host 192.168.60.5***
-
 ![2 c in-to-in-2](https://github.com/iukadike/blog/assets/58455326/56d7c4f6-e3fa-486c-aa9c-737f25fdad34)
 
 ***curl on host 192.168.60.7***
-
 ![2 c in-to-in-3](https://github.com/iukadike/blog/assets/58455326/3c49e7b2-4fc6-4884-9615-cdf699cb80cf)
 
 ***webserver on host 192.168.60.6***
-
 ![2 c in-to-in-4](https://github.com/iukadike/blog/assets/58455326/30941844-c392-47a3-96f7-5b4e468ea7c1)
 
 Finally, we do not want internal hosts to be able to access external servers. This should already be the case as the default policy is set to `DROP` and no rule that will allow traffic from the internal host to external servers has been created. To test this out, we can try creating a webserver on `10.9.0.5` and connecting to the webserver from the internal hosts.
 
 ***webserver on external host***
-
 ![2 c out-webserver](https://github.com/iukadike/blog/assets/58455326/e5533435-c582-463b-8f6e-744ab23e202f)
 
 
@@ -312,37 +289,41 @@ The connection tracking information can be displayed via `conntrack -L`
 
 #### ICMP
 When an echo request is sent from `host 10.9.0.5` to `host 192.168.60.5` and we view the connection tracking information, we can observe the following:
-- conntrack records the protocol (ICMP).
+- conntrack records the protocol (ICMP) and the protocol number.
 - conntrack records the source and destination addresses of the echo request.
 - conntrack records the source and destination addresses of the echo reply.
 - conntrack gives the entry a TTL of 30 seconds.
 
-  ##### image
+  ***conntrack record for an ICMP traffic***
+  ![3 a icmp](https://github.com/iukadike/blog/assets/58455326/5e07373c-1125-4e12-8914-1a047fcbcc56)
 
 #### UDP
 When we setup a udp server on `host 192.168.60.5`, initiate a connection from `host 10.9.0.6` and view the connection tracking information, we can observe the following:
-- conntrack records the protocol (UDP).
+- conntrack records the protocol (UDP) and the protocol number.
 - conntrack records the source address, destination address, source port, and destination port of the UDP request (it also signifies that the connection does not have a reply).
 - conntrack records the source address, destination address, source port, and destination port of the UDP reply.
 - conntrack gives the entry a TTL of 30 seconds.
 
-  ##### image
+  ***conntrack record for a UDP traffic***
+  ![3 a udp-1](https://github.com/iukadike/blog/assets/58455326/747458b5-83ef-453f-a0df-582773c9cfb3)
 
 However, when there is a reply and constant exchange of data between `host 10.9.0.5` and `host 192.168.60.6`, we observe the following:
 - conntrack signifies that the connection is assured.
 - conntrack updates the entry to a TTL of 120 seconds.
 
-  ##### image
+  ***conntrack record for a UDP traffic***
+  ![3 a udp-2](https://github.com/iukadike/blog/assets/58455326/ed35881a-91f8-44b2-850c-e77bc4af3fba)
 
 #### TCP
 When we setup a tcp server on `host 192.168.60.5`, initiate a connection from `host 10.9.0.6` and view the connection tracking information, we can observe the following:
-- conntrack records the protocol (TCP).
+- conntrack records the protocol (TCP) and the protocol number.
 - conntrack records that a connection is ESTABLISHED
 - conntrack records the source address, destination address, source port, and destination port of the TCP request.
 - conntrack records the source address, destination address, source port, and destination port of the TCP reply (it also signifies that the connection is assured).
 - conntrack gives the entry a TTL of 432000 seconds.
 
-  ##### image
+  ***conntrack record for a TCP traffic***
+  ![3 a tcp](https://github.com/iukadike/blog/assets/58455326/37142f70-1e10-420b-a620-93ff4ec3b50c)
 
 <br>
 
@@ -357,22 +338,35 @@ Next, we add rules to the FORWARD chain that would allow the external host to te
 - `iptables -t filter -A FORWARD -i eth0 -d 192.168.60.5 -p tcp --dport 23 --syn -m conntrack --ctstate NEW -j ACCEPT`
 
 From the screenshot below, we can see that the external host can telnet to `192.168.60.5` successfully but fails to telnet into `192.168.60.6`
-##### image
+
+***external host successfully telnet into 192.168.60.5***
+![3 b-1](https://github.com/iukadike/blog/assets/58455326/56f9fd8b-2e23-4561-b7e9-5375574b0211)
+
+***external host fails to telnet into 192.168.60.6***
+![3 b-2](https://github.com/iukadike/blog/assets/58455326/8ca5f437-c32b-4b03-877d-bbcc5276df64)
 
 Neither can the external host access other internal servers.
-##### image
+
+***external host fails to connect to the internal webserver***
+![3 b-3](https://github.com/iukadike/blog/assets/58455326/adf06a78-b833-4348-b3c2-957d7dfcb32f)
 
 However, internal hosts can access one another.
-##### image
+
+***internal hosts successfully connect to the internal webserver***
+![3 b-4](https://github.com/iukadike/blog/assets/58455326/b20d7667-eee1-4c65-a189-732b6d855245)
 
 Unlike the previous restriction where the internal hosts could not access external servers, we would like them to do so, so we added the rule to enable them to do so.
 - `iptables -t filter -A FORWARD -i eth1 -p tcp --syn -m conntrack --ctstate NEW -j ACCEPT`
 
 from the screenshot below, we can see that the internal hosts can connect successfully to external servers.
-##### image
+
+***internal hosts successfully connect to the external webserver***
+![3 b-5](https://github.com/iukadike/blog/assets/58455326/25f7fd1a-094c-4e77-b944-9531ee25227c)
 
 The final iptables is shown below
-##### image
+
+***iptables***
+![3 b-6-iptables](https://github.com/iukadike/blog/assets/58455326/8a033315-d33b-4cd4-b2b3-eb90ca51dd18)
 
 <br>
 
@@ -384,6 +378,9 @@ For instance, if we want to limit the number of packets that come from `10.9.0.5
 
 What this does is limit the connection it will accept from `10.9.0.5` to `192.168.60.5` to 10 packets per minute. However, before it limits the connection to 10 packets per minute, it will accept up to a maximum of 5 packets. Only then would it start limiting the connection.
 
+***external host pinging 10.9.0.5***
+![4a](https://github.com/iukadike/blog/assets/58455326/b01441d7-b154-4e46-a28d-aa6eba7c95ae)
+
 However, it seems like the rule is not working. The firewall doesn't limit the connection to 10 packets per minute. The ping request goes on unrestricted. This is because after it processes the nth packet, the others are processed by the next rule (which in this case is the default FORWARD chain policy, ACCEPT).
 
 To ensure that the rule works as expected, we have to add a new rule that would drop the packets not processed by our initial rule:
@@ -391,7 +388,8 @@ To ensure that the rule works as expected, we have to add a new rule that would 
 
 This works as expected.
 
-##### images
+***external host pinging 10.9.0.5***
+![4b](https://github.com/iukadike/blog/assets/58455326/1b21d6d0-e120-43d0-80c1-823d89e03563)
 
 <br>
 
@@ -429,9 +427,17 @@ The statistics module can make a decision based on either the nth number of pack
 
 - third, we initiate a connection with the external host and test our connection.
 
-  ##### images
+  ***external host***
+  ![5-nth-ext-host](https://github.com/iukadike/blog/assets/58455326/fd9bdd19-c6ab-406d-ba5e-68b737f24c38)
 
+  ***internal server 1***
+  ![5-nth-host-1](https://github.com/iukadike/blog/assets/58455326/8638819f-db0e-48b8-8905-2b03ec24632a)
 
+  ***internal server 2***
+  ![5-nth-host-2](https://github.com/iukadike/blog/assets/58455326/38a21308-4cce-44d9-bdc2-fba0859f2fa1)
+
+  ***internal server 3***
+  ![5-nth-host-3](https://github.com/iukadike/blog/assets/58455326/cb7b9ef5-6aa6-4af5-a8ee-1f8e79e8a30c)
 
   from the above screenshots, we can see that the load is distributed amongst the three servers.
 
@@ -461,16 +467,24 @@ The statistics module can make a decision based on either the nth number of pack
 
 - third, we initiate a connection with the external host and test our connection.
 
-  ##### images
+  ***external host***
+  ![5-rnd-ext-host](https://github.com/iukadike/blog/assets/58455326/78cbef5c-f5fc-42ee-9925-0a408f71adea)
 
+  ***internal server 1***
+  ![5-rnd-host-1](https://github.com/iukadike/blog/assets/58455326/d7bc4508-95f6-4ecf-ac5e-f8c5fcaca824)
+
+  ***internal server 2***
+  ![5-rnd-host-2](https://github.com/iukadike/blog/assets/58455326/b4da63fc-8456-4880-a2fd-d40a69e29537)
+
+  ***internal server 3***
+  ![5-rnd-host-3](https://github.com/iukadike/blog/assets/58455326/0f25773f-933b-4dbe-acff-2108c96f0099)
 
   from the above screenshots, we can see that the load is distributed amongst the three servers, and it is done randomly because there is no defined sequence.
-
 
 <br>
 
 #### Additional Notes
-When doing configurations remotely, it is important to set the CHAIN policy last because if you set it to DENY without actually setting a rule that permits your remote connection,, you will effectively lock yourself out.
+When doing configurations remotely, it is important to set the CHAIN policy last because if you set it to DENY without actually setting a rule that permits your remote connection, you will effectively lock yourself out.
 
 <br>
 
