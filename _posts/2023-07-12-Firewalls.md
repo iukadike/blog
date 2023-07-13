@@ -5,7 +5,7 @@ excerpt: Firewall are set of rules that decide what kind of internet traffic is 
 categories: [netfilter, iptables]
 ---
 
-![Firewalls](/images/featured-images/firewalls.jpg)
+![Firewalls]({{ site.baseurl }}/images/featured-images/firewalls.jpg)
 
 <br>
 
@@ -21,26 +21,26 @@ In this post, I aim to document my findings and observations while performing a 
 Netfilter examines each packet that goes through the network and decides based on predefined rules whether to accept, drop, or modify the packets. These rules are defined in tables within the Netfilter framework, such as the "filter" table for packet filtering, the "nat" table for address translation, and the "mangle" table for packet modification.
 
 Netfilter's filtering is usually defined in terms of:
-- Hooks: These are predefined points in the network stack where Netfilter can intercept packets.
+- **Hooks**: These are predefined points in the network stack where Netfilter can intercept packets.
   - PREROUTING hook: is responsible for intercepting incoming packets before the Linux kernel makes any routing decisions. This hook is triggered as soon as a packet arrives at the network interface.
   - INPUT hook: is responsible for processing incoming packets that are destined for the local machine.
   - FORWARD hook: is responsible for forwarding packets between NICs.
   - OUTPUT hook: is responsible for processing outgoing packets that are leaving the local machine.
   - POSTROUTING hook: is responsible for processing outgoing packets that have been routed to the appropriate destination IP address or are leaving the local machine.
 
-- Tables: Tables are used to organize and categorize the various types of network traffic. Each table contains chains, which are collections of rules. The rules are evaluated in order. The most commonly used tables are:
+- **Tables**: Tables are used to organize and categorize the various types of network traffic. Each table contains chains, which are collections of rules. The rules are evaluated in order. The most commonly used tables are:
   - Filter table: is used for filtering packets.
   - NAT table: is used for modifying source or destination IP addresses.
   - Mangle table: is used for modifying packet header fields.
 
-- Chains: A chain is a list of rules. Chains define the actions to take for packets that pass through that chain. When a packet matches a rule, an action is taken, such as accepting or dropping the packet or passing it on to the next chain for further processing. Netfilter chains correspond to the hooks and indicate where their rules are enforced. The chains include:
+- **Chains**: A chain is a list of rules. Chains define the actions to take for packets that pass through that chain. When a packet matches a rule, an action is taken, such as accepting or dropping the packet or passing it on to the next chain for further processing. Netfilter chains correspond to the hooks and indicate where their rules are enforced. The chains include:
   - PREROUTING chain
   - INPUT chain
   - FORWARD chain
   - OUTPUT chain
   - POSTROUTING chain
 
-- Modules: Netfilter uses a modular architecture that allows adding various kernel modules as needed to extend its functionality. Modules provide additional features to the netfilter framework.
+- **Modules**: Netfilter uses a modular architecture that allows adding various kernel modules as needed to extend its functionality. Modules provide additional features to the netfilter framework.
 
 <br>
 
@@ -126,11 +126,16 @@ As seen from the screenshot below, this also fails.
 ![2 a failed-telnet](https://github.com/iukadike/blog/assets/58455326/5f94068e-4097-4f64-a7c0-e949cade602a)
 
 
-##### Additional notes
+<details>
+<summary>Additional notes</summary>
+<br>
 If, for any reason, you want to reset the rules or start all over again:
+
 - `iptables -t filter -P INPUT ACCEPT`
 - `iptables -t filter -P OUTPUT ACCEPT`
 - `iptables -t filter -F`
+
+</details>
 
 <br>
 
@@ -184,8 +189,14 @@ From the screenshot below, we can see that the internal machine can now ping the
 ![2 b in-ping-router-2](https://github.com/iukadike/blog/assets/58455326/90fbdd85-97c1-4199-82ed-48f55b933a30)
 
 
-##### Additional notes
+<details>
+<summary>Additional notes</summary>
+<br>
+
 You might wonder why I used `-d 10.9.0.11` instead of `-i eth0`. The reason is that it doesn't block traffic to `eth1`. Both interfaces are on the same machine, so there is no forwarding. When `eth0` gets the traffic, it just passes it on to `eth1`.
+</details>
+
+<br>
 
 So far, so good; everything is looking good. We also want all internal hosts to be able to ping outside hosts. As it stands now, they cannot.
 
@@ -479,12 +490,16 @@ The statistics module can make a decision based on either the nth number of pack
   ***internal server 3***
   ![5-rnd-host-3](https://github.com/iukadike/blog/assets/58455326/0f25773f-933b-4dbe-acff-2108c96f0099)
 
-  from the above screenshots, we can see that the load is distributed amongst the three servers, and it is done randomly because there is no defined sequence.
+  From the above screenshots, we can see that the load is distributed amongst the three servers, and it is done randomly because there is no defined sequence.
 
 <br>
 
-#### Additional Notes
+<details>
+<summary>Additional Notes</summary>
+<br>
 When doing configurations remotely, it is important to set the CHAIN policy last because if you set it to DENY without actually setting a rule that permits your remote connection, you will effectively lock yourself out.
+</details>
+
 
 <br>
 
