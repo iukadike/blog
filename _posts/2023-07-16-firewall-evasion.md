@@ -5,7 +5,7 @@ excerpt: There are times when firewalls are implemented to the point that they c
 categories: [firewall, wireshark]
 ---
 
-![firewall-evasion]({{ site.baseurl }}/images/firewall-evasion.webp)
+![firewall-evasion]({{ site.baseurl }}/images/featured-images/firewall-evasion.webp)
 
 There are times when firewalls are implemented to the point that they cause inconvenience for users in a network. Sometimes firewalls can be incorporated to restrict free speech and censor information. Firewalls can be evaded in a couple of ways, but the typical way firewalls are evaded is by tunneling the traffic.
 
