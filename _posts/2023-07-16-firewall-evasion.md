@@ -184,8 +184,11 @@ The following can be drawn from the connection:
 - It is external host `10.8.0.99` that establishes the actual connection with the intended web servers.
 - Since no server and port were provided as targets, one might wonder how `10.8.0.99` knows which server it should connect to. As with a web request that was generated locally, `10.8.0.99` performs DNS resolution and thus obtains the target server. To get the port, `10.8.0.99` looks at the application protocol, and since it is HTTP, it uses the default port 80 as the port.
 
-##### Additional note
+<details>
+<summary>Additional Notes</summary>
+<br>
 When using dynamic port forwarding, you have to tell the application to use the proxy, and the application must support socks in order for you to use dynamic port forwarding.
+</details>
 
 <br>
 
