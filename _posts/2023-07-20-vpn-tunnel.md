@@ -150,11 +150,11 @@ The VPN Client would do the following:
 - Create the virtual interface.
 - Name the virtual interface.
 - Configure the virtual interface.
-  - Assign an IP address to the interface.
-  - Bring up the interface.
+  - Assign an IP address to the interface.
+  - Bring up the interface.
 - Read from the tun interface
 - Write to the sock interface.
-  - Send data to the VPN server using UDP.
+  - Send data to the VPN server using UDP.
 
 ```python
 #!/usr/bin/env python3
@@ -225,12 +225,12 @@ This section involves creating and configuring a TUN interface on the VPN server
 - Create the virtual interface.
 - Name the virtual interface.
 - Configure the virtual interface.
-  - Assign IP address to the interface.
-  - Bring up the interface.
+  - Assign IP address to the interface.
+  - Bring up the interface.
 - Read from the sock interface
 - Write to the tun interface
-- enable IP forwarding
-  - `sysctl net.ipv4.ip_forward=1`
+- Enable IP forwarding
+  - `sysctl net.ipv4.ip_forward=1`
 
 ```python
 #!/usr/bin/env python3
