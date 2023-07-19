@@ -44,45 +44,45 @@ Our goal is to telnet into `192.168.20.5` from the external hosts. From the scre
 
 In order to bypass this restriction, we can create static port forwarding via SSH.
 
-We know that we can SSH into `192.168.20.99` but trying to SSH into `192.1168.20.5` fails. If `192.1168.20.99` is permitted to telnet into `192.1168.20.5`, we can take advantage of this and telnet into `192.1168.20.5` via `192.1168.20.99`.
+We know that we can SSH into `192.168.20.99` but trying to SSH into `192.168.20.5` fails. If `192.168.20.99` is permitted to telnet into `192.168.20.5`, we can take advantage of this and telnet into `192.168.20.5` via `192.168.20.99`.
 
 #### External Host 10.8.0.99
-Armed with this knowledge, we can create a static port forward that will enable us to telnet into `192.1168.20.5` from `192.1168.20.99` after an SSH connection has been established.
+Armed with this knowledge, we can create a static port forward that will enable us to telnet into `192.168.20.5` from `192.168.20.99` after an SSH connection has been established.
 
 The command to do this is:
 
 `ssh -4NT -L 3333:192.168.20.5:23 seed@192.168.20.99`
 
-When we run `telnet 127.0.0.1:3333`, we successfully telnet into `192.1168.20.5`
+When we run `telnet 127.0.0.1:3333`, we successfully telnet into `192.168.20.5`
 
 ***host 10.8.0.99 successfully telnets into 192.168.20.5***
 ![1-successful-telnet-1](https://github.com/iukadike/blog/assets/58455326/d8cfbaf9-07db-41ba-bda2-2da5c9a04a82)
 
 #### External Host 10.8.0.5
-We also create a static port forward that will also enable us to telnet into `192.1168.20.5` from `10.8.0.6`.
+We also create a static port forward that will also enable us to telnet into `192.168.20.5` from `10.8.0.6`.
 
 The command to do this is:
 
 `ssh -4NT -L 4444:192.168.20.5:23 seed@192.168.20.99`
 
-When we run `telnet 127.0.0.1:4444`, we successfully telnet into `192.1168.20.5`
+When we run `telnet 127.0.0.1:4444`, we successfully telnet into `192.168.20.5`
 
 ***host 10.8.0.5 successfully telnets into 192.168.20.5***
 ![1-successful-telnet-2](https://github.com/iukadike/blog/assets/58455326/7ce72335-51e5-4275-b357-fa04019ca7a1)
 
 #### External Host 10.8.0.6
-We also create a static port forward that will also enable us to telnet into `192.1168.20.5` from `10.8.0.6`
+We also create a static port forward that will also enable us to telnet into `192.168.20.5` from `10.8.0.6`
 
 The command to do this is:
 
 `ssh -4NT -L 5555:192.168.20.5:23 seed@192.168.20.99`
 
-When we run `telnet 127.0.0.1:5555`, we successfully telnet into `192.1168.20.5`
+When we run `telnet 127.0.0.1:5555`, we successfully telnet into `192.168.20.5`
 
 ***host 10.8.0.6 successfully telnets into 192.168.20.5***
 ![1-successful-telnet-3](https://github.com/iukadike/blog/assets/58455326/1301d038-cd17-43aa-b19a-94053e0ac1ba)
 
-When we look at the active connections on host `192.1168.20.5`, we can see the telnet connections that emanate from `192.1168.20.99`
+When we look at the active connections on host `192.168.20.5`, we can see the telnet connections that emanate from `192.168.20.99`
 
 ***active sockets on 192.168.20.99***
 ![1-successful-telnet-4](https://github.com/iukadike/blog/assets/58455326/e06a2d00-2381-4d22-931a-3e1f14294d01)
@@ -137,10 +137,10 @@ $ ssh -4NT -D [A’s IP]:<A’s port X> <user id>@<B’s IP>
 // -D: forward connections made on the local socket to the remote socket based on the application protocol
 ```
 
-We know that we can SSH into `10.1168.20.99` as the firewall doesn't block this connection. Once we successfully set up the tunnel, we can take advantage of it and visit the blocked websites.
+We know that we can SSH into `10.168.20.99` as the firewall doesn't block this connection. Once we successfully set up the tunnel, we can take advantage of it and visit the blocked websites.
 
 #### Internal Host 192.168.20.99
-Equiped with this knowledge, we can create a dynamic port forward that will enable us to visit the blocked websites via `192.1168.20.99` after an SSH connection has been established.
+Equiped with this knowledge, we can create a dynamic port forward that will enable us to visit the blocked websites via `192.168.20.99` after an SSH connection has been established.
 
 The command to do this is:
 
@@ -152,7 +152,7 @@ When we run `curl --proxy socks5h://127.0.0.1:8888 -I http://www.example.com`, t
 ![2-blocked-bypass-1](https://github.com/iukadike/blog/assets/58455326/0e3c7185-1006-45d9-bb46-ecc9993a8af5)
 
 #### Internal Host 192.168.20.5
-We also create a dynamic port forward that will also enable us to access the blocked websites from `192.1168.20.5`.
+We also create a dynamic port forward that will also enable us to access the blocked websites from `192.168.20.5`.
 
 The command to do this is:
 
@@ -164,7 +164,7 @@ When we run `curl --proxy socks5h://127.0.0.1:8888 -I http://www.example.com`, t
 ![2-blocked-bypass-2](https://github.com/iukadike/blog/assets/58455326/ad5fc902-b1d6-4556-9313-a4b1f6d63c14)
 
 #### Internal Host 192.168.20.6
-We also create a dynamic port forward that will also enable us to access the blocked websites from `192.1168.20.5`.
+We also create a dynamic port forward that will also enable us to access the blocked websites from `192.168.20.5`.
 
 The command to do this is:
 
@@ -246,17 +246,201 @@ With the dynamic port forwarding setup, we run the Python program on `192.168.20
 
 <br>
 
-<!--
 ### Virtual Private Network (VPN)
-VPN is often used to bypass firewall. SSH can be used to create a VPN, however, we need to change some default SSH settings on the server to allow VPN creation.
-The changes made in the configuration file found at `/etc/ssh/sshd_config`: are listed in the following.
+
+A VPN is often used to bypass firewalls. SSH can be used to create a VPN; however, we need to change some default SSH settings on the server to allow VPN creation.
+The changes made in the configuration file found at `/etc/ssh/sshd_config`:
 
 ```
 PermitRootLogin yes
 PermitTunnel yes
 ```
 
+The process of creating a VPN using SSH involves the following:
+
+- run the SSH command as root, instructing both machines to create a tun device
+  - `ssh -w any:any root@<VPN Server’s IP>`
+
+- configure the tun interface on the client
+  - assign an IP address to the tun interface
+  - bring the tun interface up
+
+- configure the tun interface on the server
+  - assign an IP address to the tun interface
+  - bring the tun interface up
+
+- set up routes on the client
+  - configure the blocked network address to pass through the tun interface
+  - configure the server address to pass through the eth interface (or any interface publicly facing the internet)
+
+- set up ip forwarding and NAT on the server
+  - configure the server to forward packets to other machines
+  - `sysctl net.ipv4.ip_forward=1`
+  - configure the server to perform NAT so it gets back the response to the forwarded packets
+  - `iptables -t nat -A POSTROUTING -j MASQUERADE -o eth0`
+
+#### Bypassing Ingress Firewall
+
+##### On the client side
+
+- Run the ssh command to create a tunnel
+  - `ssh -4 -w any:any root@192.168.20.99`
+
+- Check for the newly created tun device. It will be the tun interface without an IP address (this will enable you to obtain the right tun device to configure if there are multiple tun devices present on the device).
+  - `ip -br addr`
+
+    ***interface device on client***
+    ![1 1-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/31e1d0b3-cefe-4231-b938-5bc17f022404)
+
+- Configure the tun device
+  - `ip addr add 192.168.53.88/24 dev tun0`
+
+- Enable the tun interface by bringing it up
+ -  `ip link set tun0 up`
+
+- Set up routes
+  - `ip route add 192.168.20.0/24 via 192.168.53.88 dev tun0`
+  - `ip route add 192.168.20.99 via 10.8.0.11 dev eth0`
+
+    ***routes on client***
+    ![1 2-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/4a07df96-1895-4a7e-8257-3dd20b46b84b)
+
+##### On the server side
+
+Using the SSH session obtained,
+
+- Check for the newly created tun device. It will be the tun interface without an IP address (this will enable you to obtain the right tun device to configure if there are multiple tun devices present on the device).
+  - `ip -br addr`
+
+    ***interface device on server***
+    ![1 3-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/a61b399a-c7ea-4f5c-9f8c-fe6cc963f5c5)
+
+- Configure the tun device
+  - `ip addr add 192.168.53.99/24 dev tun0`
+
+- Enable the tun interface by bringing it up
+ -  `ip link set tun0 up`
+
+- Enable ip forwarding and NAT
+  - `sysctl net.ipv4.ip_forward=1`
+  - `iptables -t nat -A POSTROUTING -j MASQUERADE -o eth0`
+
+##### Testing the tunnel
+
+Pinging `192.168.20.99`, `192.168.20.5`, and `192.168.20.6` works.
+
+***pinging 192.168.20.99***
+![1 4-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/a5da3591-f43e-4ddb-8357-aae7ac23efe0)
+
+***pinging 192.168.20.5***
+![1 5-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/782542f9-2d7e-48d7-89de-77d8afcf2027)
+
+***pinging 192.168.20.6***
+![1 6-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/3a057255-02bc-48fb-bd31-bb9ac6313b64)
+
+Also, the telnet connection to `192.168.20.5`, and `192.168.20.6` is successful, while the telnet connection to `192.168.20.99` fails. This happens because our connections to `192.168.20.99` don't go through the tunnel. The other end of our tunnel needs to be reachable over the internet, meaning the router can see and block the traffic.
+
+***telnet into 192.168.20.99***
+![1 7-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/20ca7946-323e-4fb0-9d78-18bd4b87577a)
+
+***telnet into 192.168.20.5***
+![1 8-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/ceea2f8f-9adc-4e42-9f2d-5a01de12c41c)
+
+***telnet into 192.168.20.6***
+![1 9-vpn-ingress](https://github.com/iukadike/blog/assets/58455326/1a127f53-b567-4356-ad48-dc6e8dd6e383)
+
 <br>
--->
+
+#### Bypassing Egress Firewall
+
+The following websites are blocked by the firewall
+- `www.example.com`
+
+  ![2 1-vpn-egress](https://github.com/iukadike/blog/assets/58455326/4b773dd5-d512-4e7a-aa32-ad650b7dc983)
+
+- `www.google.com`
+
+  ![2 2-vpn-egress](https://github.com/iukadike/blog/assets/58455326/fce34ccb-c559-44e8-a045-fc76883eff12)
+
+- `www.facebook.com`
+
+  ![2 3-vpn-egress](https://github.com/iukadike/blog/assets/58455326/2a935a91-34c1-4fb0-bfbd-eb6d150fbf2b)
+
+Our goal is to use a VPN to bypass this restriction and access the blocked websites.
+
+##### On the client side
+
+- Run the ssh command to create a tunnel
+  - `ssh -4 -w any:any root@10.8.0.99`
+
+- Check for the newly created tun device. It will be the tun interface without an IP address (this will enable you to obtain the right tun device to configure if there are multiple tun devices present on the device).
+  - `ip -br addr`
+
+    ***interface device on client***
+    ![2 4-vpn-egress](https://github.com/iukadike/blog/assets/58455326/46b7956a-d027-4a15-8f7d-c33500443ad6)
+
+- Configure the tun device
+  - `ip addr add 192.168.53.88/24 dev tun0`
+
+- Enable the tun interface by bringing it up
+ -  `ip link set tun0 up`
+
+- Set up routes
+  - `ip route replace default via 192.168.53.88 dev tun0` ("default" ensures that any address without and explicit route follows the default route)
+  - `ip route add 10.8.0.99 via 192.168.20.11 dev eth0`
+
+    ***routes on client***
+    ![2 5-vpn-egress](https://github.com/iukadike/blog/assets/58455326/572e2a16-67bb-4157-ab01-cb242f3a125c)
+
+##### On the server side
+
+Using the SSH session obtained,
+
+- Check for the newly created tun device. It will be the tun interface without an IP address (this will enable you to obtain the right tun device to configure if there are multiple tun devices present on the device).
+  - `ip -br addr`
+
+    ***interface device on server***
+    ![2 6-vpn-egress](https://github.com/iukadike/blog/assets/58455326/b864694a-7b65-4c78-a6ae-b6447f781e0a)
+
+- Configure the tun device
+  - `ip addr add 192.168.53.99/24 dev tun0`
+
+- Enable the tun interface by bringing it up
+ -  `ip link set tun0 up`
+
+- Enable ip forwarding and NAT
+  - `sysctl net.ipv4.ip_forward=1`
+  - `iptables -t nat -A POSTROUTING -j MASQUERADE -o eth0`
+
+##### Testing the tunnel
+
+I attampt to access the blocked websites and they are accessible, meaning the firewall has been successfully bypassed.
+
+***`www.example.com`***
+![2 7-vpn-egress](https://github.com/iukadike/blog/assets/58455326/77a18058-57c8-4e54-ad58-30f6930b1377)
+
+***`www.google.com`***
+![2 8-vpn-egress](https://github.com/iukadike/blog/assets/58455326/c8148cf0-fa36-4686-88f8-763c65deea0c)
+
+***`www.facebook.com`***
+![2 9-vpn-egress](https://github.com/iukadike/blog/assets/58455326/fc5baa9d-ff57-4b28-a06f-bec743710532)
+
+<details>
+  <summary>Additional notes</summary>
+  <br>
+  When working with the routing table, you have to take precaution because if you mess up the routing table, network connectivity will suffer.
+  <br>
+  Best practice is to backup the routing table before making any modification
+  <ul>
+    <li>ip route show > route_backup.txt</li>
+  </ul>
+  You can easily restore the routing table
+  <ul>
+    <li>ip route flush all</li>
+    <li>ip route < route_backup.txt</li>
+  </ul>
+</details>
+
+<br>
 
 _Thanks for reading_
