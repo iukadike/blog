@@ -414,7 +414,7 @@ Using the SSH session obtained,
 
 ##### Testing the tunnel
 
-I attampt to access the blocked websites and they are accessible, meaning the firewall has been successfully bypassed.
+I attempted to access the blocked websites, and they are accessible, meaning the firewall has been successfully bypassed.
 
 ***`www.example.com`***
 ![2 7-vpn-egress](https://github.com/iukadike/blog/assets/58455326/77a18058-57c8-4e54-ad58-30f6930b1377)
