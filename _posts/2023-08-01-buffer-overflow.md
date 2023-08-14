@@ -41,6 +41,7 @@ To make it easy to copy the machine code, we can perform further processing on t
 
 - `objdump -Mintel --disassemble test.o | cut -f2 | sed 's/ //g' | tr -d '\n'`
 
+<br>
 
 ### Using the shellcode in attacking code.
 
@@ -48,14 +49,18 @@ In many cases of buffer-overflow, the vulnerability is caused by the strcpy() fu
 
 There are many techniques that can get rid of zeros from the shellcode:
 
-- xoring the 32-bit registers and pushing it to the stack
+<details>
+<summary>xoring the 32-bit registers and pushing it to the stack</summary>
 
   ```
   xor eax eax
   push eax
   ```
 
-- assigning an 8-bit number to one of the 8-bits registers
+</details>
+
+<details>
+<summary>assigning an 8-bit number to one of the 8-bits registers</summary>
 
   ```
   xor eax eax
@@ -63,7 +68,10 @@ There are many techniques that can get rid of zeros from the shellcode:
   push eax
   ```
 
-- using bit-shift to replace filler characters i.e. to turn "xyz#" into "xyz\0"
+</details>
+
+<details>
+<summary>using bit-shift to replace filler characters i.e. to turn "xyz#" into "xyz\0"</summary>
 
   ```
   ;for computers that are little endian i.e. like reading from right to left
@@ -78,6 +86,8 @@ There are many techniques that can get rid of zeros from the shellcode:
   shl eax, 8
   push eax
   ```
+
+</details>
 
 ####  Providing Arguments for System Calls
 
@@ -330,14 +340,16 @@ is done through the syscall instruction, and the first three arguments for the s
 <summary>64-bit equivalent registers</summary>
 
 - eax = rax
-
 - ebx = rdi
-
 - ecx = rsi
-
 - edx = rdx
 
 </details>
+
+<br>
+
+###  Launching Attack on 32-bit Program When the Buffer Size is Known
+
 
 
 
