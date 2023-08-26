@@ -649,8 +649,8 @@ Thanks for reading.
 <details>
 <summary>References</summary>
 
-[Red Team Notes - return-to-libc](https://www.ired.team/offensive-security/code-injection-process-injection/binary-exploitation/return-to-libc-ret2libc)
+- [Red Team Notes - return-to-libc](https://www.ired.team/offensive-security/code-injection-process-injection/binary-exploitation/return-to-libc-ret2libc)
 
-[Red Team Notes - ROP](https://www.ired.team/offensive-security/code-injection-process-injection/binary-exploitation/rop-chaining-return-oriented-programming)
+- [Red Team Notes - ROP](https://www.ired.team/offensive-security/code-injection-process-injection/binary-exploitation/rop-chaining-return-oriented-programming)
 
 </details>
