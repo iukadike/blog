@@ -16,24 +16,41 @@ A shellcode is a piece of code that is used to spawn a command shell or execute 
 Given an assembly code `test.s`, such code can be compiled using nasm 
 
 - on Linux:
-  - `nasm -f elf32 test.s -o test.o` (for 32-bit)
-  - `ld -m elf_i386 test.o -o test` (for 32-bit)
-  - `nasm -f elf32 test.s -o test.o` (for 64-bit)
-  - `ld -m elf_x86_64 test.o -o test` (for 64-bit)
+  - for 32-bit systems
+    ```bash
+    nasm -f elf32 test.s -o test.o
+    ld -m elf_i386 test.o -o test
+    ```
+  - for 64-bit systems
+    ```bash
+    nasm -f elf32 test.s -o test.o
+    ld -m elf_x86_64 test.o -o test
+    ```
 
 - on Windows:
-  - `nasm -f win32 test.s -o test.o` (for 32-bit)
-  - `nasm -f win64 test.s -o test.o` (for 64-bit)
-  - `gcc test.obj -o test.exe`
+  - for 32-bit systems
+    ```bash
+    nasm -f win32 test.s -o test.o
+    gcc test.obj -o test.exe
+    ```
+  - for 64-bit systems
+    ```bash
+    nasm -f win64 test.s -o test.o
+    gcc test.obj -o test.exe
+    ```
 
 In a buffer overflow attack, we need to make use of the machine code, not the assembly code or executable, as we need to include the shellcode in our attack
 code. Thus, we need to extract the machine code from the executable file or the object file. One way is to use the objdump command.
 
-- `objdump -Mintel --disassemble test.o`
+```bash
+objdump -Mintel --disassemble test.o
+```
 
 To make it easy to copy the machine code, we can perform further processing on the output.
 
-- `objdump -Mintel --disassemble test.o | cut -f2 | sed 's/ //g'`
+```bash
+objdump -Mintel --disassemble test.o | cut -f2 | sed 's/ //g'
+```
 
 <br>
 
@@ -45,27 +62,32 @@ There are many techniques that can get rid of zeros from the shellcode:
 
 <details>
 <summary>xoring the 32-bit registers and pushing it to the stack</summary>
+<div markdown="1">
 
 ```assembly
 xor eax eax
 push eax
 ```
 
+</div>
 </details>
 
 <details>
 <summary>assigning an 8-bit number to one of the 8-bit registers</summary>
-
+<div markdown="1">
+	
 ```assembly
 xor eax eax
 mov al, 0x99
 push eax
 ```
 
+</div>
 </details>
 
 <details>
 <summary>using bit-shift to replace filler characters, i.e., to turn "xyz#" into "xyz\0"</summary>
+<div markdown="1">
 
 ```assembly
 ;for computers that are little endian, i.e., like reading from right to left
@@ -81,6 +103,7 @@ shl eax, 8
 push eax
 ```
 
+</div>
 </details>
 
 ####  Providing Arguments for System Calls
@@ -95,7 +118,7 @@ EDX: this is used to store the third argument to the function.
 
 So in the case of execve, we have the function definition as:
 
-```
+```bash
 execve(const char *pathname, char *const _Nullable argv[],
                   char *const _Nullable envp[])
 ```
@@ -104,6 +127,7 @@ This means EAX would store the execve function itself (execve has a system call 
 
 <details>
 <summary>Seed lab code</summary>
+<div markdown="1">
 
 ```assembly
 section .text
@@ -127,10 +151,12 @@ section .text
       int 0x80
 ```
 
+</div>
 </details>
 
 <details>
-<summary>My solution to <code>/bin/sh -c "ls -la"</code></summary>
+<summary>My solution to /bin/sh -c "ls -la"</summary>
+<div markdown="1">
 
 ```assembly
 section .text
@@ -176,10 +202,12 @@ section .text
       int 0x80
 ```
 
+</div>
 </details>
 
 <details>
-<summary>My solution to <code>/usr/bin/env</code> (supplying environment variables)</summary>
+<summary>My solution to /usr/bin/env (supplying environment variables)</summary>
+<div markdown="1">
 
 ```assembly
 section .text
@@ -233,6 +261,7 @@ section .text
       int 0x80
 ```
 
+</div>
 </details>
 
 #### Using Code Segment
@@ -240,7 +269,8 @@ section .text
 Rather than dynamically constructing all the necessary data structures on the stack, so their addresses can be obtained from the stack pointer `esp`, data can be stored in the code region, and its address is obtained via the function call mechanism.
 
 <details>
-<summary>My solution to <code>/bin/sh -c "ls -la"</code> using code segment</summary>
+<summary>My solution to /bin/sh -c "ls -la" using code segment</summary>
+<div markdown="1">
 
 ```assembly
 section .text
@@ -279,10 +309,12 @@ section .text
  	       ;          1         2         3
 ```
 
+</div>
 </details>
 
 <details>
-<summary>My solution to <code>/usr/bin/env</code> (supplying environment variables) using code segment</summary>
+<summary>My solution to /usr/bin/env (supplying environment variables) using code segment</summary>
+<div markdown="1">
 
 ```assembly
 section .text
@@ -324,6 +356,7 @@ section .text
  	    ;             1         2         3         4         5 
 ```
 
+</div>
 </details>
 
 ___
@@ -332,12 +365,14 @@ Writing 64-bit shellcode is not too different from writing 32-bit shellcode. The
 is done through the syscall instruction, and the first three arguments for the system call are stored in the rdx, rsi, rdi registers, respectively.
 <details>
 <summary>64-bit equivalent registers</summary>
+<div markdown="1">
 
 - eax = rax
 - ebx = rdi
 - ecx = rsi
 - edx = rdx
 
+</div>
 </details>
 
 <br>
@@ -350,6 +385,7 @@ When the vulnerable program is run, our malicious code is copied on the stack; h
 
 <details>
 <summary>Book code for vulnerable program</summary>
+<div markdown="1">
 
 ```c
 #include <stdlib.h>
@@ -404,6 +440,7 @@ void dummy_function(char *str)
 }
 ```
 
+</div>
 </details>
 
 Now we can get the required values needed to prepare the exploit by running gdb.
@@ -464,6 +501,7 @@ with open('badfile', 'wb') as f:
 
 <details>
 <summary>Brief explanation of exploit code</summary>
+<div markdown="1">
 
 The vulnerable program reads the first 517 bytes from a file. Thus, the aim of the exploit code is to produce a file that is only 517 bytes and fill it with NOPs. This will form the base of the exploit.
 
@@ -492,6 +530,7 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
+</div>
 </details>
 
 ![task-1-b](https://github.com/iukadike/blog/assets/58455326/fbb031b2-ded7-4f9e-9bb7-98440b3db322)
@@ -550,6 +589,7 @@ with open('badfile', 'wb') as f:
 
 <details>
 <summary>Brief explanation of exploit code</summary>
+<div markdown="1">
 
 The vulnerable program reads the first 517 bytes from a file. Thus, the aim of the exploit code is to produce a file that is only 517 bytes and fill it with NOPs. This will form the base of the exploit.
 
@@ -580,6 +620,7 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
+</div>
 </details>
 
 ![task-2-b](https://github.com/iukadike/blog/assets/58455326/94275829-e166-4e22-95c1-f7b98c0ed134)
@@ -639,6 +680,7 @@ with open('badfile', 'wb') as f:
 
 <details>
 <summary>Brief explanation of exploit code</summary>
+<div markdown="1">
 
 The vulnerable program reads the first 517 bytes from a file. Thus, the aim of the exploit code is to produce a file that is only 517 bytes and fill it with NOPs. This will form the base for the exploit.
 
@@ -668,6 +710,7 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
+</div>
 </details>
 
 ![task-3-b](https://github.com/iukadike/blog/assets/58455326/262e275e-dfcd-4873-9ac2-e02318464350)
@@ -728,6 +771,7 @@ with open('badfile', 'wb') as f:
 
 <details>
 <summary>Brief explanation of exploit code</summary>
+<div markdown="1">
 
 The vulnerable program reads the first 517 bytes from a file. Thus, the aim of the exploit code is to produce a file that is only 517 bytes and fill it with NOPs. This will form the base of the exploit.
 
@@ -757,6 +801,7 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
+</div>
 </details>
 
 ![task-4-b](https://github.com/iukadike/blog/assets/58455326/f26acfcd-8bdd-4956-90ba-ea49147bcfa1)
@@ -774,6 +819,7 @@ To defeat this countermeasure, all we need to do is change the real UID, so it e
 
 <details>
 <summary>Defeating Dash’s Countermeasure</summary>
+<div markdown="1">
 
 The following assembly code shows how to invoke setuid(0). It will usually be placed before invoking /bin/sh, so it can be invoked first.
 
@@ -791,6 +837,7 @@ mov al, 0x69 ; setuid()’s system call number
 syscall
 ```
 
+</div>
 </details>
 
 **image**
