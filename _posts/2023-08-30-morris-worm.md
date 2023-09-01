@@ -17,6 +17,7 @@ In this post, I aim to document my findings and observations while performing a 
 
 <details>
 <summary>Lab Notes</summary>
+<div markdown="1">
 
 Address randomization is disabled.
 ```bash
@@ -24,6 +25,7 @@ sudo /sbin/sysctl -w kernel.randomize_va_space=0
 ```
 </details>
 
+</div>
 <br>
 
 ### Attacking the First Target
@@ -34,6 +36,7 @@ The author of the lab has provided a skeleton code that will be edited and used 
 
 <details>
 <summary>Morris Worm Attack Lab Skeleton Code</summary>
+<div markdown="1">
 
 ```python
 #!/bin/env python3
@@ -119,6 +122,7 @@ while True:
     # Remove this line if you want to continue attacking others
     exit(0)
 ```
+</div>
 </details>
 
 
@@ -155,10 +159,12 @@ def createBadfile():
 
 <details>
 <summary>Brief Code Explanation</summary>
+<div markdown="1">
 
 The return address is after the frame pointer. This means that the return address is ebp+4 (for 32-bit). To find the offset, we have to find the distance of the return address from the start of the buffer. This is calculated as `ebp-buffer+4`
 
 We have chosen the address to store in our return address as ebp+12 because we need the return address value to be the address of one of the NOPs.
+</div>
 </details>
 
 To test the attack, we simply run the attack program. If the attack is successful, a smiley face will be printed on the target machine. As seen from the screenshot below, the attack was successful.
@@ -303,12 +309,16 @@ We can confirm the code works by viewing the internet map provided in the lab. T
 
 [task-4-b.webm](https://github.com/iukadike/blog/assets/58455326/966f01a9-e0fe-4b48-83e3-89b985897af8)
 
+<video src="https://github-production-user-asset-6210df.s3.amazonaws.com/58455326/265040055-966f01a9-e0fe-4b48-83e3-89b985897af8.webm" controls="controls" style="max-width: 740px;">
+</video>
+
 <br>
 
 ###  Releasing the Worm on the Mini Internet
 
 <details>
 <summary>Complete Worm Code</summary>
+<div markdown="1">
 
 ```python
 #!/bin/env python3
@@ -416,6 +426,7 @@ while True:
     # Remove this line if you want to continue attacking others
     #exit(0)
 ```
+</div>
 </details>
 
 This task involves switching to a larger internet provided in the lab. The purpose of this task is to see how the worm spreads on a more realistic emulated internet. The mini-internet is comprised of about 240 hosts.
@@ -425,6 +436,9 @@ For this task,the IP address will be randomly generated with the following patte
 Hosts `10.150.0.Y` will be used as a control group. These hosts will be exempt from infection. The video speed is 8x.
 
 [task-5.webm](https://github.com/iukadike/blog/assets/58455326/39fd7fda-3070-4ce0-9610-a68ffda60d65)
+
+<video src="https://github-production-user-asset-6210df.s3.amazonaws.com/58455326/265040162-39fd7fda-3070-4ce0-9610-a68ffda60d65.webm" controls="controls" style="max-width: 740px;">
+</video>
 
 The hosts that did not flash in the video belong to the control group.
 
