@@ -64,7 +64,7 @@ There are many techniques that can get rid of zeros from the shellcode:
 <summary>xoring the 32-bit registers and pushing it to the stack</summary>
 <div markdown="1">
 
-```assembly
+```nasm
 xor eax eax
 push eax
 ```
@@ -76,7 +76,7 @@ push eax
 <summary>assigning an 8-bit number to one of the 8-bit registers</summary>
 <div markdown="1">
 	
-```assembly
+```nasm
 xor eax eax
 mov al, 0x99
 push eax
@@ -89,7 +89,7 @@ push eax
 <summary>using bit-shift to replace filler characters, i.e., to turn "xyz#" into "xyz\0"</summary>
 <div markdown="1">
 
-```assembly
+```nasm
 ;for computers that are little endian, i.e., like reading from right to left
 mov eax "xyz#"
 shl eax, 8
@@ -129,7 +129,7 @@ This means EAX would store the execve function itself (execve has a system call 
 <summary>Seed lab code</summary>
 <div markdown="1">
 
-```assembly
+```nasm
 section .text
   global _start
     _start:
@@ -158,7 +158,7 @@ section .text
 <summary>My solution to /bin/sh -c "ls -la"</summary>
 <div markdown="1">
 
-```assembly
+```nasm
 section .text
   global _start
     _start:
@@ -209,7 +209,7 @@ section .text
 <summary>My solution to /usr/bin/env (supplying environment variables)</summary>
 <div markdown="1">
 
-```assembly
+```nasm
 section .text
   global _start
     _start:    
@@ -272,7 +272,7 @@ Rather than dynamically constructing all the necessary data structures on the st
 <summary>My solution to /bin/sh -c "ls -la" using code segment</summary>
 <div markdown="1">
 
-```assembly
+```nasm
 section .text
   global _start
     _start:
@@ -316,7 +316,7 @@ section .text
 <summary>My solution to /usr/bin/env (supplying environment variables) using code segment</summary>
 <div markdown="1">
 
-```assembly
+```nasm
 section .text
   global _start
     _start:
@@ -823,7 +823,7 @@ To defeat this countermeasure, all we need to do is change the real UID, so it e
 
 The following assembly code shows how to invoke setuid(0). It will usually be placed before invoking /bin/sh, so it can be invoked first.
 
-```assembly
+```nasm
 ; Invoke setuid(0): 32-bit
 xor ebx, ebx ; ebx = 0: setuid()’s argument
 xor eax, eax
