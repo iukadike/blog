@@ -23,9 +23,9 @@ Address randomization is disabled.
 ```bash
 sudo /sbin/sysctl -w kernel.randomize_va_space=0
 ```
+</div>
 </details>
 
-</div>
 <br>
 
 ### Attacking the First Target
