@@ -18,6 +18,7 @@ Lab constraints:
 
 <details>
 <summary>The Vulnerable Program</summary>
+<div markdown="1">
 
 ```c
 #include <stdlib.h>
@@ -68,6 +69,7 @@ int main(int argc, char **argv)
 }
 ```
 
+</div>
 </details>
 
 <br>
@@ -336,9 +338,11 @@ with open("badfile", "wb") as f:
 
 <details>
 <summary>Code Explanation</summary>
+<div markdown="1">
 
 Unlike the previous code, where we did not need to build using the stack (all we needed was already present in memory), we need to dynamically build the arguments for execv. However, we cannot use the buffer in bof() because the buffer size is very small. But our code is already present in memory in the main() function. So instead of building using `buffer` in bof(), we build using `input` in main(). This is why we need the address of the input in main. In other words, we use the buffer in main() because the buffer in bof() is quite small and cannot fit what we want to store.
 
+</div>
 </details>
 
 When we run the exploit to generate the badfile and run the vulnerable program, the exploit succeeds and we obtain a root shell.
@@ -564,6 +568,7 @@ with open("badfile", "wb") as f:
 
 <details>
 <summary>Code Explanation</summary>
+<div markdown="1">
 
 ```python
 content = bytearray(0xaa for i in range(22))
@@ -634,6 +639,7 @@ ___
 
 Finally, we call setuid(), system() and exit()
 
+</div>
 </details>
 
 When the vulnerable program is run, we see that the exploit is successful and we obtain a root shell.
@@ -648,9 +654,11 @@ Thanks for reading.
 
 <details>
 <summary>References</summary>
+<div markdown="1">
 
 - [Red Team Notes - return-to-libc](https://www.ired.team/offensive-security/code-injection-process-injection/binary-exploitation/return-to-libc-ret2libc)
 
 - [Red Team Notes - ROP](https://www.ired.team/offensive-security/code-injection-process-injection/binary-exploitation/rop-chaining-return-oriented-programming)
 
+</div>
 </details>
