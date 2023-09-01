@@ -5,6 +5,8 @@ excerpt: Robert Tappan Morris created the Morris worm in 1988. He claimed that t
 categories: [bof, worm, malware]
 ---
 
+![Morris worm]({{ site.baseurl }}/images/featured-images/morris-worm.jpg)
+
 A computer worm is a type of malware that is designed to self-replicate across computer networks without needing any human interaction. It can propagate rapidly, causing widespread damage. One such case is that of the Morris worm.
 
 Robert Tappan Morris created the Morris worm in 1988. He claimed that the worm was not intended to cause harm but rather to gauge the size of the internet. The worm ended up causing widespread damage and disruption as it quickly got out of control due to its ability to replicate and spread rapidly. The worm started to congest network traffic as it continued to replicate, leading to system crashes and slowdowns.
