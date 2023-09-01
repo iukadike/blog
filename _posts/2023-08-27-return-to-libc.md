@@ -80,7 +80,7 @@ The libc library will be loaded into memory when our program is executed, and be
 
 When we run gdb on the vulnerable program, we execute the following commands to determine the memory address of system(), execv(), and exit().
 
-```assembly
+```nasm
 b main
 run
 p system
@@ -103,7 +103,7 @@ We know for a fact that the string `/bin/sh` is present in the libc library. We 
 
 In `gdp-peda`, we can directly search for this string and get the memory address.
 
-```assembly
+```nasm
 find "/bin/sh"
 ```
 
@@ -112,7 +112,7 @@ find "/bin/sh"
 
 Another method is to inspect the memory layout of the vulnerable program, find the start address of the libc library, and add the offset of `/bin/sh` found within the library.
 
-```assembly
+```nasm
 gdb-peda$ info proc map
 ```
 
@@ -150,7 +150,7 @@ export MYSHELL=/bin/sh
 
 We then use the address of this variable as an argument to `system()`. The location of this variable is on the stack and can be obtained in `gdb-peda` by searching for it:
 
-```assembly
+```nasm
 find "/bin/sh"
 ```
 
