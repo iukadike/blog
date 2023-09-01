@@ -279,10 +279,11 @@ p > img {
 }
 
 .site-avatar {
-  float: left;
-  width: 70px;
-  height: 70px;
-  margin-right: 15px;
+  float: none;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  display: block;
 
   @include mobile {
     float: none;
@@ -299,7 +300,7 @@ p > img {
 }
 
 .site-info {
-  float: left;
+  float: none;
 
   @include mobile {
     float: none;
@@ -316,7 +317,7 @@ p > img {
   font-weight: 300;
   font-size: 28px;
   letter-spacing: 1px;
-  text-align: left;
+  text-align: center;
 
   @include mobile {
     text-align: center;
@@ -327,6 +328,7 @@ p > img {
   margin: -5px 0 0 0;
   color: $gray;
   font-size: 16px;
+  text-align: center;
 
   @include mobile {
     margin: 3px 0;
