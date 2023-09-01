@@ -220,9 +220,9 @@ img {
 }
 
 p > img {
-  text-align: center;
+  text-align: left;
   display: block;
-  margin: 0 auto;
+  margin: unset;
 }
 
 // Fixes images in popup boxes from Google Translate
