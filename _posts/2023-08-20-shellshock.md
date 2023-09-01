@@ -49,7 +49,7 @@ Curl allows users to control most fields in an HTTP request. Some of the options
 
 - `-e` or `--referer`: this is used to set a custom referer url
 
-- `-H` or `--header`: this is used to set a custom HTTP header value in the form of "KEY:VALUE"
+- `-H` or `--header`: this is used to set a custom HTTP header value in the form of `KEY:VALUE`
 
 ___
 
