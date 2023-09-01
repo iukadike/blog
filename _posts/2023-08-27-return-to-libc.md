@@ -385,7 +385,7 @@ Address of the foo() function (this will overwrite the original return address)
 
 The address of `foo()` can be obtained by runnning the vulnerable program in gdb and executing the following:
 
-```asssembly
+```nasm
 b main
 run
 p foo
@@ -485,7 +485,7 @@ Since both `setuid()` and `system()` take one argument, we are interested in the
 
 The address of `system()`, `sprintf()` and `setuid()` can be obtained by runnning the vulnerable program in gdb and executing the following:
 
-```asssembly
+```nasm
 b main
 run
 p system
