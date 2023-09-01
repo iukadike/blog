@@ -24,15 +24,15 @@ body {
   background: #fff;
   font-family: -system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   color: #404040;
-  line-height: 1.7;
+  line-height: 1.5;
   font-weight: 400;
-  //font-size: 18px;
+  font-size: 18px;
   height: 100%;
 }
 
 .container {
   margin: 0 auto;
-  max-width: 740px;
+  max-width: 940px;
   padding: 0 10px;
   width: 100%;
 }
@@ -53,14 +53,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 34px;
   a {
     color: inherit;
   }
 }
 
 h2 {
-  font-size: 22px;
+  font-size: 30px;
 }
 
 @media (min-width: 769px){
@@ -76,11 +76,11 @@ h2 {
 }
 
 h3 {
-  font-size: 18px;
+  font-size: 24px;
 }
 
 h4 {
-  font-size: 16px;
+  font-size: 20px;
   color: #222;
 }
 
@@ -335,10 +335,11 @@ p > img {
 
 nav {
   float: none;
-  display: inline-block;
+  display: block;
   margin-top: 23px; // @TODO: Vertically middle align
   font-family: $helveticaNeue;
   font-size: 18px;
+  text-align: center;
 
   @include mobile {
     float: none;
@@ -702,8 +703,8 @@ Modules - reusable parts of our design
 }
 
 .post-tags a {
-  font-size: 14px;
-  padding: 2px 13px;
+  font-size: 18px;
+  padding: 2px 0px;
   border: none;
   //background-color: #4CAF50;
   //border-radius: 50px;
@@ -1153,9 +1154,9 @@ Modules - reusable parts of our design
 // Additional CSS to tweak UI;
 .highlight {
   background-color: #014;
-  font-size: 90%;
+  font-size: 100%;
 }
 
 .highlighter-rouge { 
-    font-size: 14px;
+    font-size: 16px;
 }
