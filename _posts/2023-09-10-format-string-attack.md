@@ -744,4 +744,22 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 ### Attacking the 64-bit Server Program
 
+Attacking a 64-bit server is tricky because the memory address is 8-bytes with zeros in the address. Only the address from 0x00 through 0x00007FFFFFFFFFFF is allowed and every 64-bit address has the highest two bytes as zeros. This causes a problem as when `printf()` parses the format string, it will stop the parsing when it sees a zero. 
+
+We know that zeros will terminate copying to memory if strpcy() is used, but the vulnerable program does not make use of strcpy(). This means we can have zeros in our input, but because of the `printf()`, we will have to place them where they cannot interrupt `printf()` parsing the format string.
+
+A method I have taken to solve this problem is to place the 64-bit addresses after the format specifiers in the format string. Remember that during the 32-bit attack, the 32-bit addresses were placed at the beginning of the format string.
+
+
+#### Printing Out Stack Data
+
+When we use the "%x" format specifier, it instructs the program to access a memoey location and print out the hex value of the contents in that memory location. For this task we would need to build our input to the server such that when the values in memory are printed, we can tell the offset from the beginning of the stack.
+
+Thus our input will start with a value we know i.e. AAAA = \x41\x41\x41\x41 and will be made up of an increasing number of "%x" until we are able to see the value \x41\x41\x41\x41 printed out.
+
+
+
+
+
+
 
