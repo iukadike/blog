@@ -983,7 +983,7 @@ nc -nvl 9090
 then run the attack.
 ```bash
 python3 badfile.py
-cat badfile | nc -w2 10.9.0.5 9090
+cat badfile | nc -w2 10.9.0.6 9090
 ```
 
 **image**
@@ -1042,3 +1042,42 @@ content += (r2).to_bytes(8,byteorder='little')
 <br>
 
 ### Mitigating Format String Attack
+
+At the start of the lab, when we compiled the programs, the gcc compiler printed out the below warning message:
+
+```bash 
+gcc -o server server.c
+gcc -DBUF_SIZE=100 -z execstack  -static -m32 -o format-32 format.c
+format.c: In function ‘myprintf’:
+format.c:44:5: warning: format not a string literal and no format arguments [-Wformat-security]
+   44 |     printf(msg);
+      |     ^~~~~~
+gcc -DBUF_SIZE=100 -z execstack  -o format-64 format.c
+format.c: In function ‘myprintf’:
+format.c:44:5: warning: format not a string literal and no format arguments [-Wformat-security]
+   44 |     printf(msg);
+      |     ^~~~~~
+```
+
+This error message tells us that the argument we are passing to the printf() function is not a string. Rather, we are directly passing a variable to the printf() function. It also brings our attention to the fact that there was no format specifiers included for the printf() to parse.
+
+It is important that format specifiers have matching arguments to prevent issues like buffer overflows, memory leaks, or even arbitrary code execution.
+
+To fix this warning and in turn the vulnerability, I would add a string literal with a format specifier that will parse the argument passed to the printf() function. The original code will be modified as below
+
+```c
+// This line has a format-string vulnerability
+//  printf(msg);
+// This line does not have a format-string vulnerability
+    printf("%s", msg);
+```
+
+After making the adjustment, the gcc compiler warning message disappers. All that's left is to relaunch the attacks to find out if they will fail or succeed.
+
+**image**
+
+**image**
+
+The attacks all fail.
+
+Thanks for reading.
