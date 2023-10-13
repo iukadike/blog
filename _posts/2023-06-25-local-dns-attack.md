@@ -19,7 +19,14 @@ DNS queries involve getting answers from authoritative NSs. DNS zones on the int
 
 `resolv.conf` file: this is where the resolver looks for the IP address of the local DNS server (local here means the first server to contact for name resolution). Entries are done automatically when a machine uses DHCP, and any previous entry is overwritten. When a local DNS server gets information from another DNS server, it caches the answer it gets back and attaches a TTL to each entry.
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: Local DNS Attack Lab</b></summary>
+<div markdown="1">
+
+- [Local DNS Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/DNS_Local/DNS_Local.pdf)
+
+___
+</div></details>
 
 ```
 router: 10.9.0.11
@@ -442,4 +449,4 @@ Here, after dumping the cache to a file and inspecting it, we can see that the n
 
 In conclusion, a DNS attack can only be effective when targeting the Answer Record or the Authority Record.
 
-_Thanks for reading_
+Thanks for reading...

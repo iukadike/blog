@@ -7,7 +7,14 @@ categories: [icmp]
 The Mitnick attack is also a TCP session hijacking attack, but it is not like your regular TCP session highjack.
 While the regular TCP session highjack involves highjacking a TCP session that already exists between two hosts i.e. `host A` and `host B`, the Mitnick attack is responsible for creating a TCP session between two hosts i.e. `host A` and `host B` and then highjacks the session.
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: Mitnick Attack Lab</b></summary>
+<div markdown="1">
+
+- [Mitnick Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Mitnick_Attack/Mitnick_Attack.pdf)
+
+___
+</div></details>
 
 ```
 Attacker: 10.9.0.1
@@ -308,6 +315,7 @@ The packet trace can be oberved in wireshark
 
 ![mitnick-wireshark](https://github.com/iukadike/blog/assets/58455326/e17cb35f-096b-4c9c-a89a-9ff0c1bd0e69)
 
+
 <br>
 
-_Thanks for reading._
+Thanks for reading...

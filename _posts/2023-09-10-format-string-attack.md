@@ -13,7 +13,16 @@ The basic idea behind a format string attack is that an attacker can include add
 
 Exploiting a format string vulnerability can lead to various consequences, such as leaking sensitive information, altering the program state, crashing the program, or even executing arbitrary code. The impact of the attack depends on the specific vulnerability and the attacker's objectives.
 
-In this post, I aim to document my findings and observations while performing a SEED lab.
+<details>
+<summary><b>SeedLabs: Format-String Vulnerability Lab</b></summary>
+<div markdown="1">
+
+- [Format-String Vulnerability Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Format_String/Format_String.pdf)
+
+___
+</div></details>
+
+<br>
 
 <details>
 <summary>Lab Notes</summary>
@@ -1103,5 +1112,8 @@ After making the adjustment, the gcc compiler warning message disappears. All th
 
 
 The attacks all fail.
+
+
+<br>
 
 Thanks for reading.

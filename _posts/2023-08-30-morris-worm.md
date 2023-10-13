@@ -13,7 +13,14 @@ Robert Tappan Morris created the Morris worm in 1988. He claimed that the worm w
 
 While the Morris worm is old, the techniques used by most worms today are still the same and involve two main parts: attack and self-duplication.
 
-In this post, I aim to document my findings and observations while performing a SEED lab.
+<details>
+<summary><b>SeedLabs: Morris Worm Attack Lab</b></summary>
+<div markdown="1">
+
+- [Morris Worm Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Morris_Worm/Morris_Worm.pdf)
+
+___
+</div></details>
 
 <details>
 <summary>Lab Notes</summary>
@@ -442,8 +449,9 @@ Hosts `10.150.0.Y` will be used as a control group. These hosts will be exempt f
 
 The hosts that did not flash in the video belong to the control group.
 
+<br>
 
-Thanks for reading.
+Thanks for reading...
 
 
 

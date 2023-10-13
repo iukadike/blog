@@ -11,7 +11,15 @@ Shellshock, discovered in 2014, is a vulnerability in the bash shell that allows
 
 Because shellshock can allow remote attackers to gain unauthorized access, execute arbitrary commands, and even take control of the affected machines, shellshock is quite a severe vulnerability.
 
-In this post, I aim to document my findings and observations while performing a SEED lab.
+<details>
+<summary><b>SeedLabs: Shellshock Attack Lab</b></summary>
+<div markdown="1">
+
+- [Shellshock Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Shellshock/Shellshock.pdf)
+
+___
+</div></details>
+
 
 <br>
 
@@ -225,5 +233,7 @@ This task involves creating a reverse shell for the vulnerable server. To accomp
 <br>
 
 In summary, Shellshock is a security vulnerability found in the Unix/Linux Bash shell that allows attackers to execute arbitrary commands on a targeted system. It was discovered in 2014 and affected millions of systems. The vulnerability arises from a flaw in the way Bash handles environment variables. To prevent Shellshock, it is crucial to keep your system and software updated with the latest security patches.
+
+<br>
 
 Thanks for reading.

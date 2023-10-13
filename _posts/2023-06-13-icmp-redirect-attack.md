@@ -17,7 +17,15 @@ host-B 192.168.60.6
 router 10.9.0.11, 192.168.60.11
 ```
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: ICMP Redirect Attack Lab</b></summary>
+<div markdown="1">
+
+- [ICMP Redirect Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/ICMP_Redirect/ICMP_Redirect.pdf)
+
+___
+</div></details>
+
 
 <br>
 
@@ -200,4 +208,4 @@ net.ipv4.conf.eth0.accept_redirects
 
 <br>
 
-_Thanks for reading_
+Thanks for reading...

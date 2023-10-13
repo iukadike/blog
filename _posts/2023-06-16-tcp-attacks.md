@@ -11,7 +11,14 @@ To understand TCP attacks, you have to, first of all, understand how TCP works. 
 - the client receives the `syn ack` and responds with `ack`
 - a TCP session is established
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: TCP Attacks Lab</b></summary>
+<div markdown="1">
+
+- [TCP Attacks Lab](https://seedsecuritylabs.org/Labs_20.04/Files/TCP_Attacks/TCP_Attacks.pdf)
+
+___
+</div></details>
 
 ```
 Attacker: 10.9.0.1
@@ -270,7 +277,8 @@ sniff(iface = 'br-fee11e059dc7', filter = 'tcp dst port 23 && (not ether host 02
 
 ![rvs-shl-s-wireshark](https://github.com/iukadike/blog/assets/58455326/aba40d81-c592-4743-a362-12f99ac1c055)
 
+
 <br>
 
-_Thanks for reading._
+Thanks for reading...
 

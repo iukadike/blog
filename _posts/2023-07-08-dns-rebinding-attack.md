@@ -57,6 +57,7 @@ A [practical example of DNS rebinding technique](https://seedsecuritylabs.org/La
 
 ![rebind-2](https://github.com/iukadike/blog/assets/58455326/16f6e7a5-aa84-405e-83cd-df9e3a8707a9)
 
+
 <br>
 
-_Thanks for reading_
+Thanks for reading...

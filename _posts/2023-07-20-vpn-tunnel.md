@@ -9,7 +9,14 @@ categories: [vpn, firewall]
 
 A VPN, or Virtual Private Network, is a private network that is available over the internet. The internet, as we all know, is a public place, but a VPN makes it possible to have these private networks through a concept known as tunneling. With VPN tunneling, an organization can make internal networks available to remote offices or staff over the internet. A VPN creates a secure connection as online activities are encrypted and internal IP addresses are masked. This makes it harder for hackers and bad actors to sniff private company data.
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: VPN Tunneling Lab</b></summary>
+<div markdown="1">
+
+- [VPN Tunneling Lab](https://seedsecuritylabs.org/Labs_20.04/Files/VPN_Tunnel/VPN_Tunnel.pdf)
+
+___
+</div></details>
 
 <br>
 
@@ -619,6 +626,7 @@ The whole process usually involves:
 When creating Virtual Private Networks, a tunnel will have to be encrypted; otherwise,  it defeats the whole purpose of the Virtual Private Network.
 </details>
 
+
 <br>
 
-_Thanks for reading_
+Thanks for reading...

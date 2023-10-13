@@ -26,7 +26,16 @@ DNS is what maps a friendly website name like `www.google.com` to a number that 
 
 <br>
 
-In this post, I aim to document my findings and observations while performing a SEED Lab. This lab involves setting up a DNS infrastructure by configuring various nameservers plus the root servers. The DNS server software used is `BIND`.
+<details>
+<summary><b>SeedLabs: DNS Infrastructure Lab</b></summary>
+<div markdown="1">
+
+- [DNS Infrastructure Lab](https://seedsecuritylabs.org/Labs_20.04/Files/DNS_Infrastructure/DNS_Infrastructure.pdf)
+
+___
+</div></details>
+
+This lab involves setting up a DNS infrastructure by configuring various nameservers plus the root servers. The DNS server software used is `BIND`.
 
 The following outlines how the DNS infrastructure is organized:
 - two root servers
@@ -339,7 +348,7 @@ Reverse DNS lookup helps us identify the domain name that is associated with an 
 
 If you are interested in adding security to the DNS setup, kindly checkout a [follow up post](../2023-06-30-dns-infrastructure.md) that builds upon this post.
 
-_Thanks for reading_
+Thanks for reading...
 
 
 

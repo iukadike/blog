@@ -11,7 +11,15 @@ Clickjacking is a type of web attack where an attacker tricks a user into unknow
 
 To protect against clickjacking attacks, web developers can implement measures such as using frame-busting scripts, employing X-Frame-Options headers in HTTP responses, or using Content Security Policy (CSP) to restrict the allowed sources of content.
 
-In this post, I aim to document my findings and observations while performing a SEED lab.
+<details>
+<summary><b>SeedLabs: Clickjacking Attack Lab (Cupcakes)</b></summary>
+<div markdown="1">
+
+- [Clickjacking Attack Lab (Cupcakes)](https://seedsecuritylabs.org/Labs_20.04/Files/Web_Clickjacking_Cupcakes/Web_Clickjacking_Cupcakes.pdf)
+
+___
+</div></details>
+
 
 <br>
 
@@ -233,5 +241,8 @@ When I navigated to `www.cjlab-attacker.com` after adding the CSP response heade
 In conclusion, clickjacking works by tricking victims into clicking on invisible buttons on a website while they actually intend to click on something else. The consequences of clickjacking can vary depending on the attacker's intentions, but they can be very serious. To prevent clickjacking attacks, website developers can take certain precautions, such as using the X-Frame-Options HTTP response header and the CSP "frame-ancestors" directive, to prevent their website from being embedded in frames on other domains.
 
 The [Open Web Application Security Project (OWASP) page on clickjacking](https://cheatsheetseries.owasp.org/cheatsheets/Clickjacking_Defense_Cheat_Sheet.html) explores various methods of clickjacking, defenses against those methods, and how effective the defenses are.
+
+
+<br>
 
 Thanks for reading.

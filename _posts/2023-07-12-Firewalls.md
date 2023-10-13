@@ -11,7 +11,14 @@ A firewall is a set of rules that decide what kind of internet traffic is allowe
 
 A firewall is usually placed between an internal network and an external network to protect devices on the internal network. A firewall can also be placed between two internal networks. A firewall can be implemented as a hardware device or as a software device.
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: Firewall Exploration Lab</b></summary>
+<div markdown="1">
+
+- [Firewall Exploration Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Firewall/Firewall.pdf)
+
+___
+</div></details>
 
 <br>
 
@@ -500,4 +507,4 @@ When doing configurations remotely, it is important to set the CHAIN policy last
 
 <br>
 
-_Thanks for reading_
+Thanks for reading...

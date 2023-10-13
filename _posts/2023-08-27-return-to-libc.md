@@ -9,7 +9,14 @@ A buffer overflow attack occurs when a program or process writes more data into 
 
 Return to libc is used to bypass stack protection mechanisms by using existing code fragments from the program's libc library. The libc library contains various functions that are commonly used by many programs, such as system calls like execve or system. By overriding the return address of a function with the address of these libc functions and providing suitable arguments on the stack, the attacker can redirect the program's execution to call these functions with their desired actions.
 
-In this post, I aim to document my findings and observations while performing a SEED lab.
+<details>
+<summary><b>SeedLabs: Return-to-libc Attack Lab</b></summary>
+<div markdown="1">
+
+- [Return-to-libc Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Return_to_Libc/Return_to_Libc.pdf)
+
+___
+</div></details>
 
 Lab constraints:
 - Address space randomization is turned off.

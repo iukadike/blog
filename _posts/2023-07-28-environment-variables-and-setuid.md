@@ -5,7 +5,14 @@ excerpt: Environment variables are variables that store information, such as con
 categories: [setuid, setgid]
 ---
 
-In this post, I aim to document my findings while performing a SEED lab.
+<details>
+<summary><b>SeedLabs: Environment Variable and Set-UID Lab</b></summary>
+<div markdown="1">
+
+- [Environment Variable and Set-UID Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Environment_Variable_and_SetUID/Environment_Variable_and_SetUID.pdf)
+
+___
+</div></details>
 
 
 ### Environment Variables
@@ -122,6 +129,7 @@ When these libraries are statically linked, the library code becomes part of the
 On the other hand, when these libraries are dynamically linked, a reference to the functions in the library is included in the executable at compile time and linked to the executable during runtime. The size of the executable is usually smaller. Since only a reference to the functions in the library is included in the executable, when a library is updated, the executable does not need to be recompiled as it will be linked to the updated library during runtime. A disadvantage, though, is that a malicious user can supply a malicious library that the executable will link to during execution.
 
 The LD_PRELOAD environment variable allows a user to specify an additional shared library that should be loaded before all other libraries. The effect of this is that it allows overriding function calls that are made by other libraries.
+
 
 <br>
 

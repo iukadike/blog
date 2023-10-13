@@ -6,9 +6,15 @@ categories: [scapy, wireshark, sniffing]
 
 In networking, a packet is the basic unit of data. Every data sent across the network is usually done as a packet. This means that if an adversary can gain access to a packet, such an adversary can launch sophisticated attacks.
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: Packet Sniffing and Spoofing Lab</b></summary>
+<div markdown="1">
 
-<br>
+- [Packet Sniffing and Spoofing Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Sniffing_Spoofing/Sniffing_Spoofing.pdf)
+
+___
+</div></details>
+
 
 ### Tools used in this lab
 - _Scapy: scapy is a very powerful tool written in Python for packet manipulation_
@@ -367,4 +373,4 @@ if __name__ == '__main__':
 
 <br>
 
-_Thanks for reading._
+Thanks for reading...

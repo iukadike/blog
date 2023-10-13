@@ -9,7 +9,14 @@ categories: [firewall, ssh]
 
 There are times when firewalls are implemented to the point that they cause inconvenience for users in a network. Sometimes firewalls can be incorporated to restrict free speech and censor information. Firewalls can be evaded in a couple of ways, but the typical way firewalls are evaded is by tunneling the traffic.
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: Firewall Evasion Lab</b></summary>
+<div markdown="1">
+
+- [Firewall Evasion Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Firewall_Evasion/Firewall_Evasion.pdf)
+
+___
+</div></details>
 
 <br>
 
@@ -441,6 +448,7 @@ I attempted to access the blocked websites, and they are accessible, meaning the
   </ul>
 </details>
 
+
 <br>
 
-_Thanks for reading_
+Thanks for reading...

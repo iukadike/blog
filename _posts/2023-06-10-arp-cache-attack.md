@@ -7,7 +7,15 @@ categories: [scapy, sniffing]
 When a computer wants to send data within a network (not across i.e. via a router), it usually makes use of the NIC MAC address to send such data.
 Every computer keeps a record of IP-to-MAC-address mapping. This is called the `ARP cache`. It is through the help of the ARP cache that the computer knows which NIC to send data meant for a particular IP address. A computer populates (stores an entry) its ARP cache when it receives an arp request.
 
-In this post, I aim to document my findings and observations while performing a SEED Lab.
+<details>
+<summary><b>SeedLabs: ARP Cache Poisoning Attack Lab</b></summary>
+<div markdown="1">
+
+- [ARP Cache Poisoning Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/ARP_Attack/ARP_Attack.pdf)
+
+___
+</div></details>
+
 
 #### Tools used in this lab
 - _Scapy: scapy is a very powerful tool written in python for packet manipulation_
@@ -352,4 +360,4 @@ if __name__ == '__main__':
 
 <br>
 
-_Thanks for reading._
+Thanks for reading...

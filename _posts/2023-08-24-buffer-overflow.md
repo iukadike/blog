@@ -7,7 +7,17 @@ categories: [assembly, shellcode]
 
 ![buffer overflow]({{ site.baseurl }}/images/featured-images/shellcode.jpg)
 
-In this post, I aim to document my findings and observations while performing a SEED lab.
+<details>
+<summary><b>SeedLabs: Buffer-Overflow Attack Lab (Set-UID Version)</b></summary>
+<div markdown="1">
+
+- [Buffer-Overflow Attack Lab (Set-UID Version)](https://seedsecuritylabs.org/Labs_20.04/Files/Buffer_Overflow_Setuid/Buffer_Overflow_Setuid.pdf)
+
+- [Shellcode Development Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Shellcode/Shellcode.pdf)
+
+___
+</div></details>
+
 
 ### Shellcode
 
