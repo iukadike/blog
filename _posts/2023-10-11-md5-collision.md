@@ -25,7 +25,7 @@ One-way hash functions are used in password storage, data verification, digital 
 <summary><b>SeedLabs: MD5 Collision Attack Lab</b></summary>
 <div markdown="1">
 
-[MD5 Collision Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Crypto_MD5_Collision/Crypto_MD5_Collision.pdf)
+- [MD5 Collision Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Files/Crypto_MD5_Collision/Crypto_MD5_Collision.pdf)
 
 ___
 </div></details>
@@ -156,7 +156,6 @@ From inside the array, I can divide the executable file into three parts:
 - a 128-byte region
 - a suffix. 
 
-
 the array starts from 12320 to 12519. since the array has to be a part of the prefix, I need to look for a number within the array that is a multiple of 64. I ended up with 12352.
 
 ```bash
@@ -172,15 +171,198 @@ $ md5collgen -p prefix -o out1.bin out2.bin
 the suffix will start from 12352 + 128 = 12480.
 
 ```bash
-$ tail -c +12480 md5col > suffix
+$ tail -c +12481 md5col > suffix
 ```
 
+finally, I added the suffix to out1.bin and out2.bin
+
+```bash
+$ cat suffix >> out1.bin
+$ cat suffix >> out2.bin
+```
+
+When I check the hash values of out1.bin and out2.bin, the values are the same. However, when I check out1.bin and out2.bin with the diff utility, the programs differ.
+
+**image**
 
 
+<br>
 
-We can run md5collgen on the prefix to generate two outputs that have the same MD5 hash value.
-Let us use P and Q to represent the second part (each having 128 bytes) of these outputs (i.e., the part after
-the prefix). Therefore, we have the following:
+###  Making the Two Programs Behave Differently
+
+This lab section deals with creating two independent programs that perform different functions but share the same hash value.
+
+If an attacker can get his malicious software to share the same hash as a benign software, a certificate that is valid for the benign software is also valid for the malicious program. Therefore, the attacker has successfully obtained a valid certificate for his malicious program. If other people trust the certificate issued by the authority, they will download the malicious program.
+
+One approach is to create two arrays X and Y and compare the contents of these two arrays; if they are the same, the benign code is executed; otherwise, the malicious code is executed.
+
+```c
+#include <stdio.h>
+
+unsigned char X[200] = {
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+};
+
+unsigned char Y[200] = {
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+};
+
+int compare()
+{
+    for(int i = 0; i < 200;i++){
+        if (X[i] == Y[i]){
+            continue;
+        } else{
+            return 1;
+        }
+    }
+    return 0;
+}
 
 
+int main()
+{
+    if (compare() == 0){
+        printf("Benign code executed..\n");
+    } else{
+        printf("Malicious code executed..\n");
+    }
+    printf("\n");
+}
+```
 
+The image below illustrates what the two versions of the program will look like.
+
+![image](https://github.com/iukadike/blog/assets/58455326/48e61674-d026-4082-9209-bb51a36e011c)
+
+Due to the complexity of this task, I broke it down into a number of sub-tasks.
+
+__1. Identifying the Prefix__
+
+After compiling the program and opening it in a hex editor, I was able to determine that the prefix is 12352. The first array starts from 12320 to 12519. since the array has to be a part of the prefix, I need to look for a number within the array that is a multiple of 64.
+
+**image**
+
+__2. Extracting the Prefix__
+
+Next is to extract the prefix using the head utility
+
+```bash
+$ head -c 12352 md5col2 > prefix
+```
+
+__3. Generating Collision Data using md5collgen__
+
+Next is to generate two different programs that will generate the same hash
+
+```bash
+$ md5collgen -p prefix -o out1 out2
+```
+
+__4. Extracting the 128 bytes Collision Data__
+
+When md5collgen is run, it generates 128 bytes of data that is added to the prefix. This 128 bytes of data is responsible for the collision. The next step is to extract these 128 bytes of data and save them for post-processing. These 128 bytes of data are at the end of the file and can be extracted using the tail utility.
+
+```bash
+$ tail -c 128 out1 > P
+$ tail -c 128 out2 > Q
+```
+
+__5. Make Two Copies of the Program__
+
+```bash
+$ cp md5col2 malicious_code
+$ cp md5col2 benign_code
+```
+
+__6. Edit the Benign Program__
+
+Because of the complexity of the program, the method of concatenation that was used in a previous task is not feasible. The binary will have to be edited in a hex editor. Another option though is to use the `dd` utility.
+
+As predetermined:
+- the first array starts at offset 12320; however, 12320 is not a multiple of 64, so I had to select 12352 which is a multiple of 64
+- the difference between 12352 and 12320 is 32
+- the second array starts at the offset 12544; however, since I am going to be comparing array X with array Y to determine the program flow of control, I need to ensure that where I will place the collision data in array X and array Y match
+- I had to move the offset of array X by 32 to make up for the block size; this means I also have to move array Y by 32
+- the sum of 12544 and 32 is 12576
+
+```bash
+$ dd if=P of=benign_code bs=1 count=128 seek=12352 conv=notrunc
+$ dd if=P of=benign_code bs=1 count=128 seek=12576 conv=notrunc
+```
+
+The above code simply means: copy 128 bytes of data from the file "P" 1 byte at a time into the file "good_code" from the offset (12352|12576) and do not truncate the output file.
+
+**image**
+
+__6. Edit the Malicious Program__
+
+As with the above, the determined data is the same:
+
+```bash
+$ dd if=Q of=malicious_code bs=1 count=128 seek=12352 conv=notrunc
+$ dd if=P of=malicious_code bs=1 count=128 seek=12576 conv=notrunc
+```
+
+**image**
+
+__7. Testing the Programs__
+
+All that is left is to test the programs to see if it works as expected.
+
+The first test is to see if benign_code and malicious_code produce the same hash value:
+
+```bash
+$ md5sum benign_code malicious_code
+```
+
+From the screenshot below, they indeed have the same hash value
+
+**image**
+
+The second test is to see if they execute differently: From the screenshot below, they indeed do execute differently
+
+**image**
+
+
+<br>
+
+Thanks for reading...
