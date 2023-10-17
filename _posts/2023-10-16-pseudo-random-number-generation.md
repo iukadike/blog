@@ -55,7 +55,7 @@ After compiling the code and running the program, I observed the following:
 ![task-1-a](https://github.com/iukadike/blog/assets/58455326/de7764ae-2f6a-4e65-868e-8a69e39ce20d)
 
 However, when I comment out `srand(time(NULL))`, I observed the following:
-- Each time I run the program, the same seed is used because I do not provide a seed via `srand()`. This becomes equivalent to using `srand(0)
+- Each time I run the program, the same seed is used because I do not provide a seed via `srand()`. This becomes equivalent to using `srand(0)`
 - Each time I run the program, the pseudo-random number that is generated is the same; it never changes.
 
 ![task-1-b](https://github.com/iukadike/blog/assets/58455326/0ec035a0-8789-469f-8364-4f6c6fb3bd1c)
@@ -71,7 +71,7 @@ After creating and running a number of additional tests, I can conclude that:
 
 ### Guessing the Key
 
-Task Background:
+__Task Background:__
 
 On April 17, 2018, Alice finished her tax return, and she saved the return (a PDF file) on her disk. To protect the file, she encrypted the PDF file using a key generated from the program in the previous task. She wrote down the key in a notebook, which is securely stored in a safe. A few months later, Bob broke into her computer and got a copy of the encrypted tax return. Since Alice is the CEO of a big company, this file is very valuable.
 
