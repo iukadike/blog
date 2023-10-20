@@ -387,8 +387,45 @@ $ openssl enc -aes-128-cbc -d -in 16bytes_encrypted.bin -out 16bytes_decrypted.t
 
 ### Error Propagation – Corrupted Cipher Text
 
-To understand the error propagation property of various encryption modes, we would like to do the following
-exercise:
+This task involves understanding the error propagation property of various encryption modes.
+
+- First, I create a text file that is at least 1000 bytes long.
+- Next, I encrypt the file using the AES-128 cipher with ECB, CBC, CFB, and OFB modes.
+
+```bash
+```
+
+- Next is to simulate the corruption of a single bit of the 55th byte in the encrypted file using a hex editor. Here, I use `dd` utility to overwrite the 55th byte of the encrypted file.
+
+```
+$ dd if=file_gen.py of=ecb_encrypted.bin bs=1 count=1 seek=54 conv=notrunc
+```
+
+- Finally, I decrypt the corrupted ciphertext file using the correct key and IV
+
+```bash
+```
+
+I can recover most information if the encryption mode is OFB and the least information if the encryption mode is CFB. The other two encryption modes, ECB and CBC are in the middle. 
+
+I also decided to run the test on a JPEG image. Below is the result.
+
+|     |     |
+|  ---------  |  ---------  |
+|  **image**  |  **image**  |
+|  ECB encryption mode  |  CBC encryption mode  |
+|  **image**  |  **image**  |
+|  ECB encryption mode  |  CBC encryption mode  |
+
+
+<br>
+
+### Initial Vector (IV) and Common Mistakes
+Most of the encryption modes require an initial vector (IV). Properties of an IV depend on the cryptographic
+scheme used. If we are not careful in selecting IVs, the data encrypted by us may not be secure at all, even
+though we are using a secure encryption algorithm and mode. The objective of this task is to help students
+understand the problems if an IV is not selected properly. The detailed guidelines for this task is provided
+in Chapter 21.5 of the SEED book
 
 
 
