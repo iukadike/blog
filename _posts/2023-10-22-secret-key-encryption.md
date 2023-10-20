@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Secret-Key Encryption
-excerpt: Encryption is the process of converting plain text or data into a coded form that is unreadable to unauthorized users. It is used to protect sensitive information during transmission or storage. There are two types of encryption: secret-key encryption, which uses the same key for encryption and decryption, and public-key encryption, which uses different keys for encryption and decryption.
+excerpt: Encryption is the process of converting plain text or data into a coded form that is unreadable to unauthorized users. It is used to protect sensitive information during transmission or storage. There are two types of encryption. Secret-key encryption, which uses the same key for encryption and decryption, and public-key encryption, which uses different keys for encryption and decryption.
 categories: [crypto, des, aes]
 ---
 
@@ -292,22 +292,127 @@ $ openssl enc -camellia-128-ctr -e -in plain.txt -out camellia-128-cipher.bin -K
 
 This task involves encrypting a picture "original.bmp" so people without the encryption keys cannot know what is in the picture.
 
-First, encrypt the file using the ECB (Electronic Code Book) and CBC (Cipher Block Chaining) modes:
+First, I encrypt the file using the ECB (Electronic Code Book) and CBC (Cipher Block Chaining) modes:
 
 ```bash
-openssl enc -aes-128-ecb -e -in pic_original.bmp -out pic_encrypted_ecb.bin -K  00112233445566778889aabbccddeeff
-openssl enc -aes-128-cbc -e -in pic_original.bmp -out pic_encrypted_cbc.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-ecb -e -in pic_original.bmp -out pic_encrypted_ecb.bin -K  00112233445566778889aabbccddeeff
+$ openssl enc -aes-128-cbc -e -in pic_original.bmp -out pic_encrypted_cbc.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
 ```
 
-Next, then do the following
-
-- We will attempt to view the encrypted picture using picture-viewing software. For the .bmp file, the first 54 bytes contain the header information about the picture, we have to set it correctly, so the encrypted file can be treated as a legitimate .bmp file.
-- To do this, we will replace the header of the encrypted picture with that of the original picture.
+Next, I will attempt to view the encrypted picture using picture-viewing software. For the .bmp file, the first 54 bytes contain the header information about the picture. I have to set it correctly so that the encrypted image can be treated as a legitimate .bmp file. To do this, I will replace the header of the encrypted picture with that of the original picture.
 
 ```bash
-$ head -c 54 pic_original.bmp > modified_ebc.bmp
-$ tail -c +55 pic_encrypted_ecb.bin >> modified_ebc.bmp
+$ head -c 54 pic_original.bmp > modified_ecb.bmp
+$ tail -c +55 pic_encrypted_ecb.bin >> modified_ecb.bmp
+$ head -c 54 pic_original.bmp > modified_cbc.bmp
+$ tail -c +55 pic_encrypted_cbc.bin >> modified_cbc.bmp
 ```
+
+|  Original Image  |  ECB Encrypted Image  |  CBC Encrypted Image  |
+|  --------------  |  -------------------  |  -------------------  |
+|  **image**       |  **image**            |  **image**            |
+
+
+From the results obtained above, it is observed that though the file was encrypted in the case of the ECB encrypted image, parts of the image can still be correctly interpreted by the image viewing software whereas, with the CBC encrypted image, no part of the image is correctly interpreted.
+
+Finally, I selected two pictures of my choice, a JPEG image, and a PNG image, and repeated the above experiment. I observed that the image-viewing software could not open the encrypted images. This happens as a result of how JPEG and PNG images are structured. Even though the image viewing software identifies them as images, it cannot correctly process them because the markers that it uses to interpret the file are missing (encrypted).
+
+
+<br>
+
+###  Padding
+
+For block ciphers, when the size of a plaintext is not a multiple of the block size, padding may be required. Block ciphers process fixed-size blocks of data during encryption, typically with block sizes of 64 or 128 bits. However, the original plaintext message may not be a multiple of the block size. In such situations, padding is added to the plaintext to make its size compatible with the block size.
+
+There are several padding schemes commonly used in block ciphers:
+
+- __PKCS#7 (Public Key Cryptography Standard #7)__: the value of the padding bytes is equal to the number of padding bytes. For example, if two bytes need to be padded, both bytes will have a value of 0x02.
+- __ANSI X9.23__: this padding scheme appends a single '1' bit to the plaintext, followed by '0' bits until the block size is reached.
+- __Zero padding__: this involves adding '0' bytes to the plaintext until the block size is reached.
+- __PKCS#5__: this padding scheme is widely used by many block ciphers and is similar to PKCS#7 except that it has only been defined for block ciphers that use a 64-bit (8-byte) block size.
+
+This task involves conducting experiments to understand how the PKCS#5 padding works:
+
+#### Use 128-bit AES with ECB, CBC, CFB, and OFB modes to encrypt a file
+
+```bash
+$ openssl enc -aes-128-ecb -e -in plain.txt -out ecb_encrypted.bin -K  00112233445566778889aabbccddeeff
+$ openssl enc -aes-128-cbc -e -in plain.txt -out cbc_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-cfb -e -in plain.txt -out cfb_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-ofb -e -in plain.txt -out ofb_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+```
+
+**image**
+
+From the results obtained above, ECB and CBC modes have paddings while CFB and OFB modes do not have paddings. The reason CFB and OFB modes do not need paddings is that they encrypt data in a stream-like fashion (they maintain a constant stream of output bits regardless of the input size). Because of the way they work, this eliminates the need for padding, as the encryption and decryption functions do not rely on the exact length of the data being processed.
+
+
+#### Create three files, which contain 5 bytes, 10 bytes, and 16 bytes, respectively, and encrypt them using CBC
+
+First I create the files
+
+```bash
+$ echo -n 12345 > file1.txt
+$ echo -n 1234567890 > file2.txt
+$ echo -n 1234567890ABCDEF > file3.txt
+```
+
+Next I encrypt those files using 128-bit AES with CBC mode
+
+```bash
+$ openssl enc -aes-128-cbc -e -in file1.txt -out 5bytes_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-cbc -e -in file2.txt -out 10bytes_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-cbc -e -in file3.txt -out 16bytes_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+```
+
+**image**
+
+From the results obtained above, the following is observed:
+- the 5-byte file when encrypted becomes 16 bytes. This means that 11 bytes of padding were added to make the data fit into the block size.
+- the 10-byte file when encrypted becomes 16 bytes. This means that 6 bytes of padding were added to make the data fit into the block size.
+- the 16-byte file when encrypted becomes 32 bytes. This means that an extra block of 16 bytes of padding was added.
+- from the above, I can say that irrespective of the size of the plaintext file, when encryption is done, padding is always added.
+
+To view padding data, we can decrypt the file and preserve the paddings in the decrypted file and open the file in a hex editor.
+
+```bash
+$ openssl enc -aes-128-cbc -d -in 5bytes_encrypted.bin -out 5bytes_decrypted.txt -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708 -nopad
+$ openssl enc -aes-128-cbc -d -in 10bytes_encrypted.bin -out 10bytes_decrypted.txt -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708 -nopad
+$ openssl enc -aes-128-cbc -d -in 16bytes_encrypted.bin -out 16bytes_decrypted.txt -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708 -nopad
+```
+
+**image**
+
+<br>
+
+### Error Propagation – Corrupted Cipher Text
+
+To understand the error propagation property of various encryption modes, we would like to do the following
+exercise:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
