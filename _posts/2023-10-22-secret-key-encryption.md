@@ -513,9 +513,83 @@ print(MSG_2)
 
 <br>
 
-####
+#### Common Mistake: Use a Predictable IV
+
+__myth__: If an IV is predictable, it does not really matter.
+
+__question__: We assume that Bob just sent out an encrypted message, and Eve knows that its content is either Yes or No; Eve can see the ciphertext and the IV used to encrypt the message. But since the encryption algorithm, AES is quite strong, Eve has no idea what the actual content is. However, since Bob uses predictable IVs,
+Eve knows exactly what IV Bob is going to use next. Bob does not mind encrypting any plaintext given by Eve; he does use a different IV for each
+plaintext, but unfortunately, the IVs he generates are not random, and they can always be predictable. Can we figure out whether the actual content of Bob’s secret message is Yes or No?
+
+__experiment__: The chosen-plaintext attack is an attack model for cryptanalysis where the attacker can obtain the ciphertext for an arbitrary plaintext. Bob encrypts messages with 128-bit AES with CBC mode.
+
+In order for the program to work correctly, I have to look at how the CBC mode works.
+- Because AES CBC mode uses a block size of 16 bytes, Bob's plaintext will padded with PKCS#5
+- Next, Bob's plaintext is XORed with the Initialization Vector (IV). Let's call this P1.
+- P1 then goes through the block encryption to produce the ciphertext.
+- However, Alice knows the next IV Bob would use. Let's call the next IV "K"
+- She can craft a special message and give Bob to send on her behalf. 
+- The message Alice crafts would be P1 XOR K.
+- When Bob sends this message, it is XORed with K.
+- It then becomes P1 XOR K XOR K. K cancels out K and it actually becomes P1.
+- P1 then goes through the block encryption to produce the ciphertext.
+- Alice compares the ciphertext of her message with that of Bob's. If it matches, then Alice knows Bob's plaintext
+
+**image**
+
+The above can be accomplished through the program below:
+
+```python
+#!/usr/bin/env python3
+
+# XOR three bytearrays
+def xor(first, second, third):
+   return bytearray(x^y^z for x,y,z in zip(first, second, third))
+
+msg     = "Yes"
+padding = 16 - len(msg) % 16
+init_iv = "5f196eeae80569eca374400c158566d7"
+next_iv = "51c8bf0ce90569eca374400c158566d7"
+
+# Convert the inputs to python byte arrays
+bob_msg  = bytearray(msg, 'utf-8')
+bob_iv   = bytearray.fromhex(init_iv)
+alice_iv = bytearray.fromhex(next_iv)
+
+# Add PKCS#5 padding to Bob's message
+bob_msg.extend([padding] * padding)
+
+# Prepare Alice's input
+alice_input = xor(bob_msg, bob_iv, alice_iv)
+
+print(f'Alice\'s plaintext = {alice_input.hex()}')
+```
+
+**image**
+
+Next, I supply the output of the program to the server.
+
+**image**
+
+From the output, I can confirm that Bob indeed sent the message "Yes". This is why using a predictable IV is bad.
 
 
+<br>
+
+###  Programming using the Crypto Library
+
+This task is mainly designed for students in Computer Science/Engineering or related fields, where programming is required. Students should check with their professors to see whether this task is required for
+their courses or not.
+In this task, you are given a plaintext and a ciphertext, and your job is to find the key that is used for the
+encryption. You do know the following facts:
+• The aes-128-cbc cipher is used for the encryption.
+• The key used to encrypt this plaintext is an English word shorter than 16 characters; the word can be
+found from a typical English dictionary. Since the word has less than 16 characters (i.e. 128 bits),
+pound signs (#: hexadecimal value is 0x23) are appended to the end of the word to form a key of
+128 bits.
+Your goal is to write a program to find out the encryption key. You can download a English word list
+from the Internet. We have also included one in the Labsetup.zip file. The plaintext, ciphertext, and IV
+are listed in the following:
 
 
 
@@ -559,5 +633,6 @@ Thanks for reading.
 - [Frequencies for a typical English plaintext](https://en.wikipedia.org/wiki/Frequency_analysis)
 - [Bigram frequency](https://en.wikipedia.org/wiki/Bigram)
 - [Trigram frequency](https://en.wikipedia.org/wiki/Trigram)
+- [Encryption - CBC Mode IV: Secret or Not?](https://defuse.ca/cbcmodeiv.htm)
 
 </div></details>
