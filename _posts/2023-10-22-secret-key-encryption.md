@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Secret-Key Encryption
-excerpt: Encryption is the process of converting plain text or data into a coded form that is unreadable to unauthorized users. It is used to protect sensitive information during transmission or storage. There are two types of encryption. Secret-key encryption, which uses the same key for encryption and decryption, and public-key encryption, which uses different keys for encryption and decryption.
+excerpt: Encryption is the process of converting plain text or data into a coded form that is unreadable to unauthorized users. It is used to protect sensitive information during transmission or storage. There are two types of encryption. Secret-key encryption: uses the same key for encryption and decryption, and public-key encryption: uses different keys for encryption and decryption.
 categories: [crypto, des, aes]
 ---
 
@@ -393,17 +393,28 @@ This task involves understanding the error propagation property of various encry
 - Next, I encrypt the file using the AES-128 cipher with ECB, CBC, CFB, and OFB modes.
 
 ```bash
+$ openssl enc -aes-128-ecb -e -in file.txt -out ecb_encrypted.bin -K  00112233445566778889aabbccddeeff
+$ openssl enc -aes-128-cbc -e -in file.txt -out cbc_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-cfb -e -in file.txt -out cfb_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-ofb -e -in file.txt -out ofb_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708 
 ```
 
 - Next is to simulate the corruption of a single bit of the 55th byte in the encrypted file using a hex editor. Here, I use `dd` utility to overwrite the 55th byte of the encrypted file.
 
 ```
 $ dd if=file_gen.py of=ecb_encrypted.bin bs=1 count=1 seek=54 conv=notrunc
+$ dd if=file_gen.py of=cbc_encrypted.bin bs=1 count=1 seek=54 conv=notrunc
+$ dd if=file_gen.py of=cfb_encrypted.bin bs=1 count=1 seek=54 conv=notrunc
+$ dd if=file_gen.py of=ofb_encrypted.bin bs=1 count=1 seek=54 conv=notrunc
 ```
 
 - Finally, I decrypt the corrupted ciphertext file using the correct key and IV
 
 ```bash
+$ openssl enc -aes-128-ecb -d -in ecb_encrypted.bin -out ecb_decrypted.txt -K  00112233445566778889aabbccddeeff
+$ openssl enc -aes-128-cbc -d -in cbc_encrypted.bin -out cbc_decrypted.txt -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-cfb -d -in cfb_encrypted.bin -out cfb_decrypted.txt -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-ofb -d -in ofb_encrypted.bin -out ofb_decrypted.txt -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708 
 ```
 
 I can recover most information if the encryption mode is OFB and the least information if the encryption mode is CFB. The other two encryption modes, ECB and CBC are in the middle. 
@@ -421,11 +432,91 @@ I also decided to run the test on a JPEG image. Below is the result.
 <br>
 
 ### Initial Vector (IV) and Common Mistakes
-Most of the encryption modes require an initial vector (IV). Properties of an IV depend on the cryptographic
-scheme used. If we are not careful in selecting IVs, the data encrypted by us may not be secure at all, even
-though we are using a secure encryption algorithm and mode. The objective of this task is to help students
-understand the problems if an IV is not selected properly. The detailed guidelines for this task is provided
-in Chapter 21.5 of the SEED book
+
+Most of the encryption modes require an IV and the properties of the IV depend on the cryptographic scheme used. If we are not careful in selecting IVs, the data encrypted by us may not be secure at all, even though we are using a secure encryption algorithm and mode.
+
+This task explores the problems that can occur if an IV is not selected properly.
+
+I will encrypt the same plaintext using two different IVs and using the same IV.
+
+```bash
+$ openssl enc -aes-128-cbc -e -in file.txt -out cbc_encrypted_1a.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-cbc -e -in file.txt -out cbc_encrypted_1b.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
+$ openssl enc -aes-128-cbc -e -in file.txt -out cbc_encrypted_2.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060700
+```
+
+When I compare the outputs, I discover that:
+- the same plaintext that I encrypted using the same IV produces the same ciphertext
+- the same plaintext that I encrypted using the same IV produces the same ciphertext
+
+**image**
+
+
+#### Common Mistake: Use the Same IV
+
+__myth__: If the plaintext does not repeat, using the same IV is safe.
+
+__question__: Looking at the OFB mode, assuming that the attacker gets hold of a plaintext (P1) and a ciphertext (C1), can he/she decrypt other encrypted messages if the IV is always the same?
+
+__experiment__: The known-plaintext attack is an attack model for cryptanalysis where the attacker has access to both the plaintext and its ciphertext. If this can lead to the revealing of further secret information, the encryption scheme is not considered secure.
+
+We have the following, information:
+- __Plaintext (P1)__ : This is a known message!
+- __Ciphertext (C1)__: a469b1c502c1cab966965e50425438e1bb1b5f9037a4c159
+- __Plaintext (P2)__ : (unknown to us)
+- __Ciphertext (C2)__: bf73bcd3509299d566c35b5d450337e1bb175f903fafc159
+
+The goal is to try to figure out the actual content of P2 based on C2, P1, and C1.
+
+We know for a fact that OFB mode works by using the IV, block cipher, and the encryption key to generate an output stream. It then XORs this output stream with the plaintext to produce the ciphertext. This means that if the IV is the same, the output stream will not change.
+
+So to exploit the known-plaintext attack, if the same IV is always used for different plain texts, we just need to reverse the XOR operation to get back the plaintext.
+
+```python
+#!/usr/bin/python3
+
+# XOR two bytearrays
+def xor(first, second):
+   return bytearray(x^y for x,y in zip(first, second))
+
+MSG_1       = "This is a known message!"
+MSG_2       = ""
+MSG_1_CRYPT = "a469b1c502c1cab966965e50425438e1bb1b5f9037a4c159"
+MSG_2_CRYPT = "bf73bcd3509299d566c35b5d450337e1bb175f903fafc159"
+
+# Convert ascii string to bytearray
+P1 = bytes(MSG_1, 'utf-8')
+
+# Convert hex string to bytearray
+C1 = bytearray.fromhex(MSG_1_CRYPT)
+C2 = bytearray.fromhex(MSG_2_CRYPT)
+
+# XOR P1 and C1 to get the output stream
+S = xor(P1, C1)
+
+# XOR K and C2 to get the plaintext
+P2 = xor(S, C2)
+
+# Convert the bytearray to ascii string
+MSG_2 = P2.decode('utf-8')
+
+# Print the decrypted ciphertext 
+print(MSG_2)
+```
+
+**image**
+
+- Because I have access to P1 and C1, and I know that P1 XOR output_stream = C1. Thus output_stream = P1 XOR C1.
+- Since the IV is repeated, the output_stream will be the same for all plaintexts encrypted.
+- To decrypt a new ciphertext, I do P2 = C2 XOR output_stream
+
+
+<br>
+
+####
+
+
+
 
 
 
