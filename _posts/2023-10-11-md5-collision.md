@@ -84,7 +84,7 @@ This lab section deals with trying to understand some of the properties of the M
 - the IHV for the first iteration is a fixed predetermined value
 - the IHV for the last iteration becomes the final hash value of the data.
 
-Based on the above, given two inputs M and N, if MD5(M) = MD5(N), then for any input T, MD5(M || T) = MD5(N || T), where || represents concatenation.
+Based on the above, given two inputs M and N, if `MD5(M) = MD5(N)`, then for any input T, `MD5(M || T) = MD5(N || T)`, where `||` represents concatenation.
 
 What this simply means is that if inputs M and N have the same hash, should I add the same suffix T to them, their outputs will have the same hash value. To demonstrate this, I will concatenate the `ls` binary to out1.bin and out2.bin respectively, and calculate the hash value of their outputs.
 
@@ -328,7 +328,7 @@ $ dd if=P of=benign_code bs=1 count=128 seek=12352 conv=notrunc
 $ dd if=P of=benign_code bs=1 count=128 seek=12576 conv=notrunc
 ```
 
-The above code simply means: copy 128 bytes of data from the file "P" 1 byte at a time into the file "good_code" from the offset (12352|12576) and do not truncate the output file.
+The above code simply means: copy 128 bytes of data from the file "P" 1 byte at a time into the file "good_code" from the offset 12352 and 12576 respectively; do not truncate the output file.
 
 ![task-4-b](https://github.com/iukadike/blog/assets/58455326/639773d0-5006-4813-b3b0-2226f289fcd0)
 
