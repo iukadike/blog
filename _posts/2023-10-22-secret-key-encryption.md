@@ -288,7 +288,7 @@ $ openssl enc -camellia-128-ctr -e -in plain.txt -out camellia-128-cipher.bin -K
 
 <br>
 
-### ECB Encryption Mode CBC Encryption Mode
+### ECB Encryption Mode vs CBC Encryption Mode
 
 This task involves encrypting a picture "original.bmp" so people without the encryption keys cannot know what is in the picture.
 
