@@ -308,6 +308,8 @@ $ head -c 54 pic_original.bmp > modified_cbc.bmp
 $ tail -c +55 pic_encrypted_cbc.bin >> modified_cbc.bmp
 ```
 
+<br>
+
 |  Original Image  |  ECB Encrypted Image  |  CBC Encrypted Image  |
 |  --------------  |  -------------------  |  -------------------  |
 |  ![pic_original](https://github.com/iukadike/blog/assets/58455326/0a5fd553-166a-4573-b502-fdaba7c4889d)    |  ![modified_ecb](https://github.com/iukadike/blog/assets/58455326/0f2f1866-0b3c-4b8d-9a8e-7db484ec6c14)        |  ![modified_cbc](https://github.com/iukadike/blog/assets/58455326/f4b44190-02d0-4289-9dce-f76b4f8f5db3)       |
@@ -426,7 +428,7 @@ I also decided to run the test on a JPEG image. Below is the result.
 |  ---------  |  ---------  |
 |  ![ecb_decrypted](https://github.com/iukadike/blog/assets/58455326/b3a965ae-bfb7-4f37-9b47-fd28c3ee576b) |  ![cbc_decrypted](https://github.com/iukadike/blog/assets/58455326/145285da-f17b-4e17-95f7-61f4089414bb)  |
 |  __ECB encryption mode__  |  __CBC encryption mode__  |
-|  ![task-5-cfb-mode](https://github.com/iukadike/blog/assets/58455326/c5b2de91-2664-4ce3-9004-a9a67adf70f6)  |  ![ofb_decrypted](https://github.com/iukadike/blog/assets/58455326/8f0372f0-1304-42d2-948b-d438ae4a9b6f)  |
+|  ![cfb_decrypted](https://github.com/iukadike/blog/assets/58455326/7cce7890-6d1c-41f8-8c0c-6ac257d7460e)  |  ![ofb_decrypted](https://github.com/iukadike/blog/assets/58455326/8f0372f0-1304-42d2-948b-d438ae4a9b6f)  |
 |  __CFB encryption mode__  |  __OFB encryption mode__  |
 
 
