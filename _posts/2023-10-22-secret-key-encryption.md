@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Secret-Key Encryption
-excerpt: Encryption is the process of converting plain text or data into a coded form that is unreadable to unauthorized users. It is used to protect sensitive information during transmission or storage. There are two types of encryption. Secret-key encryption: uses the same key for encryption and decryption, and public-key encryption: uses different keys for encryption and decryption.
+excerpt: Encryption is the process of converting plain text or data into a coded form that is unreadable to unauthorized users. It is used to protect sensitive information during transmission or storage. There are two types of encryption. Secret-key encryption - uses the same key for encryption and decryption, and public-key encryption - uses different keys for encryption and decryption.
 categories: [crypto, des, aes]
 ---
 
@@ -239,7 +239,7 @@ $ openssl enc -des-ede-ecb -e -in plain.txt -out des-ede-cipher.bin -K  00112233
 $ openssl enc -des-ede3-ecb -e -in plain.txt -out des-ede3-cipher.bin -K  00112233445566778889aabbccddeeff
 ```
 
-**image**
+![task-2-a](https://github.com/iukadike/blog/assets/58455326/766e568a-c41d-4599-bd63-6f2008ff5bd4)
 
 
 #### Encrypting a file using CBC mode
@@ -250,7 +250,7 @@ $ openssl enc -bf-cbc -e -in plain.txt -out bf-cipher.bin -K  001122334455667788
 $ openssl enc -camellia-128-cbc -e -in plain.txt -out camellia-cipher.bin -K  00112233445566778889aabbccddeeff -iv 0102030405060708
 ```
 
-**image**
+![task-2-b](https://github.com/iukadike/blog/assets/58455326/f470b2c2-dce6-44d7-b4ae-1bacab46155e)
 
 
 #### Encrypting a file using CFB mode
@@ -261,7 +261,7 @@ $ openssl enc -cast5-cfb -e -in plain.txt -out cast5-cipher.bin -K  001122334455
 $ openssl enc -seed-cfb -e -in plain.txt -out seed-cipher.bin -K  00112233445566778889aabbccddeeff -iv 0102030405060708
 ```
 
-**image**
+![task-2-c](https://github.com/iukadike/blog/assets/58455326/d2b54ca3-6b5c-4af8-ace1-405d706ce741)
 
 
 #### Encrypting a file using OFB mode
@@ -272,7 +272,7 @@ $ openssl enc -rc2-ofb -e -in plain.txt -out rc2-cipher.bin -K  0011223344556677
 $ openssl enc -sm4-ofb -e -in plain.txt -out sm4-cipher.bin -K  00112233445566778889aabbccddeeff -iv 0102030405060708
 ```
 
-**image**
+![task-2-d](https://github.com/iukadike/blog/assets/58455326/25fe7dd7-0290-4d06-80ed-9b21eeca3e44)
 
 
 #### Encrypting a file using CTR mode
@@ -283,7 +283,7 @@ $ openssl enc -aria-128-ctr -e -in plain.txt -out aria-128-cipher.bin -K  001122
 $ openssl enc -camellia-128-ctr -e -in plain.txt -out camellia-128-cipher.bin -K  00112233445566778889aabbccddeeff -iv 0102030405060708
 ```
 
-**image**
+![task-2-e](https://github.com/iukadike/blog/assets/58455326/de659abe-fb7c-4b6b-8704-0f02f897b0b9)
 
 
 <br>
@@ -310,7 +310,7 @@ $ tail -c +55 pic_encrypted_cbc.bin >> modified_cbc.bmp
 
 |  Original Image  |  ECB Encrypted Image  |  CBC Encrypted Image  |
 |  --------------  |  -------------------  |  -------------------  |
-|  **image**       |  **image**            |  **image**            |
+|  ![pic_original](https://github.com/iukadike/blog/assets/58455326/0a5fd553-166a-4573-b502-fdaba7c4889d)    |  ![modified_ecb](https://github.com/iukadike/blog/assets/58455326/0f2f1866-0b3c-4b8d-9a8e-7db484ec6c14)        |  ![modified_cbc](https://github.com/iukadike/blog/assets/58455326/f4b44190-02d0-4289-9dce-f76b4f8f5db3)       |
 
 
 From the results obtained above, it is observed that though the file was encrypted in the case of the ECB encrypted image, parts of the image can still be correctly interpreted by the image viewing software whereas, with the CBC encrypted image, no part of the image is correctly interpreted.
@@ -342,7 +342,7 @@ $ openssl enc -aes-128-cfb -e -in plain.txt -out cfb_encrypted.bin -K  001122334
 $ openssl enc -aes-128-ofb -e -in plain.txt -out ofb_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
 ```
 
-**image**
+![task-4-a](https://github.com/iukadike/blog/assets/58455326/f760767b-badb-4806-901e-da8a2982e4a1)
 
 From the results obtained above, ECB and CBC modes have paddings while CFB and OFB modes do not have paddings. The reason CFB and OFB modes do not need paddings is that they encrypt data in a stream-like fashion (they maintain a constant stream of output bits regardless of the input size). Because of the way they work, this eliminates the need for padding, as the encryption and decryption functions do not rely on the exact length of the data being processed.
 
@@ -365,7 +365,7 @@ $ openssl enc -aes-128-cbc -e -in file2.txt -out 10bytes_encrypted.bin -K  00112
 $ openssl enc -aes-128-cbc -e -in file3.txt -out 16bytes_encrypted.bin -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708
 ```
 
-**image**
+![task-4-b](https://github.com/iukadike/blog/assets/58455326/7592bf0d-ef91-4c08-bda1-c05d5c3b5b53)
 
 From the results obtained above, the following is observed:
 - the 5-byte file when encrypted becomes 16 bytes. This means that 11 bytes of padding were added to make the data fit into the block size.
@@ -381,7 +381,8 @@ $ openssl enc -aes-128-cbc -d -in 10bytes_encrypted.bin -out 10bytes_decrypted.t
 $ openssl enc -aes-128-cbc -d -in 16bytes_encrypted.bin -out 16bytes_decrypted.txt -K  00112233445566778889aabbccddeeff -iv 01020304050607080102030405060708 -nopad
 ```
 
-**image**
+![task-4-c](https://github.com/iukadike/blog/assets/58455326/bb7b15cf-62d6-4e84-b51b-4cf343d199c9)
+
 
 <br>
 
@@ -423,15 +424,15 @@ I also decided to run the test on a JPEG image. Below is the result.
 
 |     |     |
 |  ---------  |  ---------  |
-|  **image**  |  **image**  |
-|  ECB encryption mode  |  CBC encryption mode  |
-|  **image**  |  **image**  |
-|  ECB encryption mode  |  CBC encryption mode  |
+|  ![ecb_decrypted](https://github.com/iukadike/blog/assets/58455326/b3a965ae-bfb7-4f37-9b47-fd28c3ee576b) |  ![cbc_decrypted](https://github.com/iukadike/blog/assets/58455326/145285da-f17b-4e17-95f7-61f4089414bb)  |
+|  __ECB encryption mode__  |  __CBC encryption mode__  |
+|  ![task-5-cfb-mode](https://github.com/iukadike/blog/assets/58455326/c5b2de91-2664-4ce3-9004-a9a67adf70f6)  |  ![ofb_decrypted](https://github.com/iukadike/blog/assets/58455326/8f0372f0-1304-42d2-948b-d438ae4a9b6f)  |
+|  __CFB encryption mode__  |  __OFB encryption mode__  |
 
 
 <br>
 
-### Initial Vector (IV) and Common Mistakes
+### Initialization Vector (IV) and Common Mistakes
 
 Most of the encryption modes require an IV and the properties of the IV depend on the cryptographic scheme used. If we are not careful in selecting IVs, the data encrypted by us may not be secure at all, even though we are using a secure encryption algorithm and mode.
 
@@ -449,7 +450,7 @@ When I compare the outputs, I discover that:
 - the same plaintext that I encrypted using the same IV produces the same ciphertext
 - the same plaintext that I encrypted using the same IV produces the same ciphertext
 
-**image**
+![task-6-a](https://github.com/iukadike/blog/assets/58455326/422165e0-723a-4f7e-a6ae-0f9893dfb263)
 
 
 #### Common Mistake: Use the Same IV
@@ -504,14 +505,12 @@ MSG_2 = P2.decode('utf-8')
 print(MSG_2)
 ```
 
-**image**
+![task-6-b](https://github.com/iukadike/blog/assets/58455326/899a46ca-2956-446f-89af-549c89748453)
 
 - Because I have access to P1 and C1, and I know that P1 XOR output_stream = C1. Thus output_stream = P1 XOR C1.
 - Since the IV is repeated, the output_stream will be the same for all plaintexts encrypted.
 - To decrypt a new ciphertext, I do P2 = C2 XOR output_stream
 
-
-<br>
 
 #### Common Mistake: Use a Predictable IV
 
@@ -535,7 +534,7 @@ In order for the program to work correctly, I have to look at how the CBC mode w
 - P1 then goes through the block encryption to produce the ciphertext.
 - Alice compares the ciphertext of her message with that of Bob's. If it matches, then Alice knows Bob's plaintext
 
-**image**
+![task-6-c](https://github.com/iukadike/blog/assets/58455326/f70850af-522e-4206-9041-09311d3a7106)
 
 The above can be accomplished through the program below:
 
@@ -565,62 +564,31 @@ alice_input = xor(bob_msg, bob_iv, alice_iv)
 print(f'Alice\'s plaintext = {alice_input.hex()}')
 ```
 
-**image**
+![task-6-d](https://github.com/iukadike/blog/assets/58455326/bcd2b068-bf6b-401b-b162-6182914feb09)
 
 Next, I supply the output of the program to the server.
 
-**image**
+![task-6-e](https://github.com/iukadike/blog/assets/58455326/de8fe8b0-eb0a-4c28-871d-446d4807c61d)
 
 From the output, I can confirm that Bob indeed sent the message "Yes". This is why using a predictable IV is bad.
 
+
+<!-- Future Block
 
 <br>
 
 ###  Programming using the Crypto Library
 
-This task is mainly designed for students in Computer Science/Engineering or related fields, where programming is required. Students should check with their professors to see whether this task is required for
-their courses or not.
-In this task, you are given a plaintext and a ciphertext, and your job is to find the key that is used for the
-encryption. You do know the following facts:
-• The aes-128-cbc cipher is used for the encryption.
-• The key used to encrypt this plaintext is an English word shorter than 16 characters; the word can be
-found from a typical English dictionary. Since the word has less than 16 characters (i.e. 128 bits),
-pound signs (#: hexadecimal value is 0x23) are appended to the end of the word to form a key of
-128 bits.
-Your goal is to write a program to find out the encryption key. You can download a English word list
-from the Internet. We have also included one in the Labsetup.zip file. The plaintext, ciphertext, and IV
-are listed in the following:
+Given a plaintext and a ciphertext, this task involves finding the key that is used for the encryption.
 
+We do know the following facts:
+- The aes-128-cbc cipher is used for the encryption.
+- The key used to encrypt this plaintext is an English word shorter than 16 characters; the word can be found in a typical English dictionary.
+- Since the word has less than 16 characters (i.e. 128 bits), pound signs (#: hexadecimal value is 0x23) are appended to the end of the word to form a key of 128 bits.
 
+The goal of this lab is to write a program to find out the encryption key.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-->
 
 <br>
 
