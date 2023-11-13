@@ -16,17 +16,17 @@ While working as a cybersecurity professional, the following needs are bound to 
 One of the very first topics covered in MRCI is setting up a cybersecurity lab that would be used for the remaining modules.
 
 
-## Lab Setup: Screen Recording
+### Lab Setup: Screen Recording
 
 Recording my screen is essential because it will allow me to record and document cybersecurity exploits for reporting purposes. In this lab, I set up OBS Studio to record my entire screen and made sure the capture was done at a minimum resolution of 720p.
 
 
-## Lab Setup: Deploy a Virtual Machine
+### Lab Setup: Deploy a Virtual Machine
 
 A virtual lab begins with a virtual machine. Virtual machines are used to create isolated and virtualized environments for a variety of purposes, such as software testing, malware analysis, and cybersecurity training. VMs are simple to set up and can be spun up quickly once they have been initially configured. Some pre-built images can be used. In this lab, I installed Virtual Box and set up two virtual environments: a Kali Linux VM and a Windows 10 VM.
 
 
-## Lab Setup: GVM
+### Lab Setup: GVM
 
 Vulnerability scans are used to identify security risks in software and infrastructure. They can find misconfigured systems and recommend ways to mitigate or remove the risks. Vulnerability scans are performed using automated tools such as Nessus and OpenVAS (now GVM - Greenbone Vulnerability Management).
 
@@ -35,14 +35,14 @@ GVM is a widely used vulnerability scanning toolkit that helps cybersecurity pro
 In this lab, I installed Docker, pulled the GVM community edition Docker containers using the supplied docker-compose file, started the containers, and performed a scan on a Windows XP host. The scan identified several vulnerabilities, including a remote code execution vulnerability in the Windows XP operating system.
 
 
-## Lab Setup: Create a template for a professional document
+### Lab Setup: Create a template for a professional document
 
 Report writing is a critical skill for any cybersecurity professional. Reports must be accurate and comprehensive, yet simple enough for everyone involved to quickly grasp the situation. Cybersecurity professionals typically write malware analysis reports, digital forensics reports, penetration testing reports, "policies, procedures, and guides", "standards and baselines", etc.
 
 Report writing is a skill that improves with practice. In this lab, I am taking my first step towards writing a professional document by creating a template report.
 
 
-### Some problems I faced
+#### Some problems I faced
 
 When recording my screen, OBS uses CPU resources to encode the video. Often, I will have at least two VMs running while also using OBS to capture my screen. One issue was how to choose the best settings in OBS Studio to produce lag-free, high-quality screen recordings while using moderate CPU resources. After some trial and error, I was able to find a setting that worked well with my system specifications.
 
