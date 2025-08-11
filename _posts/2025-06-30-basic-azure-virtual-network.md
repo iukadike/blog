@@ -37,7 +37,6 @@ As terraform is a major component of the tasks I would work on, I needed to set 
 - Open Cloud Shell.
 - Select the command-line environment.
 - Determine the version of Terraform being used in Cloud Shell.
-
 ```bash
 terraform version
 ```
@@ -46,7 +45,7 @@ If the Terraform version installed in Cloud Shell isn't the latest, you will see
 
 From the screenshot below, the Terraform version that was running in my Cloud Shell was not the latest.
 
-<img width="635" height="105" alt="terraform-version" src="https://github.com/user-attachments/assets/61872ef5-7177-4107-adc3-8429c5bb40d0" /></br>
+<img width="635" height="105" alt="terraform-version" src="https://github.com/user-attachments/assets/61872ef5-7177-4107-adc3-8429c5bb40d0" /><br>
 
 I decided to update Terraform to the latest version before proceeding with the tasks ahead.
 
@@ -54,13 +53,13 @@ I decided to update Terraform to the latest version before proceeding with the t
 curl -O <terraform_download_url>
 ```
 
-<img width="738" height="170" alt="terraform-download" src="https://github.com/user-attachments/assets/2cc85bc8-affd-4957-9749-94dacca9e57a" /></br>
+<img width="738" height="170" alt="terraform-download" src="https://github.com/user-attachments/assets/2cc85bc8-affd-4957-9749-94dacca9e57a" /><br>
 
 ```bash
 unzip <zip_file_downloaded_in_previous_step>
 ```
 
-<img width="495" height="248" alt="unzip-downloaded-terraform" src="https://github.com/user-attachments/assets/85408b75-ba96-4474-a2a3-fb589688f1ee" /></br>
+<img width="495" height="248" alt="unzip-downloaded-terraform" src="https://github.com/user-attachments/assets/85408b75-ba96-4474-a2a3-fb589688f1ee" /><br>
 
 ```bash
 # Create the '~/.local/bin' folder if it does not exist
@@ -72,7 +71,7 @@ mv terraform ~/.local/bin
 # Close and restart Cloud Shell.
 ```
 
-<img width="349" height="211" alt="finalize-terraform-upgrade" src="https://github.com/user-attachments/assets/7549e81e-fc7e-4392-8c57-0af0c8c2ef02" /></br>
+<img width="349" height="211" alt="finalize-terraform-upgrade" src="https://github.com/user-attachments/assets/7549e81e-fc7e-4392-8c57-0af0c8c2ef02" /><br>
 
 Finally, I verified that the upgrade was successful, and I was now using the latest version of Terraform
 
@@ -81,7 +80,7 @@ Finally, I verified that the upgrade was successful, and I was now using the lat
 terraform version
 ```
 
-<img width="312" height="97" alt="verify-terraform-upgrade" src="https://github.com/user-attachments/assets/dd3bf461-a89b-42a1-b3ae-da4745ba3300" /></br>
+<img width="312" height="97" alt="verify-terraform-upgrade" src="https://github.com/user-attachments/assets/dd3bf461-a89b-42a1-b3ae-da4745ba3300" /><br>
 
 
 ### Using up Terraform
@@ -92,7 +91,7 @@ With the Terraform set up complete, the next steps were to write the code that T
 - __variables.tf__: This file is used to define input variables that the configuration needs,  making the configuration reusable and modular.
 - __dev.tfvars__: This file is used to define values for variables. It can be named anything, but the extension must be .tfvars.
 
-<img width="360" height="76" alt="basic-azure-vnet-tree" src="https://github.com/user-attachments/assets/56364fd3-e5f0-4f6a-838f-1decd3321c87" /></br>
+<img width="360" height="76" alt="basic-azure-vnet-tree" src="https://github.com/user-attachments/assets/56364fd3-e5f0-4f6a-838f-1decd3321c87" /><br>
 
 #### providers.tf
 
@@ -273,8 +272,7 @@ Once the file structure was created, the next step was to run a series of Terraf
 ```bash
 terraform init
 ```
-
-<img width="609" height="375" alt="terraform-init" src="https://github.com/user-attachments/assets/83bae2f9-37c0-460c-8210-a2b6f787f6a4" /></br>
+<img width="609" height="375" alt="terraform-init" src="https://github.com/user-attachments/assets/83bae2f9-37c0-460c-8210-a2b6f787f6a4" /><br>
 
 - Format the Terraform code for readability and consistency by automatically aligning and indenting the .tf files and applying standard Terraform style.
 ```bash
@@ -285,15 +283,13 @@ terraform fmt
 ```bash
 terraform validate
 ```
-
-<img width="316" height="82" alt="terraform-validate" src="https://github.com/user-attachments/assets/25e1cc0c-a3e4-43ac-a7e3-7604abc4fcf6" /></br>
+<img width="316" height="82" alt="terraform-validate" src="https://github.com/user-attachments/assets/25e1cc0c-a3e4-43ac-a7e3-7604abc4fcf6" /><br>
 
 - Generate an execution plan to show what Terraform will do when I apply the configuration: this reads variable values from .tfvars, calculates what changes need to be made to reach the desired state, and saves that plan to a file called main.tfplan.
 ```bash
 terraform plan -var-file="dev.tfvars" -out main.tfplan
 ```
-
-<img width="574" height="422" alt="terraform-plan" src="https://github.com/user-attachments/assets/9ae1aeed-ee39-4f68-9e66-bce96f35b9fa" /></br>
+<img width="574" height="422" alt="terraform-plan" src="https://github.com/user-attachments/assets/9ae1aeed-ee39-4f68-9e66-bce96f35b9fa" /><br>
 
 
 - Apply the changes defined in a saved plan file (in this case, main.tfplan): this reads the execution plan from the file and makes the actual infrastructure changes (create, update, delete resources), ensuring no drift.
@@ -303,15 +299,15 @@ terraform apply main.tfplan
 
 Once the terraform configuration applies successfully, you will be able to see the created resources in the cloud console.
 
-<img width="1120" height="388" alt="basic-azure-vnet-resources" src="https://github.com/user-attachments/assets/701c3835-714e-4efc-9f0d-13c9c5edbafd" /></br>
+<img width="1120" height="388" alt="basic-azure-vnet-resources" src="https://github.com/user-attachments/assets/701c3835-714e-4efc-9f0d-13c9c5edbafd" /><br>
 
 
 ### Validating Created Resources
 To verify that the resources I created using Terraform functioned as expected, I tried connecting via the Bastion host to the Linux VM I created.
 
-<img width="928" height="423" alt="bastion-host" src="https://github.com/user-attachments/assets/3231328b-17c6-47fa-b00f-5c563d0c3479" /></br>
+<img width="928" height="423" alt="bastion-host" src="https://github.com/user-attachments/assets/3231328b-17c6-47fa-b00f-5c563d0c3479" /><br>
 
-<img width="781" height="563" alt="bastion-connection" src="https://github.com/user-attachments/assets/bdf2c199-3521-4fd2-a5fc-c6e584391923" /></br>
+<img width="781" height="563" alt="bastion-connection" src="https://github.com/user-attachments/assets/bdf2c199-3521-4fd2-a5fc-c6e584391923" /><br>
 
 
 ### Takeaways and Lessons Learned
@@ -323,10 +319,8 @@ To verify that the resources I created using Terraform functioned as expected, I
 - Bation hosts are expensive to run, as when I ran the infrastructure for 7days (no ingress or egress), the bastion service made up for over 95% of the usage cost. This is because Azure Bastion is priced based on:
   - Hourly usage (even if idle)
   - Data transfer (egress)
-
-<img width="1258" height="736" alt="basic-azure-vnet-cost" src="https://github.com/user-attachments/assets/3c082026-3e9d-47df-8721-a19ea437e343" /></br>
-
-This means that for testing or short-lived projects, Azure Bastion might not be cost-effective unless you're actively using it. To minimize cost, turn off or destroy Bastion resources when not in use, especially in development or test environments.
+  <img width="1258" height="736" alt="basic-azure-vnet-cost" src="https://github.com/user-attachments/assets/3c082026-3e9d-47df-8721-a19ea437e343" /><br>
+  This means that for testing or short-lived projects, Azure Bastion might not be cost-effective unless you're actively using it. To minimize cost, turn off or destroy Bastion resources when not in use, especially in development or test environments.
 
 - When done with a test resource, the best option is to destroy everything created so as not to incur additional cost. In cloud environments, unused resources such as public IPs, Bastion hosts, premium disks, load balancers, VMs, app services, etc., continue to rack up costs even if idle. If provisioned using IaaC like Terraform, destroying all tracked resources becomes very easy.
 
