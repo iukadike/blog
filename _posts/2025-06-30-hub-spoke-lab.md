@@ -80,6 +80,7 @@ Below, I attempt to explain the modular design I opted for, which is a best prac
 The files at the root level form the root module and call the individual modules under the `modules/` directory. Whereas the `modules/` directory is where the modularization happens. Each subfolder under `modules/` represents a self-contained unit of functionality, which can be reused in other environments or projects.
 
 - __main.tf__: This is where I reference my modules and pass in input variables.
+
 ```hcl
 # Resource Group
 resource "azurerm_resource_group" "lab2_rg" {
@@ -139,6 +140,7 @@ module "peering" {
 ```
 
 - __providers.tf__: This is where I define the required provider.
+
 ```hcl
 terraform {
   required_providers {
@@ -157,6 +159,7 @@ provider "azurerm" {
 ```
 
 - __variables.tf__: This is where I declare input variables required by the root module.
+
 ```hcl
 variable "location" {
   type        = string
@@ -166,6 +169,7 @@ variable "location" {
 ```
 
 - __outputs.tf__: This file is used to expose outputs from the root module by pulling outputs from submodules.
+
 ```hcl
 output "hub_firewal_pip_addr" {
   value = module.network.hub_firewal_pip_addr
@@ -179,6 +183,7 @@ output "ssh_private_key" {
 
 
 ### modules/network/
+
 ```bash
 .
 ├── main.tf
@@ -191,6 +196,7 @@ output "ssh_private_key" {
 I aimed to put the infrastructure for virtual networks and subnets in this module
 
 - __main.tf__: This contained the VNet and subnet definitions.
+
 ```hcl
 # HUB Vnet
 resource "azurerm_virtual_network" "hub" {
@@ -280,12 +286,14 @@ resource "azurerm_network_interface" "nic_db" {
 ```
 
 - __variables.tf__: This contained inputs that the configurations in main.tf would reference.
+
 ```hcl
 variable "resource_group_name" {}
 variable "location" {}
 ```
 
 - __outputs.tf__: This contained outputs which other modules can consume or use in their configuration.
+
 ```hcl
 output "hub_vnet_id" {
   value = azurerm_virtual_network.hub.id
@@ -342,6 +350,7 @@ output "hub_firewal_pip_addr" {
 
 
 ### modules/compute/
+
 ```bash
 .
 ├── main.tf
@@ -354,6 +363,7 @@ output "hub_firewal_pip_addr" {
 I aimed to put the infrastructure for compute, such as VMs, scale sets, or app service deployments, in this module
 
 - __main.tf__: This contained the resource definitions for compute resources.
+
 ```hcl
 # SSH Key (auto-generated)
 resource "tls_private_key" "ssh" {
@@ -413,6 +423,7 @@ resource "azurerm_linux_virtual_machine" "vm_db" {
 ```
 
 - __variables.tf__: This contained inputs that the configurations in main.tf would reference.Inputs like VM size, image, and SSH keys.
+
 ```hcl
 variable "resource_group_name" {}
 variable "location" {}
@@ -421,6 +432,7 @@ variable "app_nic_id" {}
 ```
 
 - __outputs.tf__: This contained outputs that other modules can consume or use in their configuration.
+
 ```hcl
 output "ssh_private_key" {
   value     = tls_private_key.ssh.private_key_pem
@@ -430,6 +442,7 @@ output "ssh_private_key" {
 
 
 ### modules/security/
+
 ```bash
 .
 ├── main.tf
@@ -442,6 +455,7 @@ output "ssh_private_key" {
 I aimed to put the infrastructure that deals with Network Security Groups (NSGs) and firewall rules in this module.
 
 - __main.tf__: This contained NSG definitions and rules.
+
 ```hcl
 # Firewall for the hub
 resource "azurerm_firewall" "hub_firewall" {
@@ -483,6 +497,7 @@ resource "azurerm_subnet_network_security_group_association" "db" {
 ```
 
 - __variables.tf__: This contained inputs that the configurations in main.tf would reference.
+
 ```hcl
 variable "resource_group_name" {}
 variable "location" {}
@@ -493,7 +508,7 @@ variable "hub_firewal_pip_id" {}
 ```
 
 - __outputs.tf__: This contained outputs that other modules can consume or use in their configuration.
-NSG IDs or applied rule details.
+
 ```hcl
 # Output the Private IP of the Firewall
 output "firewall_private_ip" {
@@ -503,6 +518,7 @@ output "firewall_private_ip" {
 
 
 ### modules/peering/
+
 ```bash
 .
 ├── main.tf
@@ -514,6 +530,7 @@ output "firewall_private_ip" {
 I aimed to put the infrastructure that deals with setting up VNet peering between the hub network and spoke networks in this module.
 
 - __main.tf__: This contained the resource definitions for peering the NVets.
+
 ```hcl
 # VNET Peering
 resource "azurerm_virtual_network_peering" "spoke_app_to_hub" {
@@ -550,6 +567,7 @@ resource "azurerm_virtual_network_peering" "hub_to_spoke_db" {
 ```
 
 - __variables.tf__: This contained inputs that the configurations in main.tf would reference.
+
 ```hcl
 variable "resource_group_name" {}
 variable "location" {}
@@ -563,6 +581,7 @@ variable "spoke_db_vnet_id" {}
 
 
 ### modules/route/
+
 ```bash
 .
 ├── main.tf
@@ -574,6 +593,7 @@ variable "spoke_db_vnet_id" {}
 I aimed to put the infrastructure that deals with defining custom route tables and route associations in this module.
 
 - __main.tf__: This contained the resource definitions for creating route tables and defining routes.
+
 ```hcl
 # ROUTE TABLE FOR APP
 resource "azurerm_route_table" "rt_app" {
@@ -619,6 +639,7 @@ resource "azurerm_subnet_route_table_association" "db" {
 ```
 
 - __variables.tf__: This contained inputs that the configurations in main.tf would reference.
+
 ```hcl
 variable "resource_group_name" {}
 variable "location" {}
