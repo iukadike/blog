@@ -182,7 +182,7 @@ output "ssh_private_key" {
 ```
 
 
-### modules/network/
+#### modules/network/
 
 ```bash
 .
@@ -349,7 +349,7 @@ output "hub_firewal_pip_addr" {
 ```
 
 
-### modules/compute/
+#### modules/compute/
 
 ```bash
 .
@@ -441,7 +441,7 @@ output "ssh_private_key" {
 ```
 
 
-### modules/security/
+#### modules/security/
 
 ```bash
 .
@@ -517,7 +517,7 @@ output "firewall_private_ip" {
 ```
 
 
-### modules/peering/
+#### modules/peering/
 
 ```bash
 .
@@ -580,7 +580,7 @@ variable "spoke_db_vnet_id" {}
 ```
 
 
-### modules/route/
+#### modules/route/
 
 ```bash
 .
@@ -649,14 +649,36 @@ variable "firewall_private_ip" {}
 ```
 
 
-### Deploying the Resources
+### Deploying and Verifying the Deployed Resources
 After the terraform commands completed successfully, I verified that the expected resources were created in the cloud console.
 
+- Cloud console
 <img width="1013" height="578" alt="hub-spoke-console" src="https://github.com/user-attachments/assets/c0d58051-5fcd-49a2-8c12-0a59e4cc5880" /><br>
 
+- Hub Vnet (Firewall)
+<img width="1254" height="491" alt="vnet-hub-1" src="https://github.com/user-attachments/assets/fa49ac5c-9732-461c-b19b-6137657593f8" /><br>
+<img width="1280" height="304" alt="vnet-hub-2" src="https://github.com/user-attachments/assets/1381a992-9fd1-48c9-b673-61c35ea4d44f" /><br>
+
+- Spoke Vnet (App)
+<img width="1280" height="280" alt="vnet-spoke-app" src="https://github.com/user-attachments/assets/52cc9a53-9494-4c92-a607-a090f1df5fc8" /><br>
+
+- Spoke Vnet (Database)
+<img width="1264" height="306" alt="vnet-spoke-db" src="https://github.com/user-attachments/assets/86f52532-099c-4023-92e5-3e3db53402b5" /><br>
+
+- Route table for Vnet App (spoke 1)
+<img width="1201" height="503" alt="route-table-app" src="https://github.com/user-attachments/assets/cc44e32f-918c-4059-a3d1-60385de97b44" /><br>
+
+- Route table for Vnet Db (spoke 2)
+<img width="1141" height="473" alt="route-table-db" src="https://github.com/user-attachments/assets/59d6c102-bb26-4492-b689-c003d9f50bd6" /><br>
+
+- Azure Firewall (Hub)
+<img width="1280" height="434" alt="AzureFirewall" src="https://github.com/user-attachments/assets/883158ce-b94e-4208-8a6c-61413e51573d" /><br>
 
 
+### Testing the Network Connections
 
+Discovered that I didn't plan ahead for the remaining of the exercises i undertook. Could have edited the terraform configuration to incorporate them and rerun to modify the resources, but chose to proceed with cloud console as it was a test lab and would be destroyed relatively soon after creation. Hiwever in a professional setting, always edit the terraform code and rerun to modify/update resources rather than making such changes manually.
 
+#### Accessing the VMs
 
-
+Needed a way to access th vms.
