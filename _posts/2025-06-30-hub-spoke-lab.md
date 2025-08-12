@@ -4,15 +4,11 @@ title: Creating a Hub Network and Two Spoke VMs
 categories: [azure, cloud, hub, spoke]
 ---
 
-As I continue learning cloud architecture and security, I’ve been exploring common design patterns in Azure, one of which is the hub-and-spoke network topology. A hub-and-spoke topology in Azure connects multiple VNets (spokes) to a central VNet (hub). The hub often hosts shared services, and spokes can communicate with each other through the hub, making it easier to manage security and connectivity. 
+As I continue learning about cloud architecture and security, I’ve been exploring common design patterns in Azure, one of which is the hub-and-spoke network topology. This topology connects multiple VNets (spokes) to a central VNet (hub). The hub often hosts shared services, and spokes can communicate with each other through the hub, making it easier to manage security and connectivity. This model is widely used in enterprise environments to centralize services, like firewalls or DNS, in a hub network while keeping workloads isolated in separate spoke networks.
 
-This model is widely used in enterprise environments to centralize services (like firewalls or DNS) in a hub network, while keeping workloads isolated in separate spoke networks.
+While working on my most recent cloud lab, I practiced Infrastructure as Code (IaC) using Terraform. To take it a step further, I decided to practice modularization while building this lab.
 
-While working on my most recent cloud lab, I made use of Infrastructure as Code (IaC) practice using Terraform. To take it a notch higher, I decided to practice modularization while working on this lab.
-
-In this post, I’ll walk through the steps I took to create a hub network and connect two spoke VNets, each with its virtual machine.
-
-The project helped me understand how Azure VNet peering works, how to control traffic between VNets, and how to structure networks for scalability and security. At the end of the post, I highlight a few key takeaways and share some lessons learned along the way.
+In this post, I'll walk through the steps I took to create a hub network and connect two spoke VNets, each with its virtual machine. This project helped me understand how Azure VNet peering works, how to control traffic between VNets, and how to structure networks for scalability and security. At the end of the post, I'll highlight a few key takeaways and share some lessons learned along the way.
 
 My objective for undergoing this mini-project was to:
 - Create a hub network
@@ -32,7 +28,7 @@ To accomplish the objective, I broke it down to the following actionable steps:
 - Deploy VMs in spoke VNets to simulate app & DB tiers
 
 
-This lab project would have a centralized service like a firewall to enforce a uniform security policy and reduce duplication of effort. All traffic from either spoke network would be routed through the firewall (hub network). To achieve this, I made use of custom route tables to force all egress through the Azure Firewall. This helps organizations implement inspection, logging, and access control at a single point.
+This lab project uses a centralized service, the Azure Firewall, to enforce a uniform security policy and reduce duplicated effort. All traffic from either spoke network is routed through the firewall in the hub network. To achieve this, I used custom route tables to force all egress traffic through the Azure Firewall. This design helps organizations implement inspection, logging, and access control at a single point.
 
 
 ### Modular Design
@@ -677,8 +673,47 @@ After the terraform commands completed successfully, I verified that the expecte
 
 ### Testing the Network Connections
 
-Discovered that I didn't plan ahead for the remaining of the exercises i undertook. Could have edited the terraform configuration to incorporate them and rerun to modify the resources, but chose to proceed with cloud console as it was a test lab and would be destroyed relatively soon after creation. Hiwever in a professional setting, always edit the terraform code and rerun to modify/update resources rather than making such changes manually.
+With the resources successfully created, it was time to test the connection. That's when I realized I hadn't planned ahead for the remaining exercises. I would need to connect to the VMs, but at the moment, I had no way of doing so. I could have edited the Terraform configuration to incorporate a connection method and rerun it to modify the resources. However, I chose to proceed with the cloud console since it was a test lab that would be destroyed relatively soon after creation. In a professional setting, the best practice is always to edit the Terraform code and rerun it to modify or update resources, rather than making manual changes. Therefore, from this point, the remaining changes to my lab project were made via the cloud console.
 
 #### Accessing the VMs
 
-Needed a way to access th vms.
+To connect to the VMs, I initially explored using an Azure Bastion host. However, I ultimately chose not to use it and instead configured the firewall to act as a jump host. I did this by using the DNAT functionality of the firewall, configuring it to forward traffic from port 2222 and port 2223, respectively, on the firewall to port 22 on the VMs. It's important to note that using a jump host is generally not the recommended best practice for secure VM access, especially in a production environment, when dedicated services like Azure Bastion are available.
+
+<img width="1249" height="284" alt="firewall-rule-1" src="https://github.com/user-attachments/assets/62f8f9c1-d9b6-4ab3-a9e9-9cd2f950156a" /><br>
+<img width="1259" height="227" alt="firewall-rule-2" src="https://github.com/user-attachments/assets/7e2a17bd-b340-4d4f-9bd8-9a25c71b640c" /><br>
+
+#### Pinging Either Spoke VM from the other
+
+After gaining access to the VMs, I sent a ping to one of the spoke VMs from the other, but the attempt failed. I then realized that I also needed to create a rule on the firewall to allow traffic to flow from one spoke network to the other.
+
+<img width="1280" height="291" alt="firewall-rule-4" src="https://github.com/user-attachments/assets/c327e97c-4b4a-44b9-9f2f-23e7b4922ba2" /><br>
+<img width="1250" height="259" alt="firewall-rule-3" src="https://github.com/user-attachments/assets/e8d26c2e-d95c-4ae4-8d96-e7c4795eb475" /><br>
+
+However, even with the firewall rule created, I still couldn't ping one of the spoke VMs from the other. After some investigation, I discovered I needed to enable `allow_forwarded_traffic` on the virtual network peering. This setting essentially allows traffic from a peered network to be routed to a gateway or network virtual appliance (NVA), like the firewall, in the local virtual network.
+
+This issue can be fixed by including the following line in the Terraform code for peering:
+```hcl
+allow_forwarded_traffic   = true
+```
+
+The allow_forwarded_traffic setting allows the spoke networks to forward traffic destined for other spoke networks to the hub's firewall. Without this setting, the traffic would be dropped at the peering connection because it would be seen as an attempt to access a non-local resource. Furthermore, even if the traffic successfully reaches the firewall, it will be blocked by default unless you explicitly create a network rule within the firewall policy to permit the specific source, destination, and ports required for spoke-to-spoke communication.
+
+<img width="406" height="399" alt="pairing-configuration" src="https://github.com/user-attachments/assets/1c52e10a-a6f2-4619-b324-162dc85c096a" /><br>
+
+After enabling forwarded traffic and with the firewall rule in place, the Spoke-Spoke ping works as expected.
+
+<img width="679" height="244" alt="connection-status-1" src="https://github.com/user-attachments/assets/ca90d8fe-0c24-4bfe-a411-43841791ca34" /><br>
+
+#### Testing Access to the Public Internet
+
+With the spoke-spoke connection working, next was to test if the VMs could reach the public internet; not that they need to, but if I have a usecase that needs them to, how would I go about accomplishing it.
+
+Well, it was no surprise that connecting to the public internet faioled. The connection failed with error code 470 meaning that azure firewall is blocking the connection
+
+
+In order to access the internet from vm-app, I needed to create another rule on the firewall that allows traffic from vm-app to all(*). While i could have modified the initial rule I created to allow spoke-to-spoke connection, for better manageability and visibility,  say i do not want to allow aspoke-internet ccess anymore, i just delete that rule, but retain access to spoke-spoke network.
+
+
+
+
+
