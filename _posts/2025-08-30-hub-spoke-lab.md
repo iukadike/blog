@@ -741,10 +741,12 @@ After creating this new firewall rule, the spoke-to-internet connection worked a
   - Adding or changing providers or modules
   - After deleting the `.terraform/` directory
 
+
 - Modularizing the Terraform code made maintenance easier, even though it was a bit complex at first. Once I exposed the necessary variables in one module, I could reuse them in another. Some of the payoffs include:
   - Cleaner, reusable code
   - Better separation of concerns
   - Easier updates through exposed variables or outputs
+
 
 - Perhaps the most surprising lesson was the cost of running an Azure Firewall. It accounted for over 96% of the total cost of my lab, even with no active traffic. Azure Firewall is a PaaS (Platform as a Service), with a significant base hourly cost that is charged regardless of usage. Unlike a VM, you can't just "stop" it; you have to delete it to stop incurring costs. For learning and testing environments, a cheaper alternative like a Linux VM with IP forwarding enabled would be more cost-effective. If you do use the Azure Firewall for a lab, it is best to destroy it immediately after use, or automate its teardown with `terraform destroy`.
 
