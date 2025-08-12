@@ -21,8 +21,8 @@ To accomplish the objective, I broke it down to the following actionable steps:
 - Create Resource Group rg-hubspoke
 - Hub VNet vnet-hub with subnet for Firewall and VPN Gateway
 - Spoke VNets: vnet-spoke-app and vnet-spoke-db with separate subnets
-- Deploy Azure Firewall in hub subnet
-- Peer spoke VNets with hub VNet (VNet peering)
+- Deploy Azure Firewall in the hub subnet
+- Peer spoke with VNets with hub VNet (VNet peering)
 - Create routing tables to route spoke traffic through the Firewall
 - Configure NSGs on spoke subnets
 - Deploy VMs in spoke VNets to simulate app & DB tiers
@@ -62,7 +62,7 @@ This lab project uses a centralized service, the Azure Firewall, to enforce a un
 7 directories, 17 files
 ```
 
-Below, I attempt to explain the modular design I opted for, which is a best practice for managing large or reusable infrastructure code.
+Below, I will explain the modular design I opted for, which is a best practice for managing large or reusable infrastructure code.
 
 #### Root Directory Files (Top-Level)
 ```bash
@@ -706,14 +706,51 @@ After enabling forwarded traffic and with the firewall rule in place, the Spoke-
 
 #### Testing Access to the Public Internet
 
-With the spoke-spoke connection working, next was to test if the VMs could reach the public internet; not that they need to, but if I have a usecase that needs them to, how would I go about accomplishing it.
+With the spoke-to-spoke connection working, the next step was to test if the VMs could reach the public internet. While they didn't require internet access for this lab, I wanted to understand how to enable it for a potential future use case.
 
-Well, it was no surprise that connecting to the public internet faioled. The connection failed with error code 470 meaning that azure firewall is blocking the connection
+As expected, the connection to the public internet failed with error code 470, indicating that the Azure Firewall was blocking the traffic.
+
+<img width="384" height="139" alt="connection-status-2" src="https://github.com/user-attachments/assets/c324db78-f464-4872-91cc-bfb51b7ab82b" /><br>
+
+To enable internet access from the `vm-app`, I needed to create a new rule on the firewall to allow traffic from the `vm-app` to specified destinations. While I could have modified the initial rule for spoke-to-spoke communication, creating a separate rule offers better manageability and visibility. For example, if I wanted to revoke internet access for the spoke networks later, I could simply delete that specific rule while retaining the spoke-to-spoke connectivity.
+
+<img width="1280" height="268" alt="firewall-rule-5" src="https://github.com/user-attachments/assets/334ab16c-db62-4469-a83a-528c40af857a" /><br>
+<img width="1280" height="268" alt="firewall-rule-6" src="https://github.com/user-attachments/assets/d4270203-144b-482d-8119-bf3a81aa3a4c" /><br>
+
+After creating this new firewall rule, the spoke-to-internet connection worked as expected.
+
+<img width="957" height="229" alt="connection-status-3" src="https://github.com/user-attachments/assets/0da22e18-94bc-4e48-a1bd-b936dcc49f13" /><br>
 
 
-In order to access the internet from vm-app, I needed to create another rule on the firewall that allows traffic from vm-app to all(*). While i could have modified the initial rule I created to allow spoke-to-spoke connection, for better manageability and visibility,  say i do not want to allow aspoke-internet ccess anymore, i just delete that rule, but retain access to spoke-spoke network.
+### Takeaways and Lessons Learned
+
+- Instead of generating the SSH key pair on my local machine, I used Terraform to generate it using the tls_private_key data resource. This approach helped me understand how Terraform outputs work. The key pair is generated at runtime, and you can retrieve both the public and private keys using `terraform output <output_name>`. For example, I used `terraform output ssh_private_key` to get the private key.
+  - To prevent accidental exposure, make sure `sensitive = true` is set in your outputs.tf configuration.
+  - Never expose private keys in plaintext in shared environments or CI/CD pipelines
+
+- I learned that Azure VNet peering is not implicitly bidirectional. To allow traffic to flow both ways, you must configure the peering from both VNets.
+
+- I created a Network Security Group (NSG) and attached it to the spoke subnets, but I didn’t define any rules. As a result, all traffic was blocked, leading me to discover that an NSG attached to a subnet will block all traffic by default if no rules are defined. This is because NSGs operate on an "implicit deny" principle. If you don't explicitly create rules to allow inbound or outbound traffic, everything is blocked.
+
+- To ensure all traffic from my VMs was inspected, I specified the Azure Firewall as the next hop in the custom route tables (UDRs). This forces all egress traffic to pass through the firewall, enabling centralized inspection and logging. It's important to remember that these route tables are attached to the subnet, not the individual VMs.
+
+- I initially forgot to enable forwarded traffic on the VNet peering connections, which caused communication between spokes via the hub to fail, even though I had configured firewall rules to allow it, leading to another key discovery - the need to enable "allow forwarded traffic" on the peered connection to allow spokes to communicate with each other via the hub. Without this setting, the connection fails, even with a firewall rule in place.
+
+- I initially thought I had to run `terraform init` every time I made a code change, but this is a common beginner misconception. For most changes to variables or resource properties, `terraform plan` and `terraform apply` are sufficient. I only needed to run terraform init when:
+  - Setting up a working directory for the first time
+  - Adding or changing providers or modules
+  - After deleting the `.terraform/` directory
+
+- Modularizing the Terraform code made maintenance easier, even though it was a bit complex at first. Once I exposed the necessary variables in one module, I could reuse them in another. Some of the payoffs include:
+  - Cleaner, reusable code
+  - Better separation of concerns
+  - Easier updates through exposed variables or outputs
+
+- Perhaps the most surprising lesson was the cost of running an Azure Firewall. It accounted for over 96% of the total cost of my lab, even with no active traffic. Azure Firewall is a PaaS (Platform as a Service), with a significant base hourly cost that is charged regardless of usage. Unlike a VM, you can't just "stop" it; you have to delete it to stop incurring costs. For learning and testing environments, a cheaper alternative like a Linux VM with IP forwarding enabled would be more cost-effective. If you do use the Azure Firewall for a lab, it is best to destroy it immediately after use, or automate its teardown with `terraform destroy`.
+
+<img width="1180" height="561" alt="cost-analysis-1" src="https://github.com/user-attachments/assets/927460f2-d582-4442-a3ad-ff59066a0e27" /><br>
 
 
+<br>
 
-
-
+Thanks for reading...
