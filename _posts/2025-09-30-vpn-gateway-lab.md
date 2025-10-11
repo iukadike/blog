@@ -18,9 +18,13 @@ My objective for undergoing this mini-project was to:
 - Monitor VPN tunnel health
 
 To accomplish the objective, I broke it down to the following actionable steps:
-- Create a vnet simulating the cloud environment (HubVnet)
-- Create a vnet simulating the on-premise environment (OnPrem)
-- add others...
+- Create a vnet simulating the cloud environment (Hub Vnet)
+- Create a vnet simulating the on-premise environment (Onprem Vnet)
+- Create a network security group for the Hub Vnet
+- Create a network security group for the Onprem Vnet
+- Create a VPN gateway for both network environments
+- Create a storage account for monitoring and logging
+- Configure the VPN Connection with a generated shared key
 
 
 ### Modular Design
@@ -363,8 +367,8 @@ variable "hub_subnet_id" {}
 variable "onprem_subnet_id" {}
 ```
 
+---
 
-~~dsdsdsds~~
 #### modules/gateways/
 
 ```bash
@@ -475,7 +479,8 @@ variable "onprem_pip" {}
 variable "onpremgw_subnet_id" {}
 ```
 
-~~de~~
+---
+
 #### modules/hub/
 
 ```bash
@@ -554,8 +559,7 @@ variable "hub_gateway_subnet_prefix" {}
 variable "rg_name" {}
 ```
 
-
-~~del~~
+---
 
 #### modules/onprem/
 
@@ -636,8 +640,7 @@ variable "onprem_gateway_subnet_prefix" {}
 variable "rg_name" {}
 ```
 
-
-~~de~~
+---
 
 #### modules/monitoring/
 
@@ -693,8 +696,7 @@ variable "rg_name" {}
 variable "hub_vnet_gw_id" {}
 ```
 
-
-~~dele~~
+---
 
 #### modules/security/
 
@@ -773,8 +775,7 @@ variable "hub_subnet_id" {}
 variable "onprem_subnet_id" {}
 ```
 
-
-~~dele~~
+---
 
 #### modules/vpn/
 
@@ -834,3 +835,38 @@ variable "onprem_lnet_gw_id" {}
 
 ### Deploying and Verifying the Deployed Resources
 After the Terraform commands completed successfully, I verified that the expected resources were created in the cloud console.
+
+- Cloud console
+<img width="1280" height="960" alt="1-azure-console" src="https://github.com/user-attachments/assets/929e3623-cb9f-4423-a929-86fda002e7ca" />
+
+- Hub Vnet (Cloud Infrastructure)
+<img width="1280" height="960" alt="2-hub-vnet" src="https://github.com/user-attachments/assets/8e431033-a93d-4a46-b86a-11d9d6a95c67" />
+
+- Onprem Vnet (On-premise Infrastructure)
+<img width="1280" height="960" alt="3-onprem-vnet" src="https://github.com/user-attachments/assets/2eb31300-9598-4398-8e7c-e2c2d6b2bdee" />
+
+- Network Security Group for the Hub Vnet
+<img width="1280" height="960" alt="4-hub-nsg" src="https://github.com/user-attachments/assets/efce97e6-9629-4c59-857d-7ebc6157f7c4" />
+
+- Network Security Group for the Onprem Vnet
+<img width="1280" height="960" alt="5-onprem-nsg" src="https://github.com/user-attachments/assets/4116a10f-d49b-4d17-8513-780aadf178b5" />
+
+- Local Gateway on the Hub Vnet
+<img width="1280" height="960" alt="6-hub-localgw" src="https://github.com/user-attachments/assets/0e013463-ab2b-4e78-8c37-17eaa632e778" />
+
+- Local Gateway on the Onprem Vnet
+<img width="1280" height="960" alt="7-onprem-localgw" src="https://github.com/user-attachments/assets/250cfcbf-5843-46bb-bb1a-8dd6e74a9f7e" />
+
+- VPN Gateway on the Hub Vnet
+<img width="1280" height="960" alt="8-hub-vpngw" src="https://github.com/user-attachments/assets/442ee59f-8ca2-40bf-9b22-08b4660fa751" />
+
+- VPN Gateway on the Onprem Vnet
+<img width="1280" height="960" alt="9-onprem-vpngw" src="https://github.com/user-attachments/assets/2ffaf2e3-2986-497c-9dfc-907015565722" />
+
+- Storage Account for Logging and Monitoring
+<img width="1280" height="960" alt="10-storage-account" src="https://github.com/user-attachments/assets/6743de1d-2c4d-4674-99d9-3a6f37a77522" />
+
+
+
+
+
